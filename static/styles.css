@@ -30,6 +30,10 @@ body {
   overflow: hidden;
 }
 
+/* ═════════════════════════════════════════════════════════
+   🌑 ATMOSPHERIC OVERLAYS - Spooky depth layers
+   ════════════════════════════════════════════════════════ */
+
 body::before,
 body::after {
   content: "";
@@ -52,6 +56,187 @@ body::after {
     transparent 45%,
     rgba(7, 5, 10, 0.78) 95%
   );
+}
+
+/* Additional spooky atmosphere layers */
+.spooky-vignette {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 30%,
+    rgba(0, 0, 0, 0.4) 70%,
+    rgba(15, 12, 21, 0.85) 100%
+  );
+  pointer-events: none;
+  z-index: 10;
+  mix-blend-mode: multiply;
+}
+
+.spooky-noise {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 11;
+  mix-blend-mode: overlay;
+}
+
+@keyframes flicker {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+  75% {
+    opacity: 0.92;
+  }
+  25% {
+    opacity: 0.78;
+  }
+}
+
+@keyframes random-flicker {
+  0% {
+    opacity: 1;
+  }
+  5% {
+    opacity: 0.88;
+  }
+  10% {
+    opacity: 1;
+  }
+  15% {
+    opacity: 0.92;
+  }
+  20% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 0.8;
+  }
+  80% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.flicker-candle {
+  animation: random-flicker 3.5s infinite;
+  animation-timing-function: ease-in-out;
+}
+
+/* ═════════════════════════════════════════════════════════
+   📽️ OLD MOVIE EFFECTS - Vintage film aesthetics
+   ════════════════════════════════════════════════════════ */
+
+.film-grain {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3.5' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)'/%3E%3C/svg%3E");
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 12;
+  mix-blend-mode: overlay;
+  animation: grain-flow 8s steps(10) infinite;
+}
+
+@keyframes grain-flow {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  10% {
+    transform: translate(-5%, -10%);
+  }
+  20% {
+    transform: translate(-15%, 5%);
+  }
+  30% {
+    transform: translate(7%, -25%);
+  }
+  40% {
+    transform: translate(-5%, 25%);
+  }
+  50% {
+    transform: translate(15%, 5%);
+  }
+  60% {
+    transform: translate(5%, 15%);
+  }
+  70% {
+    transform: translate(-10%, -15%);
+  }
+  80% {
+    transform: translate(20%, 0%);
+  }
+  90% {
+    transform: translate(-20%, 10%);
+  }
+}
+
+.chromatic-aberration {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 13;
+  mix-blend-mode: screen;
+  opacity: 0.25;
+}
+
+.chromatic-aberration::before,
+.chromatic-aberration::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 50%,
+    rgba(255, 0, 0, 0.08) 100%
+  );
+}
+
+.chromatic-aberration::after {
+  background: radial-gradient(
+    ellipse at center,
+    transparent 50%,
+    rgba(0, 100, 255, 0.08) 100%
+  );
+}
+
+.violet-wash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse at 50% 40%,
+    rgba(120, 81, 169, 0.08),
+    rgba(88, 58, 128, 0.05) 50%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 14;
+  mix-blend-mode: overlay;
 }
 
 a {
@@ -94,16 +279,17 @@ button {
     clamp(1rem, 2vh, 1.6rem);
   background: linear-gradient(
     135deg,
-    rgba(222, 202, 162, 0.46),
-    rgba(143, 112, 68, 0.32)
+    rgba(222, 202, 162, 0.58),
+    rgba(143, 112, 68, 0.48)
   );
-  border: 1.5px solid rgba(58, 44, 28, 0.6);
+  border: 2.5px solid rgba(58, 44, 28, 0.7);
   border-radius: 16px;
-  color: rgba(46, 31, 18, 0.9);
-  backdrop-filter: blur(12px);
+  color: rgba(30, 20, 12, 0.95);
+  backdrop-filter: blur(18px);
   box-shadow:
-    0 10px 22px rgba(14, 8, 4, 0.28),
-    inset 0 0 0 1px rgba(248, 238, 215, 0.15);
+    0 12px 28px rgba(14, 8, 4, 0.45),
+    0 4px 8px rgba(0, 0, 0, 0.25),
+    inset 0 0 0 1px rgba(255, 248, 230, 0.3);
 }
 
 .page-header .header-meta {
@@ -254,8 +440,8 @@ button {
   position: absolute;
   top: 0;
   left: 0;
-  width: clamp(96px, 12vw, 168px);
-  height: clamp(96px, 12vw, 168px);
+  width: clamp(110px, 14vw, 190px);
+  height: clamp(110px, 14vw, 190px);
   pointer-events: none;
   opacity: 0;
   filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.55));
@@ -292,6 +478,43 @@ button {
 
 .ambient-player {
   display: none;
+}
+
+/* ═════════════════════════════════════════════════════════
+   🔗 HEADER LINKS - About & Ko-fi
+   ════════════════════════════════════════════════════════ */
+
+.header-links {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.header-link {
+  padding: 0.35rem 0.7rem;
+  background: rgba(30, 20, 12, 0.65);
+  border: 1.5px solid rgba(58, 44, 28, 0.8);
+  border-radius: 8px;
+  color: rgba(243, 230, 200, 0.95);
+  font-size: clamp(0.62rem, 1.1vw, 0.75rem);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 160ms ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.header-link:hover {
+  background: rgba(30, 20, 12, 0.85);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+  color: rgba(253, 240, 210, 1);
+}
+
+.header-link:active {
+  transform: translateY(0);
 }
 
 @media (max-width: 720px) {

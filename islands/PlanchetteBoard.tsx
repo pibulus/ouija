@@ -1,48 +1,58 @@
 import type { JSX } from "preact";
 import { useEffect, useRef, useState } from "preact/hooks";
+import { AboutLink } from "./AboutModal.tsx";
 
 type RawCoord = { key: string; x: number; y: number };
 
 const RAW_COORDS: RawCoord[] = [
-  { key: "YES", x: 0.15, y: 0.095 },
-  { key: "NO", x: 0.85, y: 0.095 },
-  { key: "A", x: 0.2, y: 0.275 },
-  { key: "B", x: 0.27, y: 0.295 },
-  { key: "C", x: 0.34, y: 0.315 },
-  { key: "D", x: 0.41, y: 0.325 },
-  { key: "E", x: 0.48, y: 0.335 },
-  { key: "F", x: 0.55, y: 0.335 },
-  { key: "G", x: 0.62, y: 0.325 },
-  { key: "H", x: 0.69, y: 0.305 },
-  { key: "I", x: 0.76, y: 0.285 },
-  { key: "J", x: 0.83, y: 0.275 },
-  { key: "K", x: 0.26, y: 0.425 },
-  { key: "L", x: 0.33, y: 0.435 },
-  { key: "M", x: 0.4, y: 0.445 },
-  { key: "N", x: 0.47, y: 0.455 },
-  { key: "O", x: 0.54, y: 0.455 },
-  { key: "P", x: 0.61, y: 0.445 },
-  { key: "Q", x: 0.68, y: 0.435 },
-  { key: "R", x: 0.75, y: 0.425 },
-  { key: "S", x: 0.82, y: 0.415 },
-  { key: "T", x: 0.3, y: 0.565 },
-  { key: "U", x: 0.37, y: 0.575 },
-  { key: "V", x: 0.44, y: 0.575 },
-  { key: "W", x: 0.51, y: 0.575 },
-  { key: "X", x: 0.58, y: 0.575 },
-  { key: "Y", x: 0.65, y: 0.575 },
-  { key: "Z", x: 0.72, y: 0.575 },
-  { key: "1", x: 0.35, y: 0.705 },
-  { key: "2", x: 0.42, y: 0.705 },
-  { key: "3", x: 0.49, y: 0.705 },
-  { key: "4", x: 0.56, y: 0.705 },
-  { key: "5", x: 0.63, y: 0.705 },
-  { key: "6", x: 0.7, y: 0.705 },
-  { key: "7", x: 0.77, y: 0.705 },
-  { key: "8", x: 0.84, y: 0.705 },
-  { key: "9", x: 0.91, y: 0.705 },
-  { key: "0", x: 0.98, y: 0.705 },
-  { key: "GOODBYE", x: 0.5, y: 0.835 },
+  // YES and NO at the top
+  { key: "YES", x: 0.16, y: 0.12 },
+  { key: "NO", x: 0.84, y: 0.12 },
+
+  // First row: A-M (arced across top third)
+  { key: "A", x: 0.125, y: 0.28 },
+  { key: "B", x: 0.185, y: 0.31 },
+  { key: "C", x: 0.245, y: 0.335 },
+  { key: "D", x: 0.305, y: 0.355 },
+  { key: "E", x: 0.365, y: 0.365 },
+  { key: "F", x: 0.425, y: 0.37 },
+  { key: "G", x: 0.485, y: 0.37 },
+  { key: "H", x: 0.545, y: 0.365 },
+  { key: "I", x: 0.605, y: 0.355 },
+  { key: "J", x: 0.665, y: 0.335 },
+  { key: "K", x: 0.725, y: 0.3 },
+  { key: "L", x: 0.785, y: 0.26 },
+  { key: "M", x: 0.845, y: 0.215 },
+
+  // Second row: N-Z (arced below first row)
+  { key: "N", x: 0.155, y: 0.47 },
+  { key: "O", x: 0.21, y: 0.495 },
+  { key: "P", x: 0.265, y: 0.51 },
+  { key: "Q", x: 0.32, y: 0.52 },
+  { key: "R", x: 0.375, y: 0.525 },
+  { key: "S", x: 0.43, y: 0.525 },
+  { key: "T", x: 0.485, y: 0.52 },
+  { key: "U", x: 0.54, y: 0.51 },
+  { key: "V", x: 0.595, y: 0.495 },
+  { key: "W", x: 0.65, y: 0.47 },
+  { key: "X", x: 0.705, y: 0.435 },
+  { key: "Y", x: 0.76, y: 0.395 },
+  { key: "Z", x: 0.815, y: 0.35 },
+
+  // Numbers row at bottom
+  { key: "1", x: 0.215, y: 0.68 },
+  { key: "2", x: 0.27, y: 0.685 },
+  { key: "3", x: 0.325, y: 0.687 },
+  { key: "4", x: 0.38, y: 0.688 },
+  { key: "5", x: 0.435, y: 0.688 },
+  { key: "6", x: 0.49, y: 0.687 },
+  { key: "7", x: 0.545, y: 0.685 },
+  { key: "8", x: 0.6, y: 0.682 },
+  { key: "9", x: 0.655, y: 0.677 },
+  { key: "0", x: 0.71, y: 0.67 },
+
+  // GOOD BYE at the bottom
+  { key: "GOODBYE", x: 0.5, y: 0.82 },
 ];
 
 type Vec2 = { x: number; y: number };
@@ -57,7 +67,7 @@ type Props = {
   eyebrow?: string;
 };
 
-const PLANCHETTE_SIZE = 128;
+const PLANCHETTE_SIZE = 148;
 const INPUT_IDLE_MS = 4500;
 const WINDOW_Y_OFFSET = 0.024;
 
@@ -272,6 +282,17 @@ export default function PlanchetteBoard({
               <p class="eyebrow">{eyebrow}</p>
               <h1>{heading}</h1>
               <p class="subtitle">{subtitle}</p>
+              <div class="header-links">
+                <AboutLink label="About" className="header-link" />
+                <a
+                  href="https://ko-fi.com/pibulus"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="header-link"
+                >
+                  Support
+                </a>
+              </div>
             </div>
             <button
               type="button"

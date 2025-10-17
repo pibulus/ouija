@@ -1,0 +1,27 @@
+// Copyright 2018-2025 the Deno authors. MIT license.
+// This module is browser compatible.
+
+import { assertPath } from "../_common/assert_path.ts";
+import { isPosixPathSeparator } from "./_util.ts";
+
+/**
+ * Verifies whether provided path is absolute.
+ *
+ * @example Usage
+ * ```ts
+ * import { isAbsolute } from "@std/path/posix/is-absolute";
+ * import { assert, assertFalse } from "@std/assert";
+ *
+ * assert(isAbsolute("/home/user/Documents/"));
+ * assertFalse(isAbsolute("home/user/Documents/"));
+ * ```
+ *
+ * @param path The path to verify.
+ * @returns Whether the path is absolute.
+ */
+export function isAbsolute(path: string): boolean {
+  assertPath(path);
+  return path.length > 0 && isPosixPathSeparator(path.charCodeAt(0));
+}
+
+// denoCacheMetadata={"headers":{"content-length":"735","x-goog-generation":"1755088699519644","x-goog-stored-content-encoding":"identity","x-goog-storage-class":"STANDARD","date":"Fri, 17 Oct 2025 14:05:13 GMT","access-control-allow-origin":"*","x-guploader-uploadid":"AAwnv3K1nm-lStuOtSl_EP-0WXskHxvAL7T2ubSry5h872YaE5PkIx7TVs8xzeUJWudmJot9","server":"UploadServer","expires":"Sat, 17 Oct 2026 14:05:13 GMT","content-security-policy":"default-src 'none'; script-src 'none'; style-src 'none'; img-src 'none'; font-src 'none'; connect-src 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'; sandbox; form-action 'none';","age":"0","x-jsr-cache-id":"MEL","x-robots-tag":"noindex","x-jsr-cache-status":"revalidated","access-control-expose-headers":"*","cross-origin-resource-policy":"cross-origin","x-content-type-options":"nosniff","alt-svc":"h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000","x-goog-metageneration":"1","x-goog-stored-content-length":"735","x-goog-hash":"crc32c=aLmN/A==,md5=Rq55ssPamMrojULZoF7Q3Q==","accept-ranges":"bytes","via":"1.1 google","cache-control":"public, max-age=31536000, immutable","etag":"\"46ae79b2c3da98cae88d42d9a05ed0dd\"","last-modified":"Wed, 13 Aug 2025 12:38:19 GMT","content-type":"text/typescript"},"url":"https://jsr.io/@std/path/1.1.2/posix/is_absolute.ts","time":1760709913}

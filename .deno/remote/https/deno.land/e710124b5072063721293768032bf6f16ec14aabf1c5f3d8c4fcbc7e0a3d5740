@@ -1,0 +1,55 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import { assertPath } from "./assert_path.ts";
+
+export function stripSuffix(name: string, suffix: string): string {
+  if (suffix.length >= name.length) {
+    return name;
+  }
+
+  const lenDiff = name.length - suffix.length;
+
+  for (let i = suffix.length - 1; i >= 0; --i) {
+    if (name.charCodeAt(lenDiff + i) !== suffix.charCodeAt(i)) {
+      return name;
+    }
+  }
+
+  return name.slice(0, -suffix.length);
+}
+
+export function lastPathSegment(
+  path: string,
+  isSep: (char: number) => boolean,
+  start = 0,
+): string {
+  let matchedNonSeparator = false;
+  let end = path.length;
+
+  for (let i = path.length - 1; i >= start; --i) {
+    if (isSep(path.charCodeAt(i))) {
+      if (matchedNonSeparator) {
+        start = i + 1;
+        break;
+      }
+    } else if (!matchedNonSeparator) {
+      matchedNonSeparator = true;
+      end = i + 1;
+    }
+  }
+
+  return path.slice(start, end);
+}
+
+export function assertArgs(path: string, suffix: string) {
+  assertPath(path);
+  if (path.length === 0) return path;
+  if (typeof suffix !== "string") {
+    throw new TypeError(
+      `Suffix must be a string. Received ${JSON.stringify(suffix)}`,
+    );
+  }
+}
+
+// denoCacheMetadata={"headers":{"server":"deno/gcp-asia-southeast1","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","x-amz-replication-status":"COMPLETED","content-type":"application/typescript; charset=utf-8","accept-ranges":"bytes","strict-transport-security":"max-age=63072000; includeSubDomains; preload","age":"1957151","via":"http/2 edgeproxy-h","x-amz-cf-id":"9lHGTHz78R72eBQ3zaeirAA5JZaKq8ubDAN9etwZy8AiD6EhTt4W9A==","server-timing":"fetchSource;dur=2","access-control-allow-origin":"*","x-amz-server-side-encryption":"AES256","x-amz-version-id":"60Wi6wehf6SiUyYU2jBfB0Su6I1SDM2Q","x-cache":"Hit from cloudfront","cross-origin-resource-policy":"same-origin","last-modified":"Fri, 24 Nov 2023 02:50:10 GMT","x-frame-options":"DENY","vary":"Accept-Encoding, Origin","cache-control":"public, max-age=31536000, immutable","cross-origin-embedder-policy":"same-origin","etag":"\"fff02915dce4b79fe1e3a44b9a690c64\"","cross-origin-opener-policy":"same-origin","x-content-type-options":"nosniff","date":"Wed, 24 Sep 2025 22:18:11 GMT","content-length":"1262","referrer-policy":"strict-origin-when-cross-origin","x-amz-cf-pop":"SIN52-P1"},"url":"https://deno.land/std@0.208.0/path/_common/basename.ts","time":1760709442}

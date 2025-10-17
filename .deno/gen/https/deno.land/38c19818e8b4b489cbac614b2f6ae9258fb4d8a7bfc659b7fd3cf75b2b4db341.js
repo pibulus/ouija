@@ -1,0 +1,17 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { parseRange } from "./parse_range.ts";
+/**
+ * A tries to parse a valid Range string or returns undefined
+ * @param range The range string
+ * @returns A Range object if valid otherwise `undefined`
+ */ export function tryParseRange(range) {
+  try {
+    // Return '*' instead of '' so that truthiness works.
+    // This will throw if it's invalid anyway
+    return parseRange(range);
+  } catch {
+    return undefined;
+  }
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3N0ZEAwLjIxNi4wL3NlbXZlci90cnlfcGFyc2VfcmFuZ2UudHMiXSwic291cmNlc0NvbnRlbnQiOlsiLy8gQ29weXJpZ2h0IDIwMTgtMjAyNCB0aGUgRGVubyBhdXRob3JzLiBBbGwgcmlnaHRzIHJlc2VydmVkLiBNSVQgbGljZW5zZS5cblxuaW1wb3J0IHsgUmFuZ2UgfSBmcm9tIFwiLi90eXBlcy50c1wiO1xuaW1wb3J0IHsgcGFyc2VSYW5nZSB9IGZyb20gXCIuL3BhcnNlX3JhbmdlLnRzXCI7XG5cbi8qKlxuICogQSB0cmllcyB0byBwYXJzZSBhIHZhbGlkIFJhbmdlIHN0cmluZyBvciByZXR1cm5zIHVuZGVmaW5lZFxuICogQHBhcmFtIHJhbmdlIFRoZSByYW5nZSBzdHJpbmdcbiAqIEByZXR1cm5zIEEgUmFuZ2Ugb2JqZWN0IGlmIHZhbGlkIG90aGVyd2lzZSBgdW5kZWZpbmVkYFxuICovXG5leHBvcnQgZnVuY3Rpb24gdHJ5UGFyc2VSYW5nZShcbiAgcmFuZ2U6IHN0cmluZyxcbik6IFJhbmdlIHwgdW5kZWZpbmVkIHtcbiAgdHJ5IHtcbiAgICAvLyBSZXR1cm4gJyonIGluc3RlYWQgb2YgJycgc28gdGhhdCB0cnV0aGluZXNzIHdvcmtzLlxuICAgIC8vIFRoaXMgd2lsbCB0aHJvdyBpZiBpdCdzIGludmFsaWQgYW55d2F5XG4gICAgcmV0dXJuIHBhcnNlUmFuZ2UocmFuZ2UpO1xuICB9IGNhdGNoIHtcbiAgICByZXR1cm4gdW5kZWZpbmVkO1xuICB9XG59XG4iXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUEsMEVBQTBFO0FBRzFFLFNBQVMsVUFBVSxRQUFRLG1CQUFtQjtBQUU5Qzs7OztDQUlDLEdBQ0QsT0FBTyxTQUFTLGNBQ2QsS0FBYTtFQUViLElBQUk7SUFDRixxREFBcUQ7SUFDckQseUNBQXlDO0lBQ3pDLE9BQU8sV0FBVztFQUNwQixFQUFFLE9BQU07SUFDTixPQUFPO0VBQ1Q7QUFDRiJ9
+// denoCacheMetadata=17068845043787279740,2865013225138783995

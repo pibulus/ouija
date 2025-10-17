@@ -1,0 +1,46 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { ANY, INVALID } from "./constants.ts";
+import type { SemVer } from "./types.ts";
+import { isValidNumber, isValidString } from "./_shared.ts";
+
+/**
+ * Checks to see if value is a valid SemVer object. It does a check
+ * into each field including prerelease and build.
+ *
+ * Some invalid SemVer sentinels can still return true such as ANY and INVALID.
+ * An object which has the same value as a sentinel but isn't reference equal
+ * will still fail.
+ *
+ * Objects which are valid SemVer objects but have _extra_ fields are still
+ * considered SemVer objects and this will return true.
+ *
+ * A type assertion is added to the value.
+ * @param value The value to check to see if its a valid SemVer object
+ * @returns True if value is a valid SemVer otherwise false
+ */
+export function isSemVer(value: unknown): value is SemVer {
+  if (value === null || value === undefined) return false;
+  if (Array.isArray(value)) return false;
+  if (typeof value !== "object") return false;
+  if (value === INVALID) return true;
+  if (value === ANY) return true;
+
+  const {
+    major,
+    minor,
+    patch,
+    build = [],
+    prerelease = [],
+  } = value as Record<string, unknown>;
+  return (
+    isValidNumber(major) &&
+    isValidNumber(minor) &&
+    isValidNumber(patch) &&
+    Array.isArray(prerelease) &&
+    prerelease.every((v) => isValidString(v) || isValidNumber(v)) &&
+    Array.isArray(build) &&
+    build.every(isValidString)
+  );
+}
+
+// denoCacheMetadata={"headers":{"x-frame-options":"DENY","cross-origin-embedder-policy":"same-origin","date":"Fri, 21 Mar 2025 14:39:03 GMT","server":"deno/gcp-asia-southeast1","server-timing":"fetchSource;dur=28","via":"http/2 edgeproxy-h","x-amz-cf-pop":"SIN52-P1","vary":"Accept-Encoding, Origin","x-amz-replication-status":"COMPLETED","x-amz-version-id":"L._k7Ri6ELuPfznXk5VETIUu0gzlrjdK","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","etag":"\"645b2f578a1b3bcd20a4563d454263f4\"","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-content-type-options":"nosniff","x-amz-server-side-encryption":"AES256","last-modified":"Thu, 15 Feb 2024 05:02:29 GMT","x-amz-cf-id":"1Tzy063_qax7g3LuhChYnH-GnSlycffByP92fzzxlDHYxKdoL9_i1w==","x-cache":"Hit from cloudfront","referrer-policy":"strict-origin-when-cross-origin","cache-control":"public, max-age=31536000, immutable","access-control-allow-origin":"*","accept-ranges":"bytes","content-length":"1510","content-type":"application/typescript; charset=utf-8","cross-origin-resource-policy":"same-origin","cross-origin-opener-policy":"same-origin","age":"18141496"},"url":"https://deno.land/std@0.216.0/semver/is_semver.ts","time":1760709439}

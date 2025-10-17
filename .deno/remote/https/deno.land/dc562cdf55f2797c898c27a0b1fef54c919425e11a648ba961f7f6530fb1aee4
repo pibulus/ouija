@@ -1,0 +1,60 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+/**
+ * The number of milliseconds in a second.
+ *
+ * @example
+ * ```ts
+ * import { SECOND } from "https://deno.land/std@$STD_VERSION/datetime/constants.ts";
+ *
+ * console.log(SECOND); // => 1000
+ * ```
+ */
+export const SECOND = 1e3;
+/**
+ * The number of milliseconds in a minute.
+ *
+ * @example
+ * ```ts
+ * import { MINUTE } from "https://deno.land/std@$STD_VERSION/datetime/constants.ts";
+ *
+ * console.log(MINUTE); // => 60000 (60 * 1000)
+ * ```
+ */
+export const MINUTE: number = SECOND * 60;
+/**
+ * The number of milliseconds in an hour.
+ *
+ * @example
+ * ```ts
+ * import { HOUR } from "https://deno.land/std@$STD_VERSION/datetime/constants.ts";
+ *
+ * console.log(HOUR); // => 3600000 (60 * 60 * 1000)
+ * ```
+ */
+export const HOUR: number = MINUTE * 60;
+/**
+ * The number of milliseconds in a day.
+ *
+ * @example
+ * ```ts
+ * import { DAY } from "https://deno.land/std@$STD_VERSION/datetime/constants.ts";
+ *
+ * console.log(DAY); // => 86400000 (24 * 60 * 60 * 1000)
+ * ```
+ */
+export const DAY: number = HOUR * 24;
+/**
+ * The number of milliseconds in a week.
+ *
+ * @example
+ * ```ts
+ * import { WEEK } from "https://deno.land/std@$STD_VERSION/datetime/constants.ts";
+ *
+ * console.log(WEEK); // => 604800000 (7 * 24 * 60 * 60 * 1000)
+ * ```
+ */
+export const WEEK: number = DAY * 7;
+
+// denoCacheMetadata={"headers":{"content-length":"1400","cross-origin-resource-policy":"same-origin","referrer-policy":"strict-origin-when-cross-origin","last-modified":"Thu, 15 Feb 2024 05:02:27 GMT","via":"http/2 edgeproxy-h","x-frame-options":"DENY","date":"Wed, 19 Mar 2025 06:09:10 GMT","accept-ranges":"bytes","age":"18344888","strict-transport-security":"max-age=63072000; includeSubDomains; preload","cross-origin-opener-policy":"same-origin","access-control-allow-origin":"*","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","cross-origin-embedder-policy":"same-origin","x-amz-cf-id":"-JgNVI6DjewlhcVSOlSp6-DnBawmGlIXHP08ia9mqyGxkUxzwUew2Q==","x-amz-cf-pop":"SIN52-P1","cache-control":"public, max-age=31536000, immutable","content-type":"application/typescript; charset=utf-8","server":"deno/gcp-asia-southeast1","vary":"Accept-Encoding, Origin","x-amz-replication-status":"COMPLETED","x-amz-version-id":"r2L1rkj5dxQRXlGflVbVvfYa2hAri6ty","server-timing":"fetchSource;dur=12","x-amz-server-side-encryption":"AES256","x-cache":"Hit from cloudfront","x-content-type-options":"nosniff","etag":"\"f3d862281c1aab55df24b466d7bd3404\""},"url":"https://deno.land/std@0.216.0/datetime/constants.ts","time":1760709438}

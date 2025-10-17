@@ -1,0 +1,41 @@
+export const RECOMMENDED_PREACT_VERSION = "10.22.0";
+export const RECOMMENDED_PREACT_SIGNALS_VERSION = "1.2.2";
+export const RECOMMENDED_PREACT_SIGNALS_CORE_VERSION = "1.5.1";
+export const RECOMMENDED_TWIND_CORE_VERSION = "1.1.3";
+export const RECOMMENDED_TWIND_PRESET_AUTOPREFIX_VERSION = "1.0.7";
+export const RECOMMENDED_TWIND_PRESET_TAILWIND_VERSION = "1.1.4";
+export const RECOMMENDED_STD_VERSION = "0.216.0";
+export const RECOMMENDED_TAILIWIND_VERSION = "3.4.1";
+
+export function freshImports(imports: Record<string, string>) {
+  imports["$fresh/"] = new URL("../../", import.meta.url).href;
+  imports["preact"] = `https://esm.sh/preact@${RECOMMENDED_PREACT_VERSION}`;
+  imports["preact/"] = `https://esm.sh/preact@${RECOMMENDED_PREACT_VERSION}/`;
+  imports["@preact/signals"] =
+    `https://esm.sh/*@preact/signals@${RECOMMENDED_PREACT_SIGNALS_VERSION}`;
+  imports["@preact/signals-core"] =
+    `https://esm.sh/*@preact/signals-core@${RECOMMENDED_PREACT_SIGNALS_CORE_VERSION}`;
+}
+
+export function twindImports(imports: Record<string, string>) {
+  imports["@twind/core"] =
+    `https://esm.sh/@twind/core@${RECOMMENDED_TWIND_CORE_VERSION}`;
+  imports["@twind/preset-tailwind"] =
+    `https://esm.sh/@twind/preset-tailwind@${RECOMMENDED_TWIND_PRESET_TAILWIND_VERSION}/`;
+  imports["@twind/preset-autoprefix"] =
+    `https://esm.sh/@twind/preset-autoprefix@${RECOMMENDED_TWIND_PRESET_AUTOPREFIX_VERSION}/`;
+}
+
+export function tailwindImports(imports: Record<string, string>) {
+  imports["tailwindcss"] = `npm:tailwindcss@${RECOMMENDED_TAILIWIND_VERSION}`;
+  imports["tailwindcss/"] =
+    `npm:/tailwindcss@${RECOMMENDED_TAILIWIND_VERSION}/`;
+  imports["tailwindcss/plugin"] =
+    `npm:/tailwindcss@${RECOMMENDED_TAILIWIND_VERSION}/plugin.js`;
+}
+
+export function dotenvImports(imports: Record<string, string>) {
+  imports["$std/"] = `https://deno.land/std@${RECOMMENDED_STD_VERSION}/`;
+}
+
+// denoCacheMetadata={"headers":{"x-amz-replication-status":"COMPLETED","content-length":"1891","via":"http/2 edgeproxy-h","x-amz-cf-id":"eCjjcUv9UolHYUm5j4soJShfQrTgWJYKBwcgyl5bGwKnqF2qbs1Yhw==","x-frame-options":"DENY","referrer-policy":"strict-origin-when-cross-origin","server-timing":"fetchSource;dur=4","x-amz-server-side-encryption":"AES256","age":"31535592","x-amz-version-id":"JJvUbtOI05ZGh0RYQ.TCA7GTye0dctOs","vary":"Accept-Encoding, Origin","x-cache":"Hit from cloudfront","x-content-type-options":"nosniff","content-type":"application/typescript; charset=utf-8","cross-origin-embedder-policy":"same-origin","date":"Thu, 17 Oct 2024 14:04:05 GMT","cache-control":"public, max-age=31536000, immutable","last-modified":"Mon, 14 Oct 2024 12:51:13 GMT","cross-origin-opener-policy":"same-origin","cross-origin-resource-policy":"same-origin","strict-transport-security":"max-age=63072000; includeSubDomains; preload","server":"deno/gcp-asia-southeast1","x-amz-cf-pop":"SIN52-P1","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","access-control-allow-origin":"*","etag":"\"63d48f47894927096476f82062fe90c9\"","accept-ranges":"bytes"},"url":"https://deno.land/x/fresh@1.7.3/src/dev/imports.ts","time":1760709437}

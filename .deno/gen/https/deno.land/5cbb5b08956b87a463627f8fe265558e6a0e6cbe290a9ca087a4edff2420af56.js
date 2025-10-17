@@ -1,0 +1,11 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { compare } from "./compare.ts";
+/**
+ * Greater than or equal to comparison
+ *
+ * This is equal to `compare(s0, s1) >= 0`.
+ */ export function greaterOrEqual(s0, s1) {
+  return compare(s0, s1) >= 0;
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3N0ZEAwLjIxNi4wL3NlbXZlci9ncmVhdGVyX29yX2VxdWFsLnRzIl0sInNvdXJjZXNDb250ZW50IjpbIi8vIENvcHlyaWdodCAyMDE4LTIwMjQgdGhlIERlbm8gYXV0aG9ycy4gQWxsIHJpZ2h0cyByZXNlcnZlZC4gTUlUIGxpY2Vuc2UuXG5pbXBvcnQgdHlwZSB7IFNlbVZlciB9IGZyb20gXCIuL3R5cGVzLnRzXCI7XG5pbXBvcnQgeyBjb21wYXJlIH0gZnJvbSBcIi4vY29tcGFyZS50c1wiO1xuXG4vKipcbiAqIEdyZWF0ZXIgdGhhbiBvciBlcXVhbCB0byBjb21wYXJpc29uXG4gKlxuICogVGhpcyBpcyBlcXVhbCB0byBgY29tcGFyZShzMCwgczEpID49IDBgLlxuICovXG5leHBvcnQgZnVuY3Rpb24gZ3JlYXRlck9yRXF1YWwoczA6IFNlbVZlciwgczE6IFNlbVZlcik6IGJvb2xlYW4ge1xuICByZXR1cm4gY29tcGFyZShzMCwgczEpID49IDA7XG59XG4iXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUEsMEVBQTBFO0FBRTFFLFNBQVMsT0FBTyxRQUFRLGVBQWU7QUFFdkM7Ozs7Q0FJQyxHQUNELE9BQU8sU0FBUyxlQUFlLEVBQVUsRUFBRSxFQUFVO0VBQ25ELE9BQU8sUUFBUSxJQUFJLE9BQU87QUFDNUIifQ==
+// denoCacheMetadata=10587105024219591887,10301524829959934746

@@ -1,0 +1,31 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+
+const encoder = new TextEncoder();
+
+function getTypeName(value: unknown): string {
+  const type = typeof value;
+  if (type !== "object") {
+    return type;
+  } else if (value === null) {
+    return "null";
+  } else {
+    return value?.constructor?.name ?? "object";
+  }
+}
+
+export function validateBinaryLike(source: unknown): Uint8Array {
+  if (typeof source === "string") {
+    return encoder.encode(source);
+  } else if (source instanceof Uint8Array) {
+    return source;
+  } else if (source instanceof ArrayBuffer) {
+    return new Uint8Array(source);
+  }
+  throw new TypeError(
+    `The input must be a Uint8Array, a string, or an ArrayBuffer. Received a value of the type ${
+      getTypeName(source)
+    }.`,
+  );
+}
+
+// denoCacheMetadata={"headers":{"cross-origin-opener-policy":"same-origin","x-frame-options":"DENY","content-length":"798","last-modified":"Thu, 15 Feb 2024 05:02:27 GMT","date":"Fri, 14 Feb 2025 10:53:11 GMT","strict-transport-security":"max-age=63072000; includeSubDomains; preload","vary":"Accept-Encoding, Origin","access-control-allow-origin":"*","cross-origin-embedder-policy":"same-origin","age":"21179518","cache-control":"public, max-age=31536000, immutable","server":"deno/gcp-asia-southeast1","referrer-policy":"strict-origin-when-cross-origin","x-amz-cf-id":"HIJQBlbtIv3deHDZNkjFwzkEG_s6PfIn_luJUalB_clyAE2ifGUfVA==","x-cache":"Hit from cloudfront","x-content-type-options":"nosniff","x-amz-server-side-encryption":"AES256","content-type":"application/typescript; charset=utf-8","x-amz-version-id":"8itTXMrQvmZiDtqZmsEpUzWIoDZYvv2d","etag":"\"d13b3b0dcf6d4f86b4aed186221caac0\"","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","server-timing":"fetchSource;dur=8","x-amz-replication-status":"COMPLETED","x-amz-cf-pop":"SIN52-P1","accept-ranges":"bytes","cross-origin-resource-policy":"same-origin","via":"http/2 edgeproxy-h"},"url":"https://deno.land/std@0.216.0/encoding/_util.ts","time":1760709908}

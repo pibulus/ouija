@@ -1,0 +1,36 @@
+// This file includes dependencies that are safe to use even
+// when the user has no `deno.json` in their project folder.
+// This commonly occurs when the user is bootstrapping a new
+// project.
+
+export {
+  isIdentifierChar,
+  isIdentifierStart,
+} from "https://esm.sh/@babel/helper-validator-identifier@7.22.20";
+import {
+  isIdentifierChar,
+  isIdentifierStart,
+} from "https://esm.sh/@babel/helper-validator-identifier@7.22.20";
+
+export function stringToIdentifier(str: string): string {
+  let ident = "";
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    if (i === 0 && !isIdentifierStart(char)) {
+      ident += "_";
+      if (isIdentifierChar(char)) {
+        ident += str[i];
+      }
+    } else if (!isIdentifierChar(char)) {
+      if (ident[ident.length - 1] !== "_") {
+        ident += "_";
+      }
+    } else if (ident[ident.length - 1] !== "_" || str[i] !== "_") {
+      ident += str[i];
+    }
+  }
+
+  return ident;
+}
+
+// denoCacheMetadata={"headers":{"date":"Thu, 17 Oct 2024 14:04:09 GMT","last-modified":"Mon, 14 Oct 2024 12:51:13 GMT","vary":"Accept-Encoding, Origin","x-amz-cf-pop":"SIN52-P1","x-cache":"Hit from cloudfront","content-length":"959","via":"http/2 edgeproxy-h","content-type":"application/typescript; charset=utf-8","server-timing":"fetchSource;dur=30","referrer-policy":"strict-origin-when-cross-origin","x-frame-options":"DENY","etag":"\"94092360fc161532b95eeeee683c6514\"","accept-ranges":"bytes","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-cf-id":"7AefpiI_K7dTLG7toHN8tWLG4vd9okm5BruOD1Q-W-KQa1b_msDcbQ==","x-content-type-options":"nosniff","cross-origin-opener-policy":"same-origin","access-control-allow-origin":"*","server":"deno/gcp-asia-southeast1","cross-origin-embedder-policy":"same-origin","x-amz-server-side-encryption":"AES256","cross-origin-resource-policy":"same-origin","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","age":"31535590","x-amz-replication-status":"COMPLETED","x-amz-version-id":"3aGfDw14lSiuAWqLgclTU8lQI1yHd_Wf","cache-control":"public, max-age=31536000, immutable"},"url":"https://deno.land/x/fresh@1.7.3/src/server/init_safe_deps.ts","time":1760709439}

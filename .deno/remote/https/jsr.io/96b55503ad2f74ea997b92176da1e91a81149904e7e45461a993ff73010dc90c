@@ -1,0 +1,33 @@
+// Copyright 2018-2025 the Deno authors. MIT license.
+// This module is browser compatible.
+
+import { _format, assertArg } from "../_common/format.ts";
+import type { ParsedPath } from "../types.ts";
+
+/**
+ * Generate a path from `ParsedPath` object.
+ *
+ * @example Usage
+ * ```ts
+ * import { format } from "@std/path/posix/format";
+ * import { assertEquals } from "@std/assert";
+ *
+ * const path = format({
+ *   root: "/",
+ *   dir: "/path/dir",
+ *   base: "file.txt",
+ *   ext: ".txt",
+ *   name: "file"
+ * });
+ * assertEquals(path, "/path/dir/file.txt");
+ * ```
+ *
+ * @param pathObject The path object to format.
+ * @returns The formatted path.
+ */
+export function format(pathObject: Partial<ParsedPath>): string {
+  assertArg(pathObject);
+  return _format("/", pathObject);
+}
+
+// denoCacheMetadata={"headers":{"age":"1","x-goog-hash":"crc32c=SUAapw==,md5=GeOa5g2cQGeKPk75HQfqdg==","x-goog-stored-content-encoding":"identity","accept-ranges":"bytes","server":"UploadServer","content-type":"text/typescript","via":"1.1 google","date":"Fri, 17 Oct 2025 14:05:12 GMT","x-goog-stored-content-length":"778","x-goog-storage-class":"STANDARD","last-modified":"Wed, 13 Aug 2025 12:38:19 GMT","x-goog-generation":"1755088699403805","content-security-policy":"default-src 'none'; script-src 'none'; style-src 'none'; img-src 'none'; font-src 'none'; connect-src 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'; sandbox; form-action 'none';","x-robots-tag":"noindex","content-length":"778","access-control-allow-origin":"*","cross-origin-resource-policy":"cross-origin","x-content-type-options":"nosniff","alt-svc":"h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000","cache-control":"public, max-age=31536000, immutable","expires":"Sat, 17 Oct 2026 14:05:12 GMT","x-guploader-uploadid":"AAwnv3J36n2yAt0OyipeJl1T7Z-4Rh-X8f4dN4R_yAwDYBhrNxVUIjXfD7Wjumra0y2fXkPj","access-control-expose-headers":"*","x-goog-metageneration":"1","etag":"\"19e39ae60d9c40678a3e4ef91d07ea76\"","x-jsr-cache-id":"MEL","x-jsr-cache-status":"revalidated"},"url":"https://jsr.io/@std/path/1.1.2/posix/format.ts","time":1760709913}

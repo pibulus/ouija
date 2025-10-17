@@ -1,0 +1,4 @@
+/* esm.sh - @preact/signals@1.2.2 */
+export * from "/*@preact/signals@1.2.2/denonext/signals.mjs";
+
+// denoCacheMetadata={"headers":{"x-esm-path":"/*@preact/signals@1.2.2/denonext/signals.mjs","cf-cache-status":"DYNAMIC","date":"Fri, 17 Oct 2025 14:05:07 GMT","access-control-expose-headers":"X-ESM-Path, X-TypeScript-Types","x-typescript-types":"https://esm.sh/@preact/signals@1.2.2/dist/signals.d.ts","vary":"User-Agent","access-control-allow-origin":"*","alt-svc":"h3=\":443\"; ma=86400","server":"cloudflare","cf-ray":"9900595a7834d81c-MEL","cache-control":"public, max-age=31536000, immutable","content-type":"application/javascript; charset=utf-8"},"url":"https://esm.sh/*@preact/signals@1.2.2","time":1760709907}

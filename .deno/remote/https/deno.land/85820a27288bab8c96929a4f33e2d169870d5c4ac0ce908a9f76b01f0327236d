@@ -1,0 +1,45 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { comparatorIntersects } from "./_comparator_intersects.ts";
+import type { Comparator, Range } from "./types.ts";
+
+function rangesSatisfiable(ranges: Range[]): boolean {
+  return ranges.every((r) => {
+    // For each OR at least one AND must be satisfiable
+    return r.some((comparators) => comparatorsSatisfiable(comparators));
+  });
+}
+
+function comparatorsSatisfiable(comparators: Comparator[]): boolean {
+  // Comparators are satisfiable if they all intersect with each other
+  for (let i = 0; i < comparators.length - 1; i++) {
+    const c0 = comparators[i];
+    for (const c1 of comparators.slice(i + 1)) {
+      if (!comparatorIntersects(c0, c1)) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+/**
+ * The ranges intersect every range of AND comparators intersects with a least one range of OR ranges.
+ * @param r0 range 0
+ * @param r1 range 1
+ * @returns returns true if any
+ */
+export function rangeIntersects(
+  r0: Range,
+  r1: Range,
+): boolean {
+  return rangesSatisfiable([r0, r1]) &&
+    r0.some((r00) => {
+      return r1.some((r11) => {
+        return r00.every((c0) => {
+          return r11.every((c1) => comparatorIntersects(c0, c1));
+        });
+      });
+    });
+}
+
+// denoCacheMetadata={"headers":{"x-amz-server-side-encryption":"AES256","accept-ranges":"bytes","server":"deno/gcp-asia-southeast1","server-timing":"fetchSource;dur=32","content-type":"application/typescript; charset=utf-8","x-amz-replication-status":"COMPLETED","access-control-allow-origin":"*","x-amz-cf-id":"ilTTtKngmlcoKUHz1vaS_wGncNta4ycstDC3dQBIpoBICVUztRcNNA==","x-amz-cf-pop":"SIN52-P1","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","date":"Fri, 21 Mar 2025 14:39:03 GMT","x-cache":"Hit from cloudfront","strict-transport-security":"max-age=63072000; includeSubDomains; preload","cross-origin-opener-policy":"same-origin","x-content-type-options":"nosniff","vary":"Accept-Encoding, Origin","cross-origin-resource-policy":"same-origin","x-frame-options":"DENY","cache-control":"public, max-age=31536000, immutable","age":"18141496","etag":"\"769e0680996e2b5746980a129be2d15e\"","content-length":"1281","last-modified":"Thu, 15 Feb 2024 05:02:29 GMT","x-amz-version-id":"cHXUTDG1kx7kwLnb3oXMmzA4P20tyyec","cross-origin-embedder-policy":"same-origin","via":"http/2 edgeproxy-h","referrer-policy":"strict-origin-when-cross-origin"},"url":"https://deno.land/std@0.216.0/semver/range_intersects.ts","time":1760709439}

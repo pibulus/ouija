@@ -1,0 +1,30 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { isSemVer } from "./is_semver.ts";
+import { OPERATORS } from "./_constants.ts";
+import type { Comparator } from "./types.ts";
+import { ALL, NONE } from "./constants.ts";
+
+/**
+ * Does a deep check on the value to see if it is a valid Comparator object.
+ *
+ * Objects with extra fields are still considered valid if they have at
+ * least the correct fields.
+ *
+ * Adds a type assertion if true.
+ * @param value The value to check if its a Comparator
+ * @returns True if the object is a Comparator otherwise false
+ */
+export function isComparator(value: unknown): value is Comparator {
+  if (
+    value === null || value === undefined || Array.isArray(value) ||
+    typeof value !== "object"
+  ) return false;
+  if (value === NONE || value === ALL) return true;
+  const { operator, semver } = value as Comparator;
+  return (
+    OPERATORS.includes(operator) &&
+    isSemVer(semver)
+  );
+}
+
+// denoCacheMetadata={"headers":{"x-amz-cf-id":"nOZ_5bA11RUF8lTgQKrn4tg5IVONYniDOIO2Q2CAcHzB89IKRfIXLA==","x-content-type-options":"nosniff","cache-control":"public, max-age=31536000, immutable","x-frame-options":"DENY","vary":"Accept-Encoding, Origin","x-amz-server-side-encryption":"AES256","x-amz-version-id":"Y4bpStzvCXMxIWOxONPPlgi6Oj_DLGS4","x-cache":"Hit from cloudfront","content-length":"969","cross-origin-resource-policy":"same-origin","via":"http/2 edgeproxy-h","last-modified":"Thu, 15 Feb 2024 05:02:29 GMT","access-control-allow-origin":"*","server":"deno/gcp-asia-southeast1","x-amz-replication-status":"COMPLETED","age":"18344887","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","accept-ranges":"bytes","cross-origin-opener-policy":"same-origin","cross-origin-embedder-policy":"same-origin","date":"Wed, 19 Mar 2025 06:09:13 GMT","etag":"\"c7fb2fef264b11cda0fc10c74ea83449\"","referrer-policy":"strict-origin-when-cross-origin","content-type":"application/typescript; charset=utf-8","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-cf-pop":"SIN52-P1","server-timing":"fetchSource;dur=24"},"url":"https://deno.land/std@0.216.0/semver/_is_comparator.ts","time":1760709439}

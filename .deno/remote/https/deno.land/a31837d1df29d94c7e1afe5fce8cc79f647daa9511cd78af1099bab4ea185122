@@ -1,0 +1,79 @@
+import { ResolvedFreshConfig } from "../server/types.ts";
+import { colors, join } from "../server/deps.ts";
+import type { BuildSnapshot, BuildSnapshotJson } from "./mod.ts";
+import { setBuildId } from "../server/build_id.ts";
+
+export class AotSnapshot implements BuildSnapshot {
+  #files: Map<string, string>;
+  #dependencies: Map<string, string[]>;
+
+  constructor(
+    files: Map<string, string>,
+    dependencies: Map<string, string[]>,
+  ) {
+    this.#files = files;
+    this.#dependencies = dependencies;
+  }
+
+  get paths(): string[] {
+    return Array.from(this.#files.keys());
+  }
+
+  async read(path: string): Promise<ReadableStream<Uint8Array> | null> {
+    const filePath = this.#files.get(path);
+    if (filePath !== undefined) {
+      try {
+        const file = await Deno.open(filePath, { read: true });
+        return file.readable;
+      } catch (_err) {
+        return null;
+      }
+    }
+
+    // Handler will turn this into a 404
+    return null;
+  }
+
+  dependencies(path: string): string[] {
+    return this.#dependencies.get(path) ?? [];
+  }
+}
+
+export async function loadAotSnapshot(
+  config: ResolvedFreshConfig,
+): Promise<AotSnapshot | null> {
+  const snapshotDirPath = config.build.outDir;
+  try {
+    if ((await Deno.stat(snapshotDirPath)).isDirectory) {
+      console.log(
+        `Using snapshot found at ${colors.cyan(snapshotDirPath)}`,
+      );
+
+      const snapshotPath = join(snapshotDirPath, "snapshot.json");
+      const json = JSON.parse(
+        await Deno.readTextFile(snapshotPath),
+      ) as BuildSnapshotJson;
+      setBuildId(json.build_id);
+
+      const dependencies = new Map<string, string[]>(
+        Object.entries(json.files),
+      );
+
+      const files = new Map<string, string>();
+      Object.keys(json.files).forEach((name) => {
+        const filePath = join(snapshotDirPath, name);
+        files.set(name, filePath);
+      });
+
+      return new AotSnapshot(files, dependencies);
+    }
+    return null;
+  } catch (err) {
+    if (!(err instanceof Deno.errors.NotFound)) {
+      throw err;
+    }
+    return null;
+  }
+}
+
+// denoCacheMetadata={"headers":{"strict-transport-security":"max-age=63072000; includeSubDomains; preload","last-modified":"Mon, 14 Oct 2024 12:51:13 GMT","vary":"Accept-Encoding, Origin","x-content-type-options":"nosniff","access-control-allow-origin":"*","content-length":"2068","cross-origin-resource-policy":"same-origin","x-amz-cf-id":"-P0XyUYXcrnQhk0rnxMW4npaHvAeNJkuF7oenw3UmFQaYQ8uLrjtHw==","server-timing":"fetchSource;dur=50","x-amz-server-side-encryption":"AES256","cross-origin-opener-policy":"same-origin","accept-ranges":"bytes","x-cache":"Hit from cloudfront","x-amz-replication-status":"COMPLETED","x-frame-options":"DENY","etag":"\"f28f8ec406147a8c39c542941a9d0abe\"","content-type":"application/typescript; charset=utf-8","via":"http/2 edgeproxy-h","x-amz-cf-pop":"SIN52-P1","x-amz-version-id":"NfSBLvwQgKwtzQx3L1uglNSKATTeHuze","date":"Thu, 17 Oct 2024 14:13:51 GMT","age":"31535478","referrer-policy":"strict-origin-when-cross-origin","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","cache-control":"public, max-age=31536000, immutable","cross-origin-embedder-policy":"same-origin","server":"deno/gcp-asia-southeast1"},"url":"https://deno.land/x/fresh@1.7.3/src/build/aot_snapshot.ts","time":1760709908}

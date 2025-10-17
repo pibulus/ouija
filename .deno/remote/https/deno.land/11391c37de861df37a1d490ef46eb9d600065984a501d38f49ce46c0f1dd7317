@@ -1,0 +1,37 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+/** Test whether the given string is a glob */
+export function isGlob(str: string): boolean {
+  const chars: Record<string, string> = { "{": "}", "(": ")", "[": "]" };
+  const regex =
+    /\\(.)|(^!|\*|\?|[\].+)]\?|\[[^\\\]]+\]|\{[^\\}]+\}|\(\?[:!=][^\\)]+\)|\([^|]+\|[^\\)]+\))/;
+
+  if (str === "") {
+    return false;
+  }
+
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(str))) {
+    if (match[2]) return true;
+    let idx = match.index + match[0].length;
+
+    // if an open bracket/brace/paren is escaped,
+    // set the index to the next closing character
+    const open = match[1];
+    const close = open ? chars[open] : null;
+    if (open && close) {
+      const n = str.indexOf(close, idx);
+      if (n !== -1) {
+        idx = n + 1;
+      }
+    }
+
+    str = str.slice(idx);
+  }
+
+  return false;
+}
+
+// denoCacheMetadata={"headers":{"content-type":"application/typescript; charset=utf-8","last-modified":"Fri, 24 Nov 2023 02:50:10 GMT","date":"Fri, 21 Mar 2025 15:54:45 GMT","referrer-policy":"strict-origin-when-cross-origin","access-control-allow-origin":"*","server":"deno/gcp-asia-southeast1","cache-control":"public, max-age=31536000, immutable","via":"http/2 edgeproxy-h","x-amz-replication-status":"COMPLETED","cross-origin-resource-policy":"same-origin","content-length":"938","age":"18136957","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","x-frame-options":"DENY","x-amz-cf-pop":"SIN52-P1","x-amz-server-side-encryption":"AES256","cross-origin-embedder-policy":"same-origin","cross-origin-opener-policy":"same-origin","server-timing":"fetchSource;dur=38","x-amz-cf-id":"HBcTO7FRFiRVe35WiJnh-zLonxFAu6Z2PQKDSavO5BzPcogPGlldtg==","x-amz-version-id":"be3D_ByHxDutEormpx7vvsoy6Cj.AjpM","x-content-type-options":"nosniff","x-cache":"Hit from cloudfront","accept-ranges":"bytes","strict-transport-security":"max-age=63072000; includeSubDomains; preload","vary":"Accept-Encoding, Origin","etag":"\"582810886947edf2a6ade962d5ceaca2\""},"url":"https://deno.land/std@0.208.0/path/is_glob.ts","time":1760709441}

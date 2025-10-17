@@ -1,0 +1,58 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import { normalizeString } from "../_common/normalize_string.ts";
+import { assertPath } from "../_common/assert_path.ts";
+import { isPosixPathSeparator } from "./_util.ts";
+
+/**
+ * Resolves path segments into a `path`
+ * @param pathSegments to process to path
+ */
+export function resolve(...pathSegments: string[]): string {
+  let resolvedPath = "";
+  let resolvedAbsolute = false;
+
+  for (let i = pathSegments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+    let path: string;
+
+    if (i >= 0) path = pathSegments[i];
+    else {
+      // deno-lint-ignore no-explicit-any
+      const { Deno } = globalThis as any;
+      if (typeof Deno?.cwd !== "function") {
+        throw new TypeError("Resolved a relative path without a CWD.");
+      }
+      path = Deno.cwd();
+    }
+
+    assertPath(path);
+
+    // Skip empty entries
+    if (path.length === 0) {
+      continue;
+    }
+
+    resolvedPath = `${path}/${resolvedPath}`;
+    resolvedAbsolute = isPosixPathSeparator(path.charCodeAt(0));
+  }
+
+  // At this point the path should be resolved to a full absolute path, but
+  // handle relative paths to be safe (might happen when Deno.cwd() fails)
+
+  // Normalize the path
+  resolvedPath = normalizeString(
+    resolvedPath,
+    !resolvedAbsolute,
+    "/",
+    isPosixPathSeparator,
+  );
+
+  if (resolvedAbsolute) {
+    if (resolvedPath.length > 0) return `/${resolvedPath}`;
+    else return "/";
+  } else if (resolvedPath.length > 0) return resolvedPath;
+  else return ".";
+}
+
+// denoCacheMetadata={"headers":{"date":"Thu, 13 Feb 2025 19:22:58 GMT","server-timing":"fetchSource;dur=18","content-length":"1585","cross-origin-opener-policy":"same-origin","cache-control":"public, max-age=31536000, immutable","vary":"Accept-Encoding, Origin","x-cache":"Hit from cloudfront","x-frame-options":"DENY","cross-origin-embedder-policy":"same-origin","referrer-policy":"strict-origin-when-cross-origin","content-type":"application/typescript; charset=utf-8","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","server":"deno/gcp-asia-southeast1","via":"http/2 edgeproxy-h","x-amz-cf-id":"5jCntX4TU40ISTLQEG4JpALBE8kLIcG_hTfsAhfXjUxUZmMjOjwRfg==","last-modified":"Fri, 24 Nov 2023 02:50:10 GMT","x-amz-server-side-encryption":"AES256","cross-origin-resource-policy":"same-origin","x-amz-replication-status":"COMPLETED","x-amz-version-id":"JaEYs7kgjotu1nVSez9gc3JoIHYQa3d7","etag":"\"e18740cbb79f14bd2d865a089f0b66d1\"","x-amz-cf-pop":"SIN52-P1","accept-ranges":"bytes","access-control-allow-origin":"*","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-content-type-options":"nosniff","age":"21234864"},"url":"https://deno.land/std@0.208.0/path/posix/resolve.ts","time":1760709441}

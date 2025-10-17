@@ -1,0 +1,57 @@
+import { getServerContext } from "../server/context.ts";
+import { join } from "../server/deps.ts";
+import { colors, emptyDir } from "./deps.ts";
+import { BuildSnapshotJson } from "../build/mod.ts";
+import { BUILD_ID } from "../server/build_id.ts";
+import { InternalFreshState } from "../server/types.ts";
+
+export async function build(
+  state: InternalFreshState,
+) {
+  const outDir = state.config.build.outDir;
+  const plugins = state.config.plugins;
+
+  // Ensure that build dir is empty
+  await emptyDir(outDir);
+
+  // Create a directory for static assets produced during the build
+  await Deno.mkdir(join(outDir, "static"));
+
+  await Promise.all(
+    plugins.map((plugin) => plugin.configResolved?.(state.config)),
+  );
+  await Promise.all(plugins.map((plugin) => plugin.buildStart?.(state.config)));
+
+  // Bundle assets
+  const ctx = await getServerContext(state);
+  const snapshot = await ctx.buildSnapshot();
+
+  // Write output files to disk
+  await Promise.all(snapshot.paths.map(async (fileName) => {
+    const data = await snapshot.read(fileName);
+    if (data === null) return;
+
+    return Deno.writeFile(join(outDir, fileName), data);
+  }));
+
+  // Write dependency snapshot file to disk
+  const jsonSnapshot: BuildSnapshotJson = {
+    build_id: BUILD_ID,
+    files: {},
+  };
+  for (const filePath of snapshot.paths) {
+    const dependencies = snapshot.dependencies(filePath);
+    jsonSnapshot.files[filePath] = dependencies;
+  }
+
+  const snapshotPath = join(outDir, "snapshot.json");
+  await Deno.writeTextFile(snapshotPath, JSON.stringify(jsonSnapshot, null, 2));
+
+  console.log(
+    `Assets written to: ${colors.green(outDir)}`,
+  );
+
+  await Promise.all(plugins.map((plugin) => plugin.buildEnd?.()));
+}
+
+// denoCacheMetadata={"headers":{"referrer-policy":"strict-origin-when-cross-origin","x-frame-options":"DENY","server-timing":"fetchSource;dur=18","access-control-allow-origin":"*","accept-ranges":"bytes","x-amz-cf-pop":"SIN52-P1","x-amz-replication-status":"COMPLETED","age":"31535479","server":"deno/gcp-asia-southeast1","via":"http/2 edgeproxy-h","x-cache":"Hit from cloudfront","x-content-type-options":"nosniff","vary":"Accept-Encoding, Origin","x-amz-version-id":"OVDBuen8F.y91YhrOjaN3WTHFeojGX5q","cache-control":"public, max-age=31536000, immutable","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","cross-origin-embedder-policy":"same-origin","cross-origin-resource-policy":"same-origin","content-length":"1717","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-cf-id":"ytU4Fm9lO4ymk8T5NpX3CXVS8ZiSEnTX5D1Jofd-edFPMQLUl8qulg==","content-type":"application/typescript; charset=utf-8","cross-origin-opener-policy":"same-origin","last-modified":"Mon, 14 Oct 2024 12:51:13 GMT","etag":"\"a69183e2a13027299c2328c817d4ffe6\"","x-amz-server-side-encryption":"AES256","date":"Thu, 17 Oct 2024 14:13:49 GMT"},"url":"https://deno.land/x/fresh@1.7.3/src/dev/build.ts","time":1760709907}

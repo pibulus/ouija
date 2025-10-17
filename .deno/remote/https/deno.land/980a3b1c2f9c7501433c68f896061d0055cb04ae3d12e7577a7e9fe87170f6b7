@@ -1,0 +1,28 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { assertFalse } from "./assert_false.ts";
+
+/**
+ * Make an assertion that `obj` is not an instance of `type`.
+ * If so, then throw.
+ *
+ * @example
+ * ```ts
+ * import { assertNotInstanceOf } from "https://deno.land/std@$STD_VERSION/assert/assert_not_instance_of.ts";
+ *
+ * assertNotInstanceOf(new Date(), Number); // Doesn't throw
+ * assertNotInstanceOf(new Date(), Date); // Throws
+ * ```
+ */
+export function assertNotInstanceOf<A, T>(
+  actual: A,
+  // deno-lint-ignore no-explicit-any
+  unexpectedType: new (...args: any[]) => T,
+  msg?: string,
+): asserts actual is Exclude<A, T> {
+  const msgSuffix = msg ? `: ${msg}` : ".";
+  msg =
+    `Expected object to not be an instance of "${typeof unexpectedType}"${msgSuffix}`;
+  assertFalse(actual instanceof unexpectedType, msg);
+}
+
+// denoCacheMetadata={"headers":{"content-length":"861","x-content-type-options":"nosniff","vary":"Accept-Encoding, Origin","x-amz-replication-status":"COMPLETED","x-amz-cf-pop":"SIN52-P1","server-timing":"fetchSource;dur=16","content-type":"application/typescript; charset=utf-8","x-amz-cf-id":"ptaB_PzAOI1ktK2aG7ACcnDe6BUEjnabF9V-rEwT7ODMuCTaGEiGvA==","x-frame-options":"DENY","referrer-policy":"strict-origin-when-cross-origin","accept-ranges":"bytes","last-modified":"Thu, 15 Feb 2024 05:02:27 GMT","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-server-side-encryption":"AES256","age":"18344887","cross-origin-embedder-policy":"same-origin","date":"Wed, 19 Mar 2025 06:09:12 GMT","access-control-allow-origin":"*","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","cross-origin-opener-policy":"same-origin","etag":"\"40688430187b46cbbfc8bd963c3bb5ba\"","server":"deno/gcp-asia-southeast1","x-amz-version-id":"JBLlJuZgcW7lhbXQQNTVZVIGLuwVXDcg","x-cache":"Hit from cloudfront","cross-origin-resource-policy":"same-origin","cache-control":"public, max-age=31536000, immutable","via":"http/2 edgeproxy-h"},"url":"https://deno.land/std@0.216.0/assert/assert_not_instance_of.ts","time":1760709438}

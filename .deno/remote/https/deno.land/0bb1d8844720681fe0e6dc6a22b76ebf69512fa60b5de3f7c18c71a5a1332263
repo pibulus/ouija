@@ -1,0 +1,28 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import { types } from "./_db.ts";
+
+/**
+ * Returns the media type associated with the file extension. Values are
+ * normalized to lower case and matched irrespective of a leading `.`.
+ *
+ * When `extension` has no associated type, the function returns `undefined`.
+ *
+ * @example
+ * ```ts
+ * import { typeByExtension } from "https://deno.land/std@$STD_VERSION/media_types/type_by_extension.ts";
+ *
+ * typeByExtension("js"); // "application/json"
+ * typeByExtension(".HTML"); // "text/html"
+ * typeByExtension("foo"); // undefined
+ * typeByExtension("file.json"); // undefined
+ * ```
+ */
+export function typeByExtension(extension: string): string | undefined {
+  extension = extension.startsWith(".") ? extension.slice(1) : extension;
+  // @ts-ignore workaround around denoland/dnt#148
+  return types.get(extension.toLowerCase());
+}
+
+// denoCacheMetadata={"headers":{"cross-origin-resource-policy":"same-origin","vary":"Accept-Encoding, Origin","date":"Mon, 03 Mar 2025 00:45:20 GMT","content-type":"application/typescript; charset=utf-8","x-frame-options":"DENY","last-modified":"Thu, 15 Feb 2024 05:02:29 GMT","via":"http/2 edgeproxy-h","accept-ranges":"bytes","referrer-policy":"strict-origin-when-cross-origin","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-cf-id":"lP3Lv8lXs1OYFhLEeMoB7gqyEHMRmmJKT9yARFQX_O9F5-hGJpGD6g==","x-amz-cf-pop":"SIN52-P1","x-amz-version-id":"yRQVbmzCO4ssmwJ9ZsuY3T_Kbsd8_p3v","age":"19747189","content-length":"945","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","server-timing":"fetchSource;dur=14","access-control-allow-origin":"*","cross-origin-embedder-policy":"same-origin","etag":"\"4ab2834e306ce54fb4076c5616492863\"","server":"deno/gcp-asia-southeast1","x-amz-replication-status":"COMPLETED","x-amz-server-side-encryption":"AES256","cache-control":"public, max-age=31536000, immutable","x-cache":"Hit from cloudfront","x-content-type-options":"nosniff","cross-origin-opener-policy":"same-origin"},"url":"https://deno.land/std@0.216.0/media_types/type_by_extension.ts","time":1760709908}

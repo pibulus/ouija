@@ -1,0 +1,27 @@
+// Copyright 2018-2025 the Deno authors. MIT license.
+// This module is browser compatible.
+
+import { assertArg } from "../_common/from_file_url.ts";
+
+/**
+ * Converts a file URL to a path string.
+ *
+ * @example Usage
+ * ```ts
+ * import { fromFileUrl } from "@std/path/posix/from-file-url";
+ * import { assertEquals } from "@std/assert";
+ *
+ * assertEquals(fromFileUrl(new URL("file:///home/foo")), "/home/foo");
+ * ```
+ *
+ * @param url The file URL to convert.
+ * @returns The path string.
+ */
+export function fromFileUrl(url: URL | string): string {
+  url = assertArg(url);
+  return decodeURIComponent(
+    url.pathname.replace(/%(?![0-9A-Fa-f]{2})/g, "%25"),
+  );
+}
+
+// denoCacheMetadata={"headers":{"etag":"\"be9282c5abbbff212aa4a9b5af0b639a\"","x-goog-stored-content-length":"668","x-robots-tag":"noindex","x-guploader-uploadid":"AAwnv3J4gzUgwrK3qN4yKIiNquAG2Mih5seqwHkUTpaiCB4XRiUOkIk_qo2Ze0ssL-14L2T0","x-goog-generation":"1755088699246615","x-goog-storage-class":"STANDARD","content-security-policy":"default-src 'none'; script-src 'none'; style-src 'none'; img-src 'none'; font-src 'none'; connect-src 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'; sandbox; form-action 'none';","x-jsr-cache-status":"revalidated","x-goog-hash":"crc32c=sMVgBA==,md5=vpKCxau7/yEqpKm1rwtjmg==","accept-ranges":"bytes","content-length":"668","date":"Fri, 17 Oct 2025 14:05:12 GMT","content-type":"text/typescript","access-control-allow-origin":"*","cache-control":"public, max-age=31536000, immutable","server":"UploadServer","expires":"Sat, 17 Oct 2026 14:05:12 GMT","x-content-type-options":"nosniff","alt-svc":"h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000","via":"1.1 google","age":"1","access-control-expose-headers":"*","x-jsr-cache-id":"MEL","last-modified":"Wed, 13 Aug 2025 12:38:19 GMT","x-goog-stored-content-encoding":"identity","x-goog-metageneration":"1","cross-origin-resource-policy":"cross-origin"},"url":"https://jsr.io/@std/path/1.1.2/posix/from_file_url.ts","time":1760709913}

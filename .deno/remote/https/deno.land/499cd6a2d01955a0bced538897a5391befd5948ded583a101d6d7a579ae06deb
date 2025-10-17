@@ -1,0 +1,32 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { format } from "./_format.ts";
+import { AssertionError } from "./assertion_error.ts";
+
+/**
+ * Make an assertion that `actual` is less than or equal to `expected`.
+ * If not then throw.
+ *
+ * @example
+ * ```ts
+ * import { assertLessOrEqual } from "https://deno.land/std@$STD_VERSION/assert/assert_less_or_equal.ts";
+ *
+ * assertLessOrEqual(1, 2); // Doesn't throw
+ * assertLessOrEqual(1, 1); // Doesn't throw
+ * assertLessOrEqual(1, 0); // Throws
+ * ```
+ */
+export function assertLessOrEqual<T>(
+  actual: T,
+  expected: T,
+  msg?: string,
+) {
+  if (actual <= expected) return;
+
+  const actualString = format(actual);
+  const expectedString = format(expected);
+  throw new AssertionError(
+    msg ?? `Expect ${actualString} <= ${expectedString}`,
+  );
+}
+
+// denoCacheMetadata={"headers":{"accept-ranges":"bytes","cross-origin-opener-policy":"same-origin","last-modified":"Thu, 15 Feb 2024 05:02:27 GMT","referrer-policy":"strict-origin-when-cross-origin","via":"http/2 edgeproxy-h","x-amz-cf-id":"6-TgiCbxDtJo7e1NSSXXQBOPO3hWIRdbAPcDC8cqO9OBf06_4wlVkQ==","cross-origin-resource-policy":"same-origin","content-type":"application/typescript; charset=utf-8","x-amz-replication-status":"COMPLETED","x-content-type-options":"nosniff","x-frame-options":"DENY","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","date":"Wed, 19 Mar 2025 06:09:12 GMT","etag":"\"18a68cdd3086cb3586e7cb269bb190f1\"","cross-origin-embedder-policy":"same-origin","server":"deno/gcp-asia-southeast1","x-amz-server-side-encryption":"AES256","x-cache":"Hit from cloudfront","cache-control":"public, max-age=31536000, immutable","server-timing":"fetchSource;dur=26","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-cf-pop":"SIN52-P1","access-control-allow-origin":"*","vary":"Accept-Encoding, Origin","x-amz-version-id":"hXICc4sWnWicMlN8lzYM5sjDhafda_yH","age":"18344887","content-length":"836"},"url":"https://deno.land/std@0.216.0/assert/assert_less_or_equal.ts","time":1760709439}

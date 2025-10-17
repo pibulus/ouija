@@ -1,0 +1,13 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { lessThan } from "./less_than.ts";
+import { rangeMin } from "./range_min.ts";
+/**
+ *  Less than range comparison
+ * @deprecated (will be removed after 0.217.0) See
+ * {@link https://github.com/denoland/deno_std/issues/4273 | deno_std#4273}
+ * for details.
+ */ export function ltr(version, range) {
+  return lessThan(version, rangeMin(range));
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3N0ZEAwLjIxNi4wL3NlbXZlci9sdHIudHMiXSwic291cmNlc0NvbnRlbnQiOlsiLy8gQ29weXJpZ2h0IDIwMTgtMjAyNCB0aGUgRGVubyBhdXRob3JzLiBBbGwgcmlnaHRzIHJlc2VydmVkLiBNSVQgbGljZW5zZS5cbmltcG9ydCB0eXBlIHsgUmFuZ2UsIFNlbVZlciB9IGZyb20gXCIuL3R5cGVzLnRzXCI7XG5pbXBvcnQgeyBsZXNzVGhhbiB9IGZyb20gXCIuL2xlc3NfdGhhbi50c1wiO1xuaW1wb3J0IHsgcmFuZ2VNaW4gfSBmcm9tIFwiLi9yYW5nZV9taW4udHNcIjtcblxuLyoqXG4gKiAgTGVzcyB0aGFuIHJhbmdlIGNvbXBhcmlzb25cbiAqIEBkZXByZWNhdGVkICh3aWxsIGJlIHJlbW92ZWQgYWZ0ZXIgMC4yMTcuMCkgU2VlXG4gKiB7QGxpbmsgaHR0cHM6Ly9naXRodWIuY29tL2Rlbm9sYW5kL2Rlbm9fc3RkL2lzc3Vlcy80MjczIHwgZGVub19zdGQjNDI3M31cbiAqIGZvciBkZXRhaWxzLlxuICovXG5leHBvcnQgZnVuY3Rpb24gbHRyKFxuICB2ZXJzaW9uOiBTZW1WZXIsXG4gIHJhbmdlOiBSYW5nZSxcbik6IGJvb2xlYW4ge1xuICByZXR1cm4gbGVzc1RoYW4odmVyc2lvbiwgcmFuZ2VNaW4ocmFuZ2UpKTtcbn1cbiJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSwwRUFBMEU7QUFFMUUsU0FBUyxRQUFRLFFBQVEsaUJBQWlCO0FBQzFDLFNBQVMsUUFBUSxRQUFRLGlCQUFpQjtBQUUxQzs7Ozs7Q0FLQyxHQUNELE9BQU8sU0FBUyxJQUNkLE9BQWUsRUFDZixLQUFZO0VBRVosT0FBTyxTQUFTLFNBQVMsU0FBUztBQUNwQyJ9
+// denoCacheMetadata=15421662521139663444,8055698582794822256

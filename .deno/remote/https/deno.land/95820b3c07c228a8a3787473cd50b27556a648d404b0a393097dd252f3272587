@@ -1,0 +1,30 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import {
+  assertArgs,
+  lastPathSegment,
+  stripSuffix,
+} from "../_common/basename.ts";
+import { stripTrailingSeparators } from "../_common/strip_trailing_separators.ts";
+import { isPosixPathSeparator } from "./_util.ts";
+
+/**
+ * Return the last portion of a `path`.
+ * Trailing directory separators are ignored, and optional suffix is removed.
+ *
+ * @param path - path to extract the name from.
+ * @param [suffix] - suffix to remove from extracted name.
+ */
+export function basename(path: string, suffix = ""): string {
+  assertArgs(path, suffix);
+
+  const lastSegment = lastPathSegment(path, isPosixPathSeparator);
+  const strippedSegment = stripTrailingSeparators(
+    lastSegment,
+    isPosixPathSeparator,
+  );
+  return suffix ? stripSuffix(strippedSegment, suffix) : strippedSegment;
+}
+
+// denoCacheMetadata={"headers":{"cross-origin-resource-policy":"same-origin","date":"Fri, 14 Feb 2025 10:51:01 GMT","accept-ranges":"bytes","last-modified":"Thu, 15 Feb 2024 05:02:29 GMT","strict-transport-security":"max-age=63072000; includeSubDomains; preload","cross-origin-embedder-policy":"same-origin","via":"http/2 edgeproxy-h","x-amz-cf-id":"WgattEzpAB6n1L8icKYg-aQTjbH6jmGkiFxJK1vIBrBTt7eh98HwVA==","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","x-amz-cf-pop":"SIN52-P1","etag":"\"68e672e076f46cfa4c0fe257bf528c1b\"","x-amz-replication-status":"COMPLETED","x-amz-server-side-encryption":"AES256","vary":"Accept-Encoding, Origin","content-length":"908","x-amz-version-id":"eDsBK__rsQtYmzzqqLZt7I93ivROY9lA","x-cache":"Hit from cloudfront","content-type":"application/typescript; charset=utf-8","cross-origin-opener-policy":"same-origin","referrer-policy":"strict-origin-when-cross-origin","access-control-allow-origin":"*","server-timing":"fetchSource;dur=20","x-content-type-options":"nosniff","x-frame-options":"DENY","cache-control":"public, max-age=31536000, immutable","server":"deno/gcp-asia-southeast1","age":"21179177"},"url":"https://deno.land/std@0.216.0/path/posix/basename.ts","time":1760709438}

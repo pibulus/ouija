@@ -1,0 +1,19 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { testRange } from "./test_range.ts";
+import { lessThan } from "./less_than.ts";
+/**
+ * Returns the lowest version in the list that satisfies the range, or `undefined` if
+ * none of them do.
+ * @param versions The versions to check.
+ * @param range The range of possible versions to compare to.
+ * @returns The lowest version in versions that satisfies the range.
+ */ export function minSatisfying(versions, range) {
+  let min;
+  for (const version of versions) {
+    if (!testRange(version, range)) continue;
+    min = min && lessThan(min, version) ? min : version;
+  }
+  return min;
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3N0ZEAwLjIxNi4wL3NlbXZlci9taW5fc2F0aXNmeWluZy50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIvLyBDb3B5cmlnaHQgMjAxOC0yMDI0IHRoZSBEZW5vIGF1dGhvcnMuIEFsbCByaWdodHMgcmVzZXJ2ZWQuIE1JVCBsaWNlbnNlLlxuaW1wb3J0IHR5cGUgeyBSYW5nZSwgU2VtVmVyIH0gZnJvbSBcIi4vdHlwZXMudHNcIjtcbmltcG9ydCB7IHRlc3RSYW5nZSB9IGZyb20gXCIuL3Rlc3RfcmFuZ2UudHNcIjtcbmltcG9ydCB7IGxlc3NUaGFuIH0gZnJvbSBcIi4vbGVzc190aGFuLnRzXCI7XG5cbi8qKlxuICogUmV0dXJucyB0aGUgbG93ZXN0IHZlcnNpb24gaW4gdGhlIGxpc3QgdGhhdCBzYXRpc2ZpZXMgdGhlIHJhbmdlLCBvciBgdW5kZWZpbmVkYCBpZlxuICogbm9uZSBvZiB0aGVtIGRvLlxuICogQHBhcmFtIHZlcnNpb25zIFRoZSB2ZXJzaW9ucyB0byBjaGVjay5cbiAqIEBwYXJhbSByYW5nZSBUaGUgcmFuZ2Ugb2YgcG9zc2libGUgdmVyc2lvbnMgdG8gY29tcGFyZSB0by5cbiAqIEByZXR1cm5zIFRoZSBsb3dlc3QgdmVyc2lvbiBpbiB2ZXJzaW9ucyB0aGF0IHNhdGlzZmllcyB0aGUgcmFuZ2UuXG4gKi9cbmV4cG9ydCBmdW5jdGlvbiBtaW5TYXRpc2Z5aW5nKFxuICB2ZXJzaW9uczogU2VtVmVyW10sXG4gIHJhbmdlOiBSYW5nZSxcbik6IFNlbVZlciB8IHVuZGVmaW5lZCB7XG4gIGxldCBtaW47XG4gIGZvciAoY29uc3QgdmVyc2lvbiBvZiB2ZXJzaW9ucykge1xuICAgIGlmICghdGVzdFJhbmdlKHZlcnNpb24sIHJhbmdlKSkgY29udGludWU7XG4gICAgbWluID0gbWluICYmIGxlc3NUaGFuKG1pbiwgdmVyc2lvbikgPyBtaW4gOiB2ZXJzaW9uO1xuICB9XG4gIHJldHVybiBtaW47XG59XG4iXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUEsMEVBQTBFO0FBRTFFLFNBQVMsU0FBUyxRQUFRLGtCQUFrQjtBQUM1QyxTQUFTLFFBQVEsUUFBUSxpQkFBaUI7QUFFMUM7Ozs7OztDQU1DLEdBQ0QsT0FBTyxTQUFTLGNBQ2QsUUFBa0IsRUFDbEIsS0FBWTtFQUVaLElBQUk7RUFDSixLQUFLLE1BQU0sV0FBVyxTQUFVO0lBQzlCLElBQUksQ0FBQyxVQUFVLFNBQVMsUUFBUTtJQUNoQyxNQUFNLE9BQU8sU0FBUyxLQUFLLFdBQVcsTUFBTTtFQUM5QztFQUNBLE9BQU87QUFDVCJ9
+// denoCacheMetadata=14404664660988698387,15977149714891431383

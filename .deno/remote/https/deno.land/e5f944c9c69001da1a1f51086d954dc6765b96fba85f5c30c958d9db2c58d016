@@ -1,0 +1,32 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import { assertArg } from "../_common/normalize.ts";
+import { normalizeString } from "../_common/normalize_string.ts";
+import { isPosixPathSeparator } from "./_util.ts";
+
+/**
+ * Normalize the `path`, resolving `'..'` and `'.'` segments.
+ * Note that resolving these segments does not necessarily mean that all will be eliminated.
+ * A `'..'` at the top-level will be preserved, and an empty path is canonically `'.'`.
+ * @param path to be normalized
+ */
+export function normalize(path: string): string {
+  assertArg(path);
+
+  const isAbsolute = isPosixPathSeparator(path.charCodeAt(0));
+  const trailingSeparator = isPosixPathSeparator(
+    path.charCodeAt(path.length - 1),
+  );
+
+  // Normalize the path
+  path = normalizeString(path, !isAbsolute, "/", isPosixPathSeparator);
+
+  if (path.length === 0 && !isAbsolute) path = ".";
+  if (path.length > 0 && trailingSeparator) path += "/";
+
+  if (isAbsolute) return `/${path}`;
+  return path;
+}
+
+// denoCacheMetadata={"headers":{"x-amz-server-side-encryption":"AES256","x-amz-version-id":"dg71vCjPCc7bLFUKjU59zwL_3Uo949zR","age":"21179177","etag":"\"db20394d76da2207867289705b9390d7\"","x-amz-cf-pop":"SIN52-P1","x-amz-replication-status":"COMPLETED","server-timing":"fetchSource;dur=22","x-content-type-options":"nosniff","x-cache":"Hit from cloudfront","access-control-allow-origin":"*","last-modified":"Thu, 15 Feb 2024 05:02:29 GMT","content-length":"1056","cross-origin-resource-policy":"same-origin","server":"deno/gcp-asia-southeast1","accept-ranges":"bytes","x-frame-options":"DENY","cross-origin-embedder-policy":"same-origin","strict-transport-security":"max-age=63072000; includeSubDomains; preload","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","vary":"Accept-Encoding, Origin","referrer-policy":"strict-origin-when-cross-origin","cache-control":"public, max-age=31536000, immutable","date":"Fri, 14 Feb 2025 10:51:01 GMT","content-type":"application/typescript; charset=utf-8","x-amz-cf-id":"PJPxExgAmh4VlZ88qGzsI5HYVGeWSrFLAlgr9nhW4gFPB9v9pCBWvw==","cross-origin-opener-policy":"same-origin","via":"http/2 edgeproxy-h"},"url":"https://deno.land/std@0.216.0/path/posix/normalize.ts","time":1760709438}

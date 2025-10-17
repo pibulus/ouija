@@ -1,0 +1,48 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { SemVer } from "./types.ts";
+import { parseBuild, parseNumber, parsePrerelease } from "./_shared.ts";
+import { FULL_REGEXP, MAX_LENGTH } from "./_shared.ts";
+
+/**
+ * Attempt to parse a string as a semantic version, returning either a `SemVer`
+ * object or throws a TypeError.
+ * @param version The version string to parse
+ * @returns A valid SemVer
+ */
+export function parse(version: string): SemVer {
+  if (typeof version !== "string") {
+    throw new TypeError(
+      `version must be a string`,
+    );
+  }
+
+  if (version.length > MAX_LENGTH) {
+    throw new TypeError(
+      `version is longer than ${MAX_LENGTH} characters`,
+    );
+  }
+
+  version = version.trim();
+
+  const groups = version.match(FULL_REGEXP)?.groups;
+  if (!groups) throw new TypeError(`Invalid Version: ${version}`);
+
+  const major = parseNumber(groups.major, "Invalid major version");
+  const minor = parseNumber(groups.minor, "Invalid minor version");
+  const patch = parseNumber(groups.patch, "Invalid patch version");
+
+  const prerelease = groups.prerelease
+    ? parsePrerelease(groups.prerelease)
+    : [];
+  const build = groups.buildmetadata ? parseBuild(groups.buildmetadata) : [];
+
+  return {
+    major,
+    minor,
+    patch,
+    prerelease,
+    build,
+  };
+}
+
+// denoCacheMetadata={"headers":{"x-cache":"Hit from cloudfront","cross-origin-embedder-policy":"same-origin","cross-origin-resource-policy":"same-origin","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","x-amz-cf-pop":"SIN52-P1","etag":"\"644c324a58928ee04ed0b795e5f004ef\"","x-frame-options":"DENY","server":"deno/gcp-asia-southeast1","accept-ranges":"bytes","x-amz-server-side-encryption":"AES256","x-content-type-options":"nosniff","strict-transport-security":"max-age=63072000; includeSubDomains; preload","content-length":"1326","referrer-policy":"strict-origin-when-cross-origin","via":"http/2 edgeproxy-h","x-amz-version-id":"8rFIqMXaeiFtlD186RImHoxK9iLgkqs7","x-amz-replication-status":"COMPLETED","cache-control":"public, max-age=31536000, immutable","vary":"Accept-Encoding, Origin","cross-origin-opener-policy":"same-origin","content-type":"application/typescript; charset=utf-8","date":"Sun, 09 Mar 2025 05:29:03 GMT","access-control-allow-origin":"*","last-modified":"Thu, 15 Feb 2024 05:02:29 GMT","age":"19211296","server-timing":"fetchSource;dur=30","x-amz-cf-id":"xJk050bsNKFtNAOT0SvnFxIEn6hkul3H_Q5Wz7c1-cInYtlDz-8_Mg=="},"url":"https://deno.land/std@0.216.0/semver/parse.ts","time":1760709439}

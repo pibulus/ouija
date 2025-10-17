@@ -1,0 +1,36 @@
+export {
+  EsbuildBuilder,
+  type EsbuildBuilderOptions,
+  EsbuildSnapshot,
+} from "./esbuild.ts";
+export { AotSnapshot } from "./aot_snapshot.ts";
+export interface Builder {
+  build(): Promise<BuildSnapshot>;
+}
+
+export interface BuildSnapshot {
+  /** The list of files contained in this snapshot, not prefixed by a slash. */
+  readonly paths: string[];
+
+  /** For a given file, return it's contents.
+   * @throws If the file is not contained in this snapshot. */
+  read(
+    path: string,
+  ):
+    | ReadableStream<Uint8Array>
+    | Uint8Array
+    | null
+    | Promise<ReadableStream<Uint8Array> | Uint8Array | null>;
+
+  /** For a given entrypoint, return it's list of dependencies.
+   *
+   * Returns an empty array if the entrypoint does not exist. */
+  dependencies(path: string): string[];
+}
+
+export interface BuildSnapshotJson {
+  build_id: string;
+  files: Record<string, string[]>;
+}
+
+// denoCacheMetadata={"headers":{"cross-origin-opener-policy":"same-origin","x-amz-server-side-encryption":"AES256","cross-origin-resource-policy":"same-origin","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-content-type-options":"nosniff","access-control-allow-origin":"*","cache-control":"public, max-age=31536000, immutable","content-length":"891","last-modified":"Mon, 14 Oct 2024 12:51:13 GMT","age":"31535478","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","referrer-policy":"strict-origin-when-cross-origin","via":"http/2 edgeproxy-h","content-type":"application/typescript; charset=utf-8","date":"Thu, 17 Oct 2024 14:13:50 GMT","x-amz-version-id":"q3q_FZBdnJCsmrlcDrPUco29CSpwelho","etag":"\"18adb50c58b562bf992752a8bc7f22aa\"","x-amz-replication-status":"COMPLETED","cross-origin-embedder-policy":"same-origin","x-cache":"Hit from cloudfront","server-timing":"fetchSource;dur=34","x-amz-cf-pop":"SIN52-P1","accept-ranges":"bytes","x-frame-options":"DENY","vary":"Accept-Encoding, Origin","x-amz-cf-id":"2ebrr5_4WBpxElS6pWwSe1f2ff5HAEL43qEZj4SQU15Scka5d2SjIA==","server":"deno/gcp-asia-southeast1"},"url":"https://deno.land/x/fresh@1.7.3/src/build/mod.ts","time":1760709908}

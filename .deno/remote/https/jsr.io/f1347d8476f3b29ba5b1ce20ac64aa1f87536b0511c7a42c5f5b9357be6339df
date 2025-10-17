@@ -1,0 +1,51 @@
+// Copyright 2018-2025 the Deno authors. MIT license.
+// This module is browser compatible.
+import { copy } from "./copy.ts";
+import type { Uint8Array_ } from "./_types.ts";
+export type { Uint8Array_ };
+
+/**
+ * Returns a new byte slice composed of `count` repetitions of the `source`
+ * array.
+ *
+ * @param source Source array to repeat.
+ * @param count Number of times to repeat the source array.
+ * @returns A new byte slice composed of `count` repetitions of the `source`
+ * array.
+ *
+ * @example Basic usage
+ * ```ts
+ * import { repeat } from "@std/bytes/repeat";
+ * import { assertEquals } from "@std/assert";
+ *
+ * const source = new Uint8Array([0, 1, 2]);
+ *
+ * assertEquals(repeat(source, 3), new Uint8Array([0, 1, 2, 0, 1, 2, 0, 1, 2]));
+ * ```
+ *
+ * @example Zero count
+ * ```ts
+ * import { repeat } from "@std/bytes/repeat";
+ * import { assertEquals } from "@std/assert";
+ *
+ * const source = new Uint8Array([0, 1, 2]);
+ *
+ * assertEquals(repeat(source, 0), new Uint8Array());
+ * ```
+ */
+export function repeat(source: Uint8Array, count: number): Uint8Array_ {
+  if (count < 0 || !Number.isInteger(count)) {
+    throw new RangeError("Count must be a non-negative integer");
+  }
+
+  const repeated = new Uint8Array(source.length * count);
+  let offset = 0;
+
+  while (offset < repeated.length) {
+    offset += copy(source, repeated, offset);
+  }
+
+  return repeated;
+}
+
+// denoCacheMetadata={"headers":{"x-goog-hash":"crc32c=0EAJtw==,md5=0WxJYoWesij6mFRyAhl4Hw==","expires":"Sat, 17 Oct 2026 14:05:12 GMT","x-jsr-cache-id":"MEL","access-control-allow-origin":"*","cross-origin-resource-policy":"cross-origin","x-guploader-uploadid":"AAwnv3Ks90xNO4djtH0BJ5xjeSsiNC0TkTTInHPoUOeM44T36FMPz4s-e4DeFX8FR5UCqX65","alt-svc":"h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000","access-control-expose-headers":"*","x-goog-metageneration":"1","x-goog-stored-content-length":"1376","content-security-policy":"default-src 'none'; script-src 'none'; style-src 'none'; img-src 'none'; font-src 'none'; connect-src 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'; sandbox; form-action 'none';","server":"UploadServer","cache-control":"public, max-age=31536000, immutable","x-content-type-options":"nosniff","x-goog-generation":"1747121135098767","content-type":"text/typescript","x-goog-storage-class":"STANDARD","content-length":"1376","date":"Fri, 17 Oct 2025 14:05:12 GMT","accept-ranges":"bytes","x-goog-stored-content-encoding":"identity","etag":"\"d16c4962859eb228fa9854720219781f\"","age":"1","last-modified":"Tue, 13 May 2025 07:25:35 GMT","x-jsr-cache-status":"revalidated","x-robots-tag":"noindex","via":"1.1 google"},"url":"https://jsr.io/@std/bytes/1.0.6/repeat.ts","time":1760709913}

@@ -1,0 +1,122 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { isSubdir } from "./_is_subdir.ts";
+import { isSamePath } from "./_is_same_path.ts";
+
+const EXISTS_ERROR = new Deno.errors.AlreadyExists("dest already exists.");
+
+/**
+ * Error thrown in {@linkcode move} or {@linkcode moveSync} when the
+ * destination is a subdirectory of the source.
+ */
+export class SubdirectoryMoveError extends Error {
+  /** Constructs a new instance. */
+  constructor(src: string | URL, dest: string | URL) {
+    super(
+      `Cannot move '${src}' to a subdirectory of itself, '${dest}'.`,
+    );
+  }
+}
+
+/** Options for {@linkcode move} and {@linkcode moveSync}. */
+export interface MoveOptions {
+  /**
+   * Whether the destination file should be overwritten if it already exists.
+   *
+   * @default {false}
+   */
+  overwrite?: boolean;
+}
+
+/**
+ * Moves a file or directory.
+ *
+ * @example
+ * ```ts
+ * import { move } from "https://deno.land/std@$STD_VERSION/fs/mod.ts";
+ *
+ * move("./foo", "./bar"); // returns a promise
+ * ```
+ */
+export async function move(
+  src: string | URL,
+  dest: string | URL,
+  { overwrite = false }: MoveOptions = {},
+): Promise<void> {
+  const srcStat = await Deno.stat(src);
+
+  if (
+    srcStat.isDirectory &&
+    (isSubdir(src, dest) || isSamePath(src, dest))
+  ) {
+    throw new SubdirectoryMoveError(src, dest);
+  }
+
+  if (overwrite) {
+    if (isSamePath(src, dest)) return;
+    try {
+      await Deno.remove(dest, { recursive: true });
+    } catch (error) {
+      if (!(error instanceof Deno.errors.NotFound)) {
+        throw error;
+      }
+    }
+  } else {
+    try {
+      await Deno.lstat(dest);
+      return Promise.reject(EXISTS_ERROR);
+    } catch {
+      // Do nothing...
+    }
+  }
+
+  await Deno.rename(src, dest);
+}
+
+/**
+ * Moves a file or directory synchronously.
+ *
+ * @example
+ * ```ts
+ * import { moveSync } from "https://deno.land/std@$STD_VERSION/fs/mod.ts";
+ *
+ * moveSync("./foo", "./bar"); // void
+ * ```
+ */
+export function moveSync(
+  src: string | URL,
+  dest: string | URL,
+  { overwrite = false }: MoveOptions = {},
+): void {
+  const srcStat = Deno.statSync(src);
+
+  if (
+    srcStat.isDirectory &&
+    (isSubdir(src, dest) || isSamePath(src, dest))
+  ) {
+    throw new SubdirectoryMoveError(src, dest);
+  }
+
+  if (overwrite) {
+    if (isSamePath(src, dest)) return;
+    try {
+      Deno.removeSync(dest, { recursive: true });
+    } catch (error) {
+      if (!(error instanceof Deno.errors.NotFound)) {
+        throw error;
+      }
+    }
+  } else {
+    try {
+      Deno.lstatSync(dest);
+      throw EXISTS_ERROR;
+    } catch (error) {
+      if (error === EXISTS_ERROR) {
+        throw error;
+      }
+    }
+  }
+
+  Deno.renameSync(src, dest);
+}
+
+// denoCacheMetadata={"headers":{"x-frame-options":"DENY","x-content-type-options":"nosniff","x-cache":"Hit from cloudfront","access-control-allow-origin":"*","cross-origin-resource-policy":"same-origin","accept-ranges":"bytes","age":"18141496","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","content-length":"2702","vary":"Accept-Encoding, Origin","x-amz-cf-pop":"SIN52-P1","x-amz-server-side-encryption":"AES256","strict-transport-security":"max-age=63072000; includeSubDomains; preload","referrer-policy":"strict-origin-when-cross-origin","server-timing":"fetchSource;dur=50","cache-control":"public, max-age=31536000, immutable","x-amz-cf-id":"BNxrzdrEnulg239zZcf91RjBqGQ64HNrsUF80Vf9U2p08vki5dLoDg==","cross-origin-opener-policy":"same-origin","content-type":"application/typescript; charset=utf-8","server":"deno/gcp-asia-southeast1","cross-origin-embedder-policy":"same-origin","date":"Fri, 21 Mar 2025 14:39:03 GMT","last-modified":"Thu, 15 Feb 2024 05:02:28 GMT","via":"http/2 edgeproxy-h","x-amz-replication-status":"COMPLETED","x-amz-version-id":"HcTP_Kamnrtadv0CpwPssOMFWoNRrBbn","etag":"\"29e32cfd92632fb213584362de7082b0\""},"url":"https://deno.land/std@0.216.0/fs/move.ts","time":1760709439}

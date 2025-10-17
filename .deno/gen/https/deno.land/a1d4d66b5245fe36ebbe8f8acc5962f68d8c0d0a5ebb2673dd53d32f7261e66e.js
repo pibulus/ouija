@@ -1,0 +1,21 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// Copyright the Browserify authors. MIT License.
+import { SEPARATOR } from "../path/constants.ts";
+import { toPathString } from "./_to_path_string.ts";
+/**
+ * Test whether or not `dest` is a sub-directory of `src`
+ * @param src src file path
+ * @param dest dest file path
+ * @param sep path separator
+ */ export function isSubdir(src, dest, sep = SEPARATOR) {
+  if (src === dest) {
+    return false;
+  }
+  src = toPathString(src);
+  const srcArray = src.split(sep);
+  dest = toPathString(dest);
+  const destArray = dest.split(sep);
+  return srcArray.every((current, i) => destArray[i] === current);
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3N0ZEAwLjIxNi4wL2ZzL19pc19zdWJkaXIudHMiXSwic291cmNlc0NvbnRlbnQiOlsiLy8gQ29weXJpZ2h0IDIwMTgtMjAyNCB0aGUgRGVubyBhdXRob3JzLiBBbGwgcmlnaHRzIHJlc2VydmVkLiBNSVQgbGljZW5zZS5cbi8vIENvcHlyaWdodCB0aGUgQnJvd3NlcmlmeSBhdXRob3JzLiBNSVQgTGljZW5zZS5cblxuaW1wb3J0IHsgU0VQQVJBVE9SIH0gZnJvbSBcIi4uL3BhdGgvY29uc3RhbnRzLnRzXCI7XG5pbXBvcnQgeyB0b1BhdGhTdHJpbmcgfSBmcm9tIFwiLi9fdG9fcGF0aF9zdHJpbmcudHNcIjtcblxuLyoqXG4gKiBUZXN0IHdoZXRoZXIgb3Igbm90IGBkZXN0YCBpcyBhIHN1Yi1kaXJlY3Rvcnkgb2YgYHNyY2BcbiAqIEBwYXJhbSBzcmMgc3JjIGZpbGUgcGF0aFxuICogQHBhcmFtIGRlc3QgZGVzdCBmaWxlIHBhdGhcbiAqIEBwYXJhbSBzZXAgcGF0aCBzZXBhcmF0b3JcbiAqL1xuZXhwb3J0IGZ1bmN0aW9uIGlzU3ViZGlyKFxuICBzcmM6IHN0cmluZyB8IFVSTCxcbiAgZGVzdDogc3RyaW5nIHwgVVJMLFxuICBzZXAgPSBTRVBBUkFUT1IsXG4pOiBib29sZWFuIHtcbiAgaWYgKHNyYyA9PT0gZGVzdCkge1xuICAgIHJldHVybiBmYWxzZTtcbiAgfVxuICBzcmMgPSB0b1BhdGhTdHJpbmcoc3JjKTtcbiAgY29uc3Qgc3JjQXJyYXkgPSBzcmMuc3BsaXQoc2VwKTtcbiAgZGVzdCA9IHRvUGF0aFN0cmluZyhkZXN0KTtcbiAgY29uc3QgZGVzdEFycmF5ID0gZGVzdC5zcGxpdChzZXApO1xuICByZXR1cm4gc3JjQXJyYXkuZXZlcnkoKGN1cnJlbnQsIGkpID0+IGRlc3RBcnJheVtpXSA9PT0gY3VycmVudCk7XG59XG4iXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUEsMEVBQTBFO0FBQzFFLGlEQUFpRDtBQUVqRCxTQUFTLFNBQVMsUUFBUSx1QkFBdUI7QUFDakQsU0FBUyxZQUFZLFFBQVEsdUJBQXVCO0FBRXBEOzs7OztDQUtDLEdBQ0QsT0FBTyxTQUFTLFNBQ2QsR0FBaUIsRUFDakIsSUFBa0IsRUFDbEIsTUFBTSxTQUFTO0VBRWYsSUFBSSxRQUFRLE1BQU07SUFDaEIsT0FBTztFQUNUO0VBQ0EsTUFBTSxhQUFhO0VBQ25CLE1BQU0sV0FBVyxJQUFJLEtBQUssQ0FBQztFQUMzQixPQUFPLGFBQWE7RUFDcEIsTUFBTSxZQUFZLEtBQUssS0FBSyxDQUFDO0VBQzdCLE9BQU8sU0FBUyxLQUFLLENBQUMsQ0FBQyxTQUFTLElBQU0sU0FBUyxDQUFDLEVBQUUsS0FBSztBQUN6RCJ9
+// denoCacheMetadata=12868112356798221014,3519535378615108978

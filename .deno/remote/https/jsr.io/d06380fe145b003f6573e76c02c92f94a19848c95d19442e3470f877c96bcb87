@@ -1,0 +1,23 @@
+// Copyright 2018-2025 the Deno authors. MIT license.
+// This module is browser compatible.
+
+/**
+ * Converts a path to a namespaced path. This function returns the path as is on posix.
+ *
+ * @example Usage
+ * ```ts
+ * import { toNamespacedPath } from "@std/path/posix/to-namespaced-path";
+ * import { assertEquals } from "@std/assert";
+ *
+ * assertEquals(toNamespacedPath("/home/foo"), "/home/foo");
+ * ```
+ *
+ * @param path The path.
+ * @returns The namespaced path.
+ */
+export function toNamespacedPath(path: string): string {
+  // Non-op on posix systems
+  return path;
+}
+
+// denoCacheMetadata={"headers":{"content-type":"text/typescript","x-robots-tag":"noindex","alt-svc":"h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000","last-modified":"Wed, 13 Aug 2025 12:38:19 GMT","cross-origin-resource-policy":"cross-origin","date":"Fri, 17 Oct 2025 14:05:13 GMT","x-goog-storage-class":"STANDARD","x-jsr-cache-id":"MEL","x-goog-stored-content-length":"575","content-length":"575","via":"1.1 google","x-goog-generation":"1755088699336410","etag":"\"d210f6bd34040d0b8762dc9ac747d111\"","content-security-policy":"default-src 'none'; script-src 'none'; style-src 'none'; img-src 'none'; font-src 'none'; connect-src 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'; sandbox; form-action 'none';","age":"0","x-guploader-uploadid":"AAwnv3IxkMMJBHxyNrFPBBDEfC_n1arG-5DpxeZtI5lS4YK2uuQHCTqByiX8nyt4zfadg7re","x-jsr-cache-status":"revalidated","accept-ranges":"bytes","expires":"Sat, 17 Oct 2026 14:05:13 GMT","x-goog-metageneration":"1","x-goog-hash":"crc32c=sUIEdg==,md5=0hD2vTQEDQuHYtyax0fREQ==","server":"UploadServer","cache-control":"public, max-age=31536000, immutable","x-goog-stored-content-encoding":"identity","x-content-type-options":"nosniff","access-control-allow-origin":"*","access-control-expose-headers":"*"},"url":"https://jsr.io/@std/path/1.1.2/posix/to_namespaced_path.ts","time":1760709913}

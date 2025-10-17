@@ -1,0 +1,22 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { INVALID } from "./constants.ts";
+import { testRange } from "./test_range.ts";
+import { comparatorMin } from "./_comparator_min.ts";
+import { lessThan } from "./less_than.ts";
+/**
+ * The minimum valid SemVer for a given range or INVALID
+ * @param range The range to calculate the min for
+ * @returns A valid SemVer or INVALID
+ */ export function rangeMin(range) {
+  let min;
+  for (const comparators of range) {
+    for (const comparator of comparators) {
+      const candidate = comparatorMin(comparator);
+      if (!testRange(candidate, range)) continue;
+      min = min && lessThan(min, candidate) ? min : candidate;
+    }
+  }
+  return min ?? INVALID;
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3N0ZEAwLjIxNi4wL3NlbXZlci9yYW5nZV9taW4udHMiXSwic291cmNlc0NvbnRlbnQiOlsiLy8gQ29weXJpZ2h0IDIwMTgtMjAyNCB0aGUgRGVubyBhdXRob3JzLiBBbGwgcmlnaHRzIHJlc2VydmVkLiBNSVQgbGljZW5zZS5cbmltcG9ydCB7IElOVkFMSUQgfSBmcm9tIFwiLi9jb25zdGFudHMudHNcIjtcbmltcG9ydCB0eXBlIHsgUmFuZ2UsIFNlbVZlciB9IGZyb20gXCIuL3R5cGVzLnRzXCI7XG5pbXBvcnQgeyB0ZXN0UmFuZ2UgfSBmcm9tIFwiLi90ZXN0X3JhbmdlLnRzXCI7XG5pbXBvcnQgeyBjb21wYXJhdG9yTWluIH0gZnJvbSBcIi4vX2NvbXBhcmF0b3JfbWluLnRzXCI7XG5pbXBvcnQgeyBsZXNzVGhhbiB9IGZyb20gXCIuL2xlc3NfdGhhbi50c1wiO1xuXG4vKipcbiAqIFRoZSBtaW5pbXVtIHZhbGlkIFNlbVZlciBmb3IgYSBnaXZlbiByYW5nZSBvciBJTlZBTElEXG4gKiBAcGFyYW0gcmFuZ2UgVGhlIHJhbmdlIHRvIGNhbGN1bGF0ZSB0aGUgbWluIGZvclxuICogQHJldHVybnMgQSB2YWxpZCBTZW1WZXIgb3IgSU5WQUxJRFxuICovXG5leHBvcnQgZnVuY3Rpb24gcmFuZ2VNaW4ocmFuZ2U6IFJhbmdlKTogU2VtVmVyIHtcbiAgbGV0IG1pbjtcbiAgZm9yIChjb25zdCBjb21wYXJhdG9ycyBvZiByYW5nZSkge1xuICAgIGZvciAoY29uc3QgY29tcGFyYXRvciBvZiBjb21wYXJhdG9ycykge1xuICAgICAgY29uc3QgY2FuZGlkYXRlID0gY29tcGFyYXRvck1pbihjb21wYXJhdG9yKTtcbiAgICAgIGlmICghdGVzdFJhbmdlKGNhbmRpZGF0ZSwgcmFuZ2UpKSBjb250aW51ZTtcbiAgICAgIG1pbiA9IChtaW4gJiYgbGVzc1RoYW4obWluLCBjYW5kaWRhdGUpKSA/IG1pbiA6IGNhbmRpZGF0ZTtcbiAgICB9XG4gIH1cbiAgcmV0dXJuIG1pbiA/PyBJTlZBTElEO1xufVxuIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLDBFQUEwRTtBQUMxRSxTQUFTLE9BQU8sUUFBUSxpQkFBaUI7QUFFekMsU0FBUyxTQUFTLFFBQVEsa0JBQWtCO0FBQzVDLFNBQVMsYUFBYSxRQUFRLHVCQUF1QjtBQUNyRCxTQUFTLFFBQVEsUUFBUSxpQkFBaUI7QUFFMUM7Ozs7Q0FJQyxHQUNELE9BQU8sU0FBUyxTQUFTLEtBQVk7RUFDbkMsSUFBSTtFQUNKLEtBQUssTUFBTSxlQUFlLE1BQU87SUFDL0IsS0FBSyxNQUFNLGNBQWMsWUFBYTtNQUNwQyxNQUFNLFlBQVksY0FBYztNQUNoQyxJQUFJLENBQUMsVUFBVSxXQUFXLFFBQVE7TUFDbEMsTUFBTSxBQUFDLE9BQU8sU0FBUyxLQUFLLGFBQWMsTUFBTTtJQUNsRDtFQUNGO0VBQ0EsT0FBTyxPQUFPO0FBQ2hCIn0=
+// denoCacheMetadata=9477410156315490015,14807671346726608437

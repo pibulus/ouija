@@ -1,0 +1,28 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import { isWindows } from "./_os.ts";
+import { fromFileUrl as posixFromFileUrl } from "./posix/from_file_url.ts";
+import { fromFileUrl as windowsFromFileUrl } from "./windows/from_file_url.ts";
+
+/**
+ * Converts a file URL to a path string.
+ *
+ * ```ts
+ * import { fromFileUrl } from "https://deno.land/std@$STD_VERSION/path/from_file_url.ts";
+ *
+ * // posix
+ * fromFileUrl("file:///home/foo"); // "/home/foo"
+ *
+ * // win32
+ * fromFileUrl("file:///home/foo"); // "\\home\\foo"
+ * fromFileUrl("file:///C:/Users/foo"); // "C:\\Users\\foo"
+ * fromFileUrl("file://localhost/home/foo"); // "\\\\localhost\\home\\foo"
+ * ```
+ * @param url of a file URL
+ */
+export function fromFileUrl(url: string | URL): string {
+  return isWindows ? windowsFromFileUrl(url) : posixFromFileUrl(url);
+}
+
+// denoCacheMetadata={"headers":{"accept-ranges":"bytes","referrer-policy":"strict-origin-when-cross-origin","etag":"\"8f5bc611030b6bc505c56d711168e7be\"","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","cross-origin-opener-policy":"same-origin","x-frame-options":"DENY","cache-control":"public, max-age=31536000, immutable","last-modified":"Thu, 15 Feb 2024 05:02:29 GMT","server-timing":"fetchSource;dur=16","cross-origin-resource-policy":"same-origin","cross-origin-embedder-policy":"same-origin","x-amz-cf-id":"qqakwi1gdTlr_kZmJBfnAuq9UklZbGyxnKtXe-8KBL6OxagdIyTZZQ==","x-amz-replication-status":"COMPLETED","x-amz-server-side-encryption":"AES256","vary":"Accept-Encoding, Origin","x-amz-version-id":"NtAaIB8A880NPiIyWHWEgJnoBzfK79yd","x-content-type-options":"nosniff","via":"http/2 edgeproxy-h","content-length":"894","age":"21179177","content-type":"application/typescript; charset=utf-8","date":"Fri, 14 Feb 2025 10:51:01 GMT","server":"deno/gcp-asia-southeast1","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-cf-pop":"SIN52-P1","x-cache":"Hit from cloudfront","access-control-allow-origin":"*"},"url":"https://deno.land/std@0.216.0/path/from_file_url.ts","time":1760709438}

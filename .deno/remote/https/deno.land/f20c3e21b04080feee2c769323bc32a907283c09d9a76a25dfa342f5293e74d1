@@ -1,0 +1,58 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import { normalizeString } from "../_common/normalize_string.ts";
+import { assertPath } from "../_common/assert_path.ts";
+import { isPosixPathSeparator } from "./_util.ts";
+
+/**
+ * Resolves path segments into a `path`
+ * @param pathSegments to process to path
+ */
+export function resolve(...pathSegments: string[]): string {
+  let resolvedPath = "";
+  let resolvedAbsolute = false;
+
+  for (let i = pathSegments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+    let path: string;
+
+    if (i >= 0) path = pathSegments[i];
+    else {
+      // deno-lint-ignore no-explicit-any
+      const { Deno } = globalThis as any;
+      if (typeof Deno?.cwd !== "function") {
+        throw new TypeError("Resolved a relative path without a CWD.");
+      }
+      path = Deno.cwd();
+    }
+
+    assertPath(path);
+
+    // Skip empty entries
+    if (path.length === 0) {
+      continue;
+    }
+
+    resolvedPath = `${path}/${resolvedPath}`;
+    resolvedAbsolute = isPosixPathSeparator(path.charCodeAt(0));
+  }
+
+  // At this point the path should be resolved to a full absolute path, but
+  // handle relative paths to be safe (might happen when Deno.cwd() fails)
+
+  // Normalize the path
+  resolvedPath = normalizeString(
+    resolvedPath,
+    !resolvedAbsolute,
+    "/",
+    isPosixPathSeparator,
+  );
+
+  if (resolvedAbsolute) {
+    if (resolvedPath.length > 0) return `/${resolvedPath}`;
+    else return "/";
+  } else if (resolvedPath.length > 0) return resolvedPath;
+  else return ".";
+}
+
+// denoCacheMetadata={"headers":{"server":"deno/gcp-asia-southeast1","x-amz-version-id":"T9Ztx0ZN6rdpDN4I0e9KOi1cQUJtyszi","x-cache":"Hit from cloudfront","via":"http/2 edgeproxy-h","x-content-type-options":"nosniff","server-timing":"fetchSource;dur=24","x-amz-cf-id":"znwLBcNncz2XOhw3iiCfS3v5nvA6wt2sXgKVUhgznVpTqYJo2FJqSg==","content-length":"1585","last-modified":"Thu, 15 Feb 2024 05:02:29 GMT","x-amz-cf-pop":"SIN52-P1","cache-control":"public, max-age=31536000, immutable","content-type":"application/typescript; charset=utf-8","cross-origin-embedder-policy":"same-origin","cross-origin-opener-policy":"same-origin","x-frame-options":"DENY","access-control-allow-origin":"*","date":"Fri, 14 Feb 2025 10:51:03 GMT","x-amz-server-side-encryption":"AES256","vary":"Accept-Encoding, Origin","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","etag":"\"abf1a0e77f99b2b7847a75d2b620b289\"","referrer-policy":"strict-origin-when-cross-origin","accept-ranges":"bytes","strict-transport-security":"max-age=63072000; includeSubDomains; preload","age":"21179176","x-amz-replication-status":"COMPLETED","cross-origin-resource-policy":"same-origin"},"url":"https://deno.land/std@0.216.0/path/posix/resolve.ts","time":1760709438}

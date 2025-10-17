@@ -1,0 +1,28 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { AssertionError } from "./assertion_error.ts";
+
+/**
+ * Make an assertion that actual includes expected. If not
+ * then throw.
+ *
+ * @example
+ * ```ts
+ * import { assertStringIncludes } from "https://deno.land/std@$STD_VERSION/assert/assert_string_includes.ts";
+ *
+ * assertStringIncludes("Hello", "ello"); // Doesn't throw
+ * assertStringIncludes("Hello", "world"); // Throws
+ * ```
+ */
+export function assertStringIncludes(
+  actual: string,
+  expected: string,
+  msg?: string,
+) {
+  if (!actual.includes(expected)) {
+    const msgSuffix = msg ? `: ${msg}` : ".";
+    msg = `Expected actual: "${actual}" to contain: "${expected}"${msgSuffix}`;
+    throw new AssertionError(msg);
+  }
+}
+
+// denoCacheMetadata={"headers":{"cross-origin-resource-policy":"same-origin","cross-origin-opener-policy":"same-origin","referrer-policy":"strict-origin-when-cross-origin","x-frame-options":"DENY","date":"Tue, 11 Mar 2025 11:59:34 GMT","server":"deno/gcp-asia-southeast1","etag":"\"dacb904820cd36aff051c34d5d56d556\"","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-cf-id":"nCjeUFFHU8gOBwNkRpLq7R47YG-c95q9WTr3UT3KhAMo-dR1w4bOqw==","x-amz-cf-pop":"SIN52-P1","vary":"Accept-Encoding, Origin","x-amz-server-side-encryption":"AES256","x-content-type-options":"nosniff","cache-control":"public, max-age=31536000, immutable","age":"19015065","via":"http/2 edgeproxy-h","server-timing":"fetchSource;dur=44","content-type":"application/typescript; charset=utf-8","x-amz-version-id":"G9idDzvZGqnIRYmKM6LUVJc8vVAtalK5","access-control-allow-origin":"*","last-modified":"Thu, 15 Feb 2024 05:02:27 GMT","cross-origin-embedder-policy":"same-origin","content-length":"769","x-cache":"Hit from cloudfront","x-amz-replication-status":"COMPLETED","accept-ranges":"bytes","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox"},"url":"https://deno.land/std@0.216.0/assert/assert_string_includes.ts","time":1760709439}

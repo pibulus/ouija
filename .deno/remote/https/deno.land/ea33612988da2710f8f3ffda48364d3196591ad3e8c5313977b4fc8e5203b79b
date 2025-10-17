@@ -1,0 +1,38 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import { encodeWhitespace } from "../_common/to_file_url.ts";
+import { isAbsolute } from "./is_absolute.ts";
+
+/**
+ * Converts a path string to a file URL.
+ *
+ * ```ts
+ * import { toFileUrl } from "https://deno.land/std@$STD_VERSION/path/win32.ts";
+ *
+ * toFileUrl("\\home\\foo"); // new URL("file:///home/foo")
+ * toFileUrl("C:\\Users\\foo"); // new URL("file:///C:/Users/foo")
+ * toFileUrl("\\\\127.0.0.1\\home\\foo"); // new URL("file://127.0.0.1/home/foo")
+ * ```
+ * @param path to convert to file URL
+ */
+export function toFileUrl(path: string): URL {
+  if (!isAbsolute(path)) {
+    throw new TypeError("Must be an absolute path.");
+  }
+
+  const [, hostname, pathname] = path.match(
+    /^(?:[/\\]{2}([^/\\]+)(?=[/\\](?:[^/\\]|$)))?(.*)/,
+  )!;
+  const url = new URL("file:///");
+  url.pathname = encodeWhitespace(pathname.replace(/%/g, "%25"));
+  if (hostname !== undefined && hostname !== "localhost") {
+    url.hostname = hostname;
+    if (!url.hostname) {
+      throw new TypeError("Invalid hostname.");
+    }
+  }
+  return url;
+}
+
+// denoCacheMetadata={"headers":{"age":"18344856","x-amz-cf-pop":"SIN52-P1","x-amz-replication-status":"COMPLETED","x-amz-server-side-encryption":"AES256","x-cache":"Hit from cloudfront","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","x-amz-version-id":"Df6qc8m8EVhOtcEoQNhZin6EBv6T5zew","cross-origin-opener-policy":"same-origin","access-control-allow-origin":"*","etag":"\"f6147a16a47514cfe5110197f925b0e8\"","strict-transport-security":"max-age=63072000; includeSubDomains; preload","via":"http/2 edgeproxy-h","cross-origin-embedder-policy":"same-origin","x-frame-options":"DENY","x-content-type-options":"nosniff","cache-control":"public, max-age=31536000, immutable","content-length":"1152","cross-origin-resource-policy":"same-origin","last-modified":"Fri, 24 Nov 2023 02:50:10 GMT","referrer-policy":"strict-origin-when-cross-origin","vary":"Accept-Encoding, Origin","server-timing":"fetchSource;dur=16","accept-ranges":"bytes","content-type":"application/typescript; charset=utf-8","date":"Wed, 19 Mar 2025 06:09:46 GMT","x-amz-cf-id":"P_TTYnScJgKbJ3niYBVtGFrMRKJ-kzUo0GOf70MmLEuAN8HYFie44g==","server":"deno/gcp-asia-southeast1"},"url":"https://deno.land/std@0.208.0/path/windows/to_file_url.ts","time":1760709441}

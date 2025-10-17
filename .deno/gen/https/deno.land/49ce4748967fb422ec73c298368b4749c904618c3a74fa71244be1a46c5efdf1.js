@@ -1,0 +1,24 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { isSemVer } from "./is_semver.ts";
+import { OPERATORS } from "./_constants.ts";
+import { ALL, NONE } from "./constants.ts";
+/**
+ * Does a deep check on the value to see if it is a valid Comparator object.
+ *
+ * Objects with extra fields are still considered valid if they have at
+ * least the correct fields.
+ *
+ * Adds a type assertion if true.
+ * @param value The value to check if its a Comparator
+ * @returns True if the object is a Comparator otherwise false
+ */ export function isComparator(value) {
+  if (
+    value === null || value === undefined || Array.isArray(value) ||
+    typeof value !== "object"
+  ) return false;
+  if (value === NONE || value === ALL) return true;
+  const { operator, semver } = value;
+  return OPERATORS.includes(operator) && isSemVer(semver);
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3N0ZEAwLjIxNi4wL3NlbXZlci9faXNfY29tcGFyYXRvci50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIvLyBDb3B5cmlnaHQgMjAxOC0yMDI0IHRoZSBEZW5vIGF1dGhvcnMuIEFsbCByaWdodHMgcmVzZXJ2ZWQuIE1JVCBsaWNlbnNlLlxuaW1wb3J0IHsgaXNTZW1WZXIgfSBmcm9tIFwiLi9pc19zZW12ZXIudHNcIjtcbmltcG9ydCB7IE9QRVJBVE9SUyB9IGZyb20gXCIuL19jb25zdGFudHMudHNcIjtcbmltcG9ydCB0eXBlIHsgQ29tcGFyYXRvciB9IGZyb20gXCIuL3R5cGVzLnRzXCI7XG5pbXBvcnQgeyBBTEwsIE5PTkUgfSBmcm9tIFwiLi9jb25zdGFudHMudHNcIjtcblxuLyoqXG4gKiBEb2VzIGEgZGVlcCBjaGVjayBvbiB0aGUgdmFsdWUgdG8gc2VlIGlmIGl0IGlzIGEgdmFsaWQgQ29tcGFyYXRvciBvYmplY3QuXG4gKlxuICogT2JqZWN0cyB3aXRoIGV4dHJhIGZpZWxkcyBhcmUgc3RpbGwgY29uc2lkZXJlZCB2YWxpZCBpZiB0aGV5IGhhdmUgYXRcbiAqIGxlYXN0IHRoZSBjb3JyZWN0IGZpZWxkcy5cbiAqXG4gKiBBZGRzIGEgdHlwZSBhc3NlcnRpb24gaWYgdHJ1ZS5cbiAqIEBwYXJhbSB2YWx1ZSBUaGUgdmFsdWUgdG8gY2hlY2sgaWYgaXRzIGEgQ29tcGFyYXRvclxuICogQHJldHVybnMgVHJ1ZSBpZiB0aGUgb2JqZWN0IGlzIGEgQ29tcGFyYXRvciBvdGhlcndpc2UgZmFsc2VcbiAqL1xuZXhwb3J0IGZ1bmN0aW9uIGlzQ29tcGFyYXRvcih2YWx1ZTogdW5rbm93bik6IHZhbHVlIGlzIENvbXBhcmF0b3Ige1xuICBpZiAoXG4gICAgdmFsdWUgPT09IG51bGwgfHwgdmFsdWUgPT09IHVuZGVmaW5lZCB8fCBBcnJheS5pc0FycmF5KHZhbHVlKSB8fFxuICAgIHR5cGVvZiB2YWx1ZSAhPT0gXCJvYmplY3RcIlxuICApIHJldHVybiBmYWxzZTtcbiAgaWYgKHZhbHVlID09PSBOT05FIHx8IHZhbHVlID09PSBBTEwpIHJldHVybiB0cnVlO1xuICBjb25zdCB7IG9wZXJhdG9yLCBzZW12ZXIgfSA9IHZhbHVlIGFzIENvbXBhcmF0b3I7XG4gIHJldHVybiAoXG4gICAgT1BFUkFUT1JTLmluY2x1ZGVzKG9wZXJhdG9yKSAmJlxuICAgIGlzU2VtVmVyKHNlbXZlcilcbiAgKTtcbn1cbiJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSwwRUFBMEU7QUFDMUUsU0FBUyxRQUFRLFFBQVEsaUJBQWlCO0FBQzFDLFNBQVMsU0FBUyxRQUFRLGtCQUFrQjtBQUU1QyxTQUFTLEdBQUcsRUFBRSxJQUFJLFFBQVEsaUJBQWlCO0FBRTNDOzs7Ozs7Ozs7Q0FTQyxHQUNELE9BQU8sU0FBUyxhQUFhLEtBQWM7RUFDekMsSUFDRSxVQUFVLFFBQVEsVUFBVSxhQUFhLE1BQU0sT0FBTyxDQUFDLFVBQ3ZELE9BQU8sVUFBVSxVQUNqQixPQUFPO0VBQ1QsSUFBSSxVQUFVLFFBQVEsVUFBVSxLQUFLLE9BQU87RUFDNUMsTUFBTSxFQUFFLFFBQVEsRUFBRSxNQUFNLEVBQUUsR0FBRztFQUM3QixPQUNFLFVBQVUsUUFBUSxDQUFDLGFBQ25CLFNBQVM7QUFFYiJ9
+// denoCacheMetadata=5720488719227643672,133537391453621339

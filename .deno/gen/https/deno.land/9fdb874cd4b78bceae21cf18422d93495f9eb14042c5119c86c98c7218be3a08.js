@@ -1,0 +1,31 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { ANY, INVALID } from "./constants.ts";
+import { isValidNumber, isValidString } from "./_shared.ts";
+/**
+ * Checks to see if value is a valid SemVer object. It does a check
+ * into each field including prerelease and build.
+ *
+ * Some invalid SemVer sentinels can still return true such as ANY and INVALID.
+ * An object which has the same value as a sentinel but isn't reference equal
+ * will still fail.
+ *
+ * Objects which are valid SemVer objects but have _extra_ fields are still
+ * considered SemVer objects and this will return true.
+ *
+ * A type assertion is added to the value.
+ * @param value The value to check to see if its a valid SemVer object
+ * @returns True if value is a valid SemVer otherwise false
+ */ export function isSemVer(value) {
+  if (value === null || value === undefined) return false;
+  if (Array.isArray(value)) return false;
+  if (typeof value !== "object") return false;
+  if (value === INVALID) return true;
+  if (value === ANY) return true;
+  const { major, minor, patch, build = [], prerelease = [] } = value;
+  return isValidNumber(major) && isValidNumber(minor) && isValidNumber(patch) &&
+    Array.isArray(prerelease) &&
+    prerelease.every((v) => isValidString(v) || isValidNumber(v)) &&
+    Array.isArray(build) && build.every(isValidString);
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3N0ZEAwLjIxNi4wL3NlbXZlci9pc19zZW12ZXIudHMiXSwic291cmNlc0NvbnRlbnQiOlsiLy8gQ29weXJpZ2h0IDIwMTgtMjAyNCB0aGUgRGVubyBhdXRob3JzLiBBbGwgcmlnaHRzIHJlc2VydmVkLiBNSVQgbGljZW5zZS5cbmltcG9ydCB7IEFOWSwgSU5WQUxJRCB9IGZyb20gXCIuL2NvbnN0YW50cy50c1wiO1xuaW1wb3J0IHR5cGUgeyBTZW1WZXIgfSBmcm9tIFwiLi90eXBlcy50c1wiO1xuaW1wb3J0IHsgaXNWYWxpZE51bWJlciwgaXNWYWxpZFN0cmluZyB9IGZyb20gXCIuL19zaGFyZWQudHNcIjtcblxuLyoqXG4gKiBDaGVja3MgdG8gc2VlIGlmIHZhbHVlIGlzIGEgdmFsaWQgU2VtVmVyIG9iamVjdC4gSXQgZG9lcyBhIGNoZWNrXG4gKiBpbnRvIGVhY2ggZmllbGQgaW5jbHVkaW5nIHByZXJlbGVhc2UgYW5kIGJ1aWxkLlxuICpcbiAqIFNvbWUgaW52YWxpZCBTZW1WZXIgc2VudGluZWxzIGNhbiBzdGlsbCByZXR1cm4gdHJ1ZSBzdWNoIGFzIEFOWSBhbmQgSU5WQUxJRC5cbiAqIEFuIG9iamVjdCB3aGljaCBoYXMgdGhlIHNhbWUgdmFsdWUgYXMgYSBzZW50aW5lbCBidXQgaXNuJ3QgcmVmZXJlbmNlIGVxdWFsXG4gKiB3aWxsIHN0aWxsIGZhaWwuXG4gKlxuICogT2JqZWN0cyB3aGljaCBhcmUgdmFsaWQgU2VtVmVyIG9iamVjdHMgYnV0IGhhdmUgX2V4dHJhXyBmaWVsZHMgYXJlIHN0aWxsXG4gKiBjb25zaWRlcmVkIFNlbVZlciBvYmplY3RzIGFuZCB0aGlzIHdpbGwgcmV0dXJuIHRydWUuXG4gKlxuICogQSB0eXBlIGFzc2VydGlvbiBpcyBhZGRlZCB0byB0aGUgdmFsdWUuXG4gKiBAcGFyYW0gdmFsdWUgVGhlIHZhbHVlIHRvIGNoZWNrIHRvIHNlZSBpZiBpdHMgYSB2YWxpZCBTZW1WZXIgb2JqZWN0XG4gKiBAcmV0dXJucyBUcnVlIGlmIHZhbHVlIGlzIGEgdmFsaWQgU2VtVmVyIG90aGVyd2lzZSBmYWxzZVxuICovXG5leHBvcnQgZnVuY3Rpb24gaXNTZW1WZXIodmFsdWU6IHVua25vd24pOiB2YWx1ZSBpcyBTZW1WZXIge1xuICBpZiAodmFsdWUgPT09IG51bGwgfHwgdmFsdWUgPT09IHVuZGVmaW5lZCkgcmV0dXJuIGZhbHNlO1xuICBpZiAoQXJyYXkuaXNBcnJheSh2YWx1ZSkpIHJldHVybiBmYWxzZTtcbiAgaWYgKHR5cGVvZiB2YWx1ZSAhPT0gXCJvYmplY3RcIikgcmV0dXJuIGZhbHNlO1xuICBpZiAodmFsdWUgPT09IElOVkFMSUQpIHJldHVybiB0cnVlO1xuICBpZiAodmFsdWUgPT09IEFOWSkgcmV0dXJuIHRydWU7XG5cbiAgY29uc3Qge1xuICAgIG1ham9yLFxuICAgIG1pbm9yLFxuICAgIHBhdGNoLFxuICAgIGJ1aWxkID0gW10sXG4gICAgcHJlcmVsZWFzZSA9IFtdLFxuICB9ID0gdmFsdWUgYXMgUmVjb3JkPHN0cmluZywgdW5rbm93bj47XG4gIHJldHVybiAoXG4gICAgaXNWYWxpZE51bWJlcihtYWpvcikgJiZcbiAgICBpc1ZhbGlkTnVtYmVyKG1pbm9yKSAmJlxuICAgIGlzVmFsaWROdW1iZXIocGF0Y2gpICYmXG4gICAgQXJyYXkuaXNBcnJheShwcmVyZWxlYXNlKSAmJlxuICAgIHByZXJlbGVhc2UuZXZlcnkoKHYpID0+IGlzVmFsaWRTdHJpbmcodikgfHwgaXNWYWxpZE51bWJlcih2KSkgJiZcbiAgICBBcnJheS5pc0FycmF5KGJ1aWxkKSAmJlxuICAgIGJ1aWxkLmV2ZXJ5KGlzVmFsaWRTdHJpbmcpXG4gICk7XG59XG4iXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUEsMEVBQTBFO0FBQzFFLFNBQVMsR0FBRyxFQUFFLE9BQU8sUUFBUSxpQkFBaUI7QUFFOUMsU0FBUyxhQUFhLEVBQUUsYUFBYSxRQUFRLGVBQWU7QUFFNUQ7Ozs7Ozs7Ozs7Ozs7O0NBY0MsR0FDRCxPQUFPLFNBQVMsU0FBUyxLQUFjO0VBQ3JDLElBQUksVUFBVSxRQUFRLFVBQVUsV0FBVyxPQUFPO0VBQ2xELElBQUksTUFBTSxPQUFPLENBQUMsUUFBUSxPQUFPO0VBQ2pDLElBQUksT0FBTyxVQUFVLFVBQVUsT0FBTztFQUN0QyxJQUFJLFVBQVUsU0FBUyxPQUFPO0VBQzlCLElBQUksVUFBVSxLQUFLLE9BQU87RUFFMUIsTUFBTSxFQUNKLEtBQUssRUFDTCxLQUFLLEVBQ0wsS0FBSyxFQUNMLFFBQVEsRUFBRSxFQUNWLGFBQWEsRUFBRSxFQUNoQixHQUFHO0VBQ0osT0FDRSxjQUFjLFVBQ2QsY0FBYyxVQUNkLGNBQWMsVUFDZCxNQUFNLE9BQU8sQ0FBQyxlQUNkLFdBQVcsS0FBSyxDQUFDLENBQUMsSUFBTSxjQUFjLE1BQU0sY0FBYyxPQUMxRCxNQUFNLE9BQU8sQ0FBQyxVQUNkLE1BQU0sS0FBSyxDQUFDO0FBRWhCIn0=
+// denoCacheMetadata=1891336736134278738,14211602934367556189

@@ -1,0 +1,28 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { AssertionError } from "./assertion_error.ts";
+
+/**
+ * Make an assertion that actual is not null or undefined.
+ * If not then throw.
+ *
+ * @example
+ * ```ts
+ * import { assertExists } from "https://deno.land/std@$STD_VERSION/assert/assert_exists.ts";
+ *
+ * assertExists("something"); // Doesn't throw
+ * assertExists(undefined); // Throws
+ * ```
+ */
+export function assertExists<T>(
+  actual: T,
+  msg?: string,
+): asserts actual is NonNullable<T> {
+  if (actual === undefined || actual === null) {
+    const msgSuffix = msg ? `: ${msg}` : ".";
+    msg =
+      `Expected actual: "${actual}" to not be null or undefined${msgSuffix}`;
+    throw new AssertionError(msg);
+  }
+}
+
+// denoCacheMetadata={"headers":{"x-content-type-options":"nosniff","x-amz-version-id":"TRcXTDXvR0qo3y.1ZCpvJyeauGHgP6tc","age":"18344887","cross-origin-embedder-policy":"same-origin","accept-ranges":"bytes","last-modified":"Thu, 15 Feb 2024 05:02:27 GMT","referrer-policy":"strict-origin-when-cross-origin","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","x-frame-options":"DENY","access-control-allow-origin":"*","x-amz-replication-status":"COMPLETED","x-cache":"Hit from cloudfront","server":"deno/gcp-asia-southeast1","strict-transport-security":"max-age=63072000; includeSubDomains; preload","content-type":"application/typescript; charset=utf-8","cross-origin-resource-policy":"same-origin","cache-control":"public, max-age=31536000, immutable","server-timing":"fetchSource;dur=26","via":"http/2 edgeproxy-h","etag":"\"2839d3bcc4a49da5ec5176ef6d124b03\"","date":"Wed, 19 Mar 2025 06:09:12 GMT","content-length":"757","x-amz-cf-pop":"SIN52-P1","x-amz-server-side-encryption":"AES256","vary":"Accept-Encoding, Origin","cross-origin-opener-policy":"same-origin","x-amz-cf-id":"qKB21gItYQVX_WQ5v4TJXlCjlIVAVfn6DZe28hTZ7Ms5yJ7fEE5zPQ=="},"url":"https://deno.land/std@0.216.0/assert/assert_exists.ts","time":1760709439}

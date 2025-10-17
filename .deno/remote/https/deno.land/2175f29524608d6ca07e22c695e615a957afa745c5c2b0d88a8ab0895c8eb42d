@@ -1,0 +1,25 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { INVALID } from "./constants.ts";
+import type { Range, SemVer } from "./types.ts";
+import { testRange } from "./test_range.ts";
+import { comparatorMax } from "./_comparator_max.ts";
+import { greaterThan } from "./greater_than.ts";
+
+/**
+ * The maximum valid SemVer for a given range or INVALID
+ * @param range The range to calculate the max for
+ * @returns A valid SemVer or INVALID
+ */
+export function rangeMax(range: Range): SemVer {
+  let max;
+  for (const comparators of range) {
+    for (const comparator of comparators) {
+      const candidate = comparatorMax(comparator);
+      if (!testRange(candidate, range)) continue;
+      max = (max && greaterThan(max, candidate)) ? max : candidate;
+    }
+  }
+  return max ?? INVALID;
+}
+
+// denoCacheMetadata={"headers":{"access-control-allow-origin":"*","referrer-policy":"strict-origin-when-cross-origin","x-amz-server-side-encryption":"AES256","content-length":"816","content-type":"application/typescript; charset=utf-8","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","cross-origin-resource-policy":"same-origin","last-modified":"Thu, 15 Feb 2024 05:02:29 GMT","vary":"Accept-Encoding, Origin","cross-origin-embedder-policy":"same-origin","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-cf-pop":"SIN52-P1","x-amz-replication-status":"COMPLETED","age":"18141496","server-timing":"fetchSource;dur=16","server":"deno/gcp-asia-southeast1","cross-origin-opener-policy":"same-origin","via":"http/2 edgeproxy-h","accept-ranges":"bytes","cache-control":"public, max-age=31536000, immutable","etag":"\"abdb0ae80e6eb21fce5eab34b3add74a\"","x-amz-cf-id":"GuFQZtOihwmzqqcbYarsQ8VH8kuWRQw8Dh8vwh5ljv1q1d8Q7gkZ0A==","x-frame-options":"DENY","x-amz-version-id":"Gjl7SNQO0UK9UdfMdbLiShw4vakxBLgy","x-content-type-options":"nosniff","date":"Fri, 21 Mar 2025 14:39:03 GMT","x-cache":"Hit from cloudfront"},"url":"https://deno.land/std@0.216.0/semver/range_max.ts","time":1760709439}

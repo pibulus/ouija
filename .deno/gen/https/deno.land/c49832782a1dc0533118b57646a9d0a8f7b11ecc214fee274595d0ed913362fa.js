@@ -1,0 +1,10 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { compare } from "./compare.ts";
+/**
+ * Sorts a list of semantic versions in descending order.
+ * @deprecated (will be removed in 0.217.0) Use `versions.sort((a, b) => compare(b, a))` instead.
+ */ export function reverseSort(versions) {
+  return versions.sort((a, b) => compare(b, a));
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3N0ZEAwLjIxNi4wL3NlbXZlci9yZXZlcnNlX3NvcnQudHMiXSwic291cmNlc0NvbnRlbnQiOlsiLy8gQ29weXJpZ2h0IDIwMTgtMjAyNCB0aGUgRGVubyBhdXRob3JzLiBBbGwgcmlnaHRzIHJlc2VydmVkLiBNSVQgbGljZW5zZS5cbmltcG9ydCB0eXBlIHsgU2VtVmVyIH0gZnJvbSBcIi4vdHlwZXMudHNcIjtcbmltcG9ydCB7IGNvbXBhcmUgfSBmcm9tIFwiLi9jb21wYXJlLnRzXCI7XG5cbi8qKlxuICogU29ydHMgYSBsaXN0IG9mIHNlbWFudGljIHZlcnNpb25zIGluIGRlc2NlbmRpbmcgb3JkZXIuXG4gKiBAZGVwcmVjYXRlZCAod2lsbCBiZSByZW1vdmVkIGluIDAuMjE3LjApIFVzZSBgdmVyc2lvbnMuc29ydCgoYSwgYikgPT4gY29tcGFyZShiLCBhKSlgIGluc3RlYWQuXG4gKi9cbmV4cG9ydCBmdW5jdGlvbiByZXZlcnNlU29ydChcbiAgdmVyc2lvbnM6IFNlbVZlcltdLFxuKTogU2VtVmVyW10ge1xuICByZXR1cm4gdmVyc2lvbnMuc29ydCgoYSwgYikgPT4gY29tcGFyZShiLCBhKSk7XG59XG4iXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUEsMEVBQTBFO0FBRTFFLFNBQVMsT0FBTyxRQUFRLGVBQWU7QUFFdkM7OztDQUdDLEdBQ0QsT0FBTyxTQUFTLFlBQ2QsUUFBa0I7RUFFbEIsT0FBTyxTQUFTLElBQUksQ0FBQyxDQUFDLEdBQUcsSUFBTSxRQUFRLEdBQUc7QUFDNUMifQ==
+// denoCacheMetadata=15051056172259280242,16630307851076261994

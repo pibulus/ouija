@@ -1,0 +1,37 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+/** Test whether the given string is a glob */
+export function isGlob(str: string): boolean {
+  const chars: Record<string, string> = { "{": "}", "(": ")", "[": "]" };
+  const regex =
+    /\\(.)|(^!|\*|\?|[\].+)]\?|\[[^\\\]]+\]|\{[^\\}]+\}|\(\?[:!=][^\\)]+\)|\([^|]+\|[^\\)]+\))/;
+
+  if (str === "") {
+    return false;
+  }
+
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(str))) {
+    if (match[2]) return true;
+    let idx = match.index + match[0].length;
+
+    // if an open bracket/brace/paren is escaped,
+    // set the index to the next closing character
+    const open = match[1];
+    const close = open ? chars[open] : null;
+    if (open && close) {
+      const n = str.indexOf(close, idx);
+      if (n !== -1) {
+        idx = n + 1;
+      }
+    }
+
+    str = str.slice(idx);
+  }
+
+  return false;
+}
+
+// denoCacheMetadata={"headers":{"x-amz-cf-id":"KNzGqJsLLab9xU8C3F45QoQokMd894KF9kLOGyiO1szNYcj548105A==","x-amz-replication-status":"COMPLETED","x-amz-version-id":"M.1miKJzilqi_u0Vn7WlAbQEbtCrNwCW","server-timing":"fetchSource;dur=38","x-amz-cf-pop":"SIN52-P1","x-amz-server-side-encryption":"AES256","cross-origin-resource-policy":"same-origin","date":"Fri, 14 Feb 2025 10:51:01 GMT","server":"deno/gcp-asia-southeast1","via":"http/2 edgeproxy-h","cross-origin-opener-policy":"same-origin","cache-control":"public, max-age=31536000, immutable","etag":"\"aadbc2e32508ade85b7cadc05fb2b5d3\"","strict-transport-security":"max-age=63072000; includeSubDomains; preload","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","x-cache":"Hit from cloudfront","x-content-type-options":"nosniff","content-length":"938","last-modified":"Thu, 15 Feb 2024 05:02:29 GMT","accept-ranges":"bytes","age":"21179177","cross-origin-embedder-policy":"same-origin","access-control-allow-origin":"*","x-frame-options":"DENY","referrer-policy":"strict-origin-when-cross-origin","vary":"Accept-Encoding, Origin","content-type":"application/typescript; charset=utf-8"},"url":"https://deno.land/std@0.216.0/path/is_glob.ts","time":1760709439}

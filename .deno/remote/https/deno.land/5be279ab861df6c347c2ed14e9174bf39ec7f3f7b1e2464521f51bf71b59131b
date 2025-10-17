@@ -1,0 +1,103 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+import * as path from "../path/mod.ts";
+import { basename, normalize } from "../path/mod.ts";
+
+/**
+ * Test whether `src` and `dest` resolve to the same location
+ * @param src src file path
+ * @param dest dest file path
+ */
+export function isSamePath(
+  src: string | URL,
+  dest: string | URL,
+): boolean | void {
+  src = toPathString(src);
+  dest = toPathString(dest);
+
+  return path.resolve(src) === path.resolve(dest);
+}
+
+/**
+ * Test whether or not `dest` is a sub-directory of `src`
+ * @param src src file path
+ * @param dest dest file path
+ * @param sep path separator
+ */
+export function isSubdir(
+  src: string | URL,
+  dest: string | URL,
+  sep: string = path.SEP,
+): boolean {
+  if (src === dest) {
+    return false;
+  }
+  src = toPathString(src);
+  const srcArray = src.split(sep);
+  dest = toPathString(dest);
+  const destArray = dest.split(sep);
+  return srcArray.every((current, i) => destArray[i] === current);
+}
+
+export type PathType = "file" | "dir" | "symlink";
+
+/**
+ * Get a human readable file type string.
+ *
+ * @param fileInfo A FileInfo describes a file and is returned by `stat`,
+ *                 `lstat`
+ */
+export function getFileInfoType(fileInfo: Deno.FileInfo): PathType | undefined {
+  return fileInfo.isFile
+    ? "file"
+    : fileInfo.isDirectory
+    ? "dir"
+    : fileInfo.isSymlink
+    ? "symlink"
+    : undefined;
+}
+
+export interface WalkEntry extends Deno.DirEntry {
+  path: string;
+}
+
+/** Create WalkEntry for the `path` synchronously */
+export function createWalkEntrySync(path: string | URL): WalkEntry {
+  path = toPathString(path);
+  path = normalize(path);
+  const name = basename(path);
+  const info = Deno.statSync(path);
+  return {
+    path,
+    name,
+    isFile: info.isFile,
+    isDirectory: info.isDirectory,
+    isSymlink: info.isSymlink,
+  };
+}
+
+/** Create WalkEntry for the `path` asynchronously */
+export async function createWalkEntry(path: string | URL): Promise<WalkEntry> {
+  path = toPathString(path);
+  path = normalize(path);
+  const name = basename(path);
+  const info = await Deno.stat(path);
+  return {
+    path,
+    name,
+    isFile: info.isFile,
+    isDirectory: info.isDirectory,
+    isSymlink: info.isSymlink,
+  };
+}
+
+/**
+ * Convert a URL or string to a path
+ * @param pathUrl A URL or string to be converted
+ */
+export function toPathString(
+  pathUrl: string | URL,
+): string {
+  return pathUrl instanceof URL ? path.fromFileUrl(pathUrl) : pathUrl;
+}
+
+// denoCacheMetadata={"headers":{"access-control-allow-origin":"*","date":"Tue, 18 Feb 2025 11:52:56 GMT","x-amz-cf-id":"uJ-BqTzSD4Z49a5tw65S4jG0TTJe8eLM_ucCDPcbrwjNdnYIRFzbqA==","x-frame-options":"DENY","x-amz-cf-pop":"SIN52-P1","referrer-policy":"strict-origin-when-cross-origin","x-amz-server-side-encryption":"AES256","server-timing":"fetchSource;dur=20","vary":"Accept-Encoding, Origin","cache-control":"public, max-age=31536000, immutable","x-amz-version-id":"dRganCH6DjzyBstGa.jQZD.gyTrUorjL","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","x-amz-replication-status":"COMPLETED","content-length":"2495","x-cache":"Hit from cloudfront","last-modified":"Fri, 24 Nov 2023 02:50:09 GMT","cross-origin-opener-policy":"same-origin","via":"http/2 edgeproxy-h","x-content-type-options":"nosniff","accept-ranges":"bytes","cross-origin-resource-policy":"same-origin","etag":"\"e9fcdc8b2473391e14bcb3537ebf816b\"","age":"20829866","cross-origin-embedder-policy":"same-origin","server":"deno/gcp-asia-southeast1","content-type":"application/typescript; charset=utf-8","strict-transport-security":"max-age=63072000; includeSubDomains; preload"},"url":"https://deno.land/std@0.208.0/fs/_util.ts","time":1760709441}

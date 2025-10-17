@@ -1,0 +1,17 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { isComparator } from "./_is_comparator.ts";
+/**
+ * Does a deep check on the object to determine if its a valid range.
+ *
+ * Objects with extra fields are still considered valid if they have at
+ * least the correct fields.
+ *
+ * Adds a type assertion if true.
+ * @param value The value to check if its a valid Range
+ * @returns True if its a valid Range otherwise false.
+ */ export function isRange(value) {
+  return Array.isArray(value) &&
+    value.every((r) => Array.isArray(r) && r.every((c) => isComparator(c)));
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3N0ZEAwLjIxNi4wL3NlbXZlci9pc19yYW5nZS50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIvLyBDb3B5cmlnaHQgMjAxOC0yMDI0IHRoZSBEZW5vIGF1dGhvcnMuIEFsbCByaWdodHMgcmVzZXJ2ZWQuIE1JVCBsaWNlbnNlLlxuaW1wb3J0IHR5cGUgeyBSYW5nZSB9IGZyb20gXCIuL3R5cGVzLnRzXCI7XG5pbXBvcnQgeyBpc0NvbXBhcmF0b3IgfSBmcm9tIFwiLi9faXNfY29tcGFyYXRvci50c1wiO1xuXG4vKipcbiAqIERvZXMgYSBkZWVwIGNoZWNrIG9uIHRoZSBvYmplY3QgdG8gZGV0ZXJtaW5lIGlmIGl0cyBhIHZhbGlkIHJhbmdlLlxuICpcbiAqIE9iamVjdHMgd2l0aCBleHRyYSBmaWVsZHMgYXJlIHN0aWxsIGNvbnNpZGVyZWQgdmFsaWQgaWYgdGhleSBoYXZlIGF0XG4gKiBsZWFzdCB0aGUgY29ycmVjdCBmaWVsZHMuXG4gKlxuICogQWRkcyBhIHR5cGUgYXNzZXJ0aW9uIGlmIHRydWUuXG4gKiBAcGFyYW0gdmFsdWUgVGhlIHZhbHVlIHRvIGNoZWNrIGlmIGl0cyBhIHZhbGlkIFJhbmdlXG4gKiBAcmV0dXJucyBUcnVlIGlmIGl0cyBhIHZhbGlkIFJhbmdlIG90aGVyd2lzZSBmYWxzZS5cbiAqL1xuZXhwb3J0IGZ1bmN0aW9uIGlzUmFuZ2UodmFsdWU6IHVua25vd24pOiB2YWx1ZSBpcyBSYW5nZSB7XG4gIHJldHVybiBBcnJheS5pc0FycmF5KHZhbHVlKSAmJlxuICAgIHZhbHVlLmV2ZXJ5KChyKSA9PiBBcnJheS5pc0FycmF5KHIpICYmIHIuZXZlcnkoKGMpID0+IGlzQ29tcGFyYXRvcihjKSkpO1xufVxuIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLDBFQUEwRTtBQUUxRSxTQUFTLFlBQVksUUFBUSxzQkFBc0I7QUFFbkQ7Ozs7Ozs7OztDQVNDLEdBQ0QsT0FBTyxTQUFTLFFBQVEsS0FBYztFQUNwQyxPQUFPLE1BQU0sT0FBTyxDQUFDLFVBQ25CLE1BQU0sS0FBSyxDQUFDLENBQUMsSUFBTSxNQUFNLE9BQU8sQ0FBQyxNQUFNLEVBQUUsS0FBSyxDQUFDLENBQUMsSUFBTSxhQUFhO0FBQ3ZFIn0=
+// denoCacheMetadata=11926391153263052315,5850345512748133981

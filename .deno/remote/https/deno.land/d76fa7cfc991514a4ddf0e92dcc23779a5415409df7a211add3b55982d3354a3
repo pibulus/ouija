@@ -1,0 +1,54 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import type { Comparator, SemVer } from "./types.ts";
+import { ANY, INVALID, MAX } from "./constants.ts";
+
+/**
+ * The maximum version that could match this comparator.
+ *
+ * If an invalid comparator is given such as <0.0.0 then
+ * an out of range semver will be returned.
+ * @returns the version, the MAX version or the next smallest patch version
+ */
+export function comparatorMax(comparator: Comparator): SemVer {
+  const semver = comparator.semver ?? comparator;
+  if (semver === ANY) return MAX;
+  switch (comparator.operator) {
+    case "!=":
+    case "!==":
+    case ">":
+    case ">=":
+      return MAX;
+    case "":
+    case "=":
+    case "==":
+    case "===":
+    case "<=":
+      return {
+        major: semver.major,
+        minor: semver.minor,
+        patch: semver.patch,
+        prerelease: semver.prerelease,
+        build: semver.build,
+      };
+    case "<": {
+      const patch = semver.patch - 1;
+      const minor = patch >= 0 ? semver.minor : semver.minor - 1;
+      const major = minor >= 0 ? semver.major : semver.major - 1;
+      // if you try to do <0.0.0 it will Give you -∞.∞.∞
+      // which means no SemVer can compare successfully to it.
+      if (major < 0) {
+        return INVALID;
+      } else {
+        return {
+          major,
+          minor: minor >= 0 ? minor : Number.POSITIVE_INFINITY,
+          patch: patch >= 0 ? patch : Number.POSITIVE_INFINITY,
+          prerelease: [],
+          build: [],
+        };
+      }
+    }
+  }
+}
+
+// denoCacheMetadata={"headers":{"x-cache":"Hit from cloudfront","x-content-type-options":"nosniff","server":"deno/gcp-asia-southeast1","age":"18344887","vary":"Accept-Encoding, Origin","x-amz-server-side-encryption":"AES256","x-amz-replication-status":"COMPLETED","x-frame-options":"DENY","etag":"\"5643c6ac05035830ed0639dbe8f04760\"","last-modified":"Thu, 15 Feb 2024 05:02:29 GMT","cross-origin-resource-policy":"same-origin","server-timing":"fetchSource;dur=24","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-cf-pop":"SIN52-P1","cross-origin-embedder-policy":"same-origin","access-control-allow-origin":"*","content-type":"application/typescript; charset=utf-8","accept-ranges":"bytes","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","date":"Wed, 19 Mar 2025 06:09:13 GMT","content-length":"1552","via":"http/2 edgeproxy-h","x-amz-cf-id":"yLTzt3hIkTG6oYNaDxx6G-1Bk01XggXm9GTppqklp7aM7LXZvvRC5Q==","cache-control":"public, max-age=31536000, immutable","cross-origin-opener-policy":"same-origin","referrer-policy":"strict-origin-when-cross-origin","x-amz-version-id":"jE0uCAXHSfwbcrlP14xgvNbffKHVc8Jn"},"url":"https://deno.land/std@0.216.0/semver/_comparator_max.ts","time":1760709439}

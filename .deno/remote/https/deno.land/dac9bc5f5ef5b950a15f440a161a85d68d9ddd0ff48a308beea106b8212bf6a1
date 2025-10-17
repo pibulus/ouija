@@ -1,0 +1,28 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+export function _common(paths: string[], sep: string): string {
+  const [first = "", ...remaining] = paths;
+  if (first === "" || remaining.length === 0) {
+    return first.substring(0, first.lastIndexOf(sep) + 1);
+  }
+  const parts = first.split(sep);
+
+  let endOfPrefix = parts.length;
+  for (const path of remaining) {
+    const compare = path.split(sep);
+    for (let i = 0; i < endOfPrefix; i++) {
+      if (compare[i] !== parts[i]) {
+        endOfPrefix = i;
+      }
+    }
+
+    if (endOfPrefix === 0) {
+      return "";
+    }
+  }
+  const prefix = parts.slice(0, endOfPrefix).join(sep);
+  return prefix.endsWith(sep) ? prefix : `${prefix}${sep}`;
+}
+
+// denoCacheMetadata={"headers":{"strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-frame-options":"DENY","vary":"Accept-Encoding, Origin","x-amz-replication-status":"COMPLETED","cross-origin-resource-policy":"same-origin","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","x-amz-version-id":"A5EiWYsb2coS0KAylpQfv4wzDWqbSLMN","date":"Fri, 21 Mar 2025 14:39:07 GMT","server":"deno/gcp-asia-southeast1","x-cache":"Hit from cloudfront","x-amz-server-side-encryption":"AES256","age":"18141495","cross-origin-opener-policy":"same-origin","cache-control":"public, max-age=31536000, immutable","server-timing":"fetchSource;dur=6","via":"http/2 edgeproxy-h","cross-origin-embedder-policy":"same-origin","x-amz-cf-pop":"SIN52-P1","content-length":"768","content-type":"application/typescript; charset=utf-8","x-content-type-options":"nosniff","x-amz-cf-id":"ru3oLTFCe6_RGxjDuawgP1FkkR4WYPydD9iCqWTmxJOOXhzazSRGSQ==","accept-ranges":"bytes","etag":"\"05b72204b9b9e18be31fee7bbfd9e465\"","last-modified":"Fri, 24 Nov 2023 02:50:10 GMT","access-control-allow-origin":"*","referrer-policy":"strict-origin-when-cross-origin"},"url":"https://deno.land/std@0.208.0/path/_common/common.ts","time":1760709442}

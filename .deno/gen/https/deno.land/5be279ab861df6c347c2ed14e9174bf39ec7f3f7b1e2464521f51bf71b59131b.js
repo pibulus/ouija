@@ -1,0 +1,79 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+import * as path from "../path/mod.ts";
+import { basename, normalize } from "../path/mod.ts";
+/**
+ * Test whether `src` and `dest` resolve to the same location
+ * @param src src file path
+ * @param dest dest file path
+ */ export function isSamePath(src, dest) {
+  src = toPathString(src);
+  dest = toPathString(dest);
+  return path.resolve(src) === path.resolve(dest);
+}
+/**
+ * Test whether or not `dest` is a sub-directory of `src`
+ * @param src src file path
+ * @param dest dest file path
+ * @param sep path separator
+ */ export function isSubdir(src, dest, sep = path.SEP) {
+  if (src === dest) {
+    return false;
+  }
+  src = toPathString(src);
+  const srcArray = src.split(sep);
+  dest = toPathString(dest);
+  const destArray = dest.split(sep);
+  return srcArray.every((current, i) => destArray[i] === current);
+}
+/**
+ * Get a human readable file type string.
+ *
+ * @param fileInfo A FileInfo describes a file and is returned by `stat`,
+ *                 `lstat`
+ */ export function getFileInfoType(fileInfo) {
+  return fileInfo.isFile
+    ? "file"
+    : fileInfo.isDirectory
+    ? "dir"
+    : fileInfo.isSymlink
+    ? "symlink"
+    : undefined;
+}
+/** Create WalkEntry for the `path` synchronously */ export function createWalkEntrySync(
+  path,
+) {
+  path = toPathString(path);
+  path = normalize(path);
+  const name = basename(path);
+  const info = Deno.statSync(path);
+  return {
+    path,
+    name,
+    isFile: info.isFile,
+    isDirectory: info.isDirectory,
+    isSymlink: info.isSymlink,
+  };
+}
+/** Create WalkEntry for the `path` asynchronously */ export async function createWalkEntry(
+  path,
+) {
+  path = toPathString(path);
+  path = normalize(path);
+  const name = basename(path);
+  const info = await Deno.stat(path);
+  return {
+    path,
+    name,
+    isFile: info.isFile,
+    isDirectory: info.isDirectory,
+    isSymlink: info.isSymlink,
+  };
+}
+/**
+ * Convert a URL or string to a path
+ * @param pathUrl A URL or string to be converted
+ */ export function toPathString(pathUrl) {
+  return pathUrl instanceof URL ? path.fromFileUrl(pathUrl) : pathUrl;
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3N0ZEAwLjIwOC4wL2ZzL191dGlsLnRzIl0sInNvdXJjZXNDb250ZW50IjpbIi8vIENvcHlyaWdodCAyMDE4LTIwMjMgdGhlIERlbm8gYXV0aG9ycy4gQWxsIHJpZ2h0cyByZXNlcnZlZC4gTUlUIGxpY2Vuc2UuXG5pbXBvcnQgKiBhcyBwYXRoIGZyb20gXCIuLi9wYXRoL21vZC50c1wiO1xuaW1wb3J0IHsgYmFzZW5hbWUsIG5vcm1hbGl6ZSB9IGZyb20gXCIuLi9wYXRoL21vZC50c1wiO1xuXG4vKipcbiAqIFRlc3Qgd2hldGhlciBgc3JjYCBhbmQgYGRlc3RgIHJlc29sdmUgdG8gdGhlIHNhbWUgbG9jYXRpb25cbiAqIEBwYXJhbSBzcmMgc3JjIGZpbGUgcGF0aFxuICogQHBhcmFtIGRlc3QgZGVzdCBmaWxlIHBhdGhcbiAqL1xuZXhwb3J0IGZ1bmN0aW9uIGlzU2FtZVBhdGgoXG4gIHNyYzogc3RyaW5nIHwgVVJMLFxuICBkZXN0OiBzdHJpbmcgfCBVUkwsXG4pOiBib29sZWFuIHwgdm9pZCB7XG4gIHNyYyA9IHRvUGF0aFN0cmluZyhzcmMpO1xuICBkZXN0ID0gdG9QYXRoU3RyaW5nKGRlc3QpO1xuXG4gIHJldHVybiBwYXRoLnJlc29sdmUoc3JjKSA9PT0gcGF0aC5yZXNvbHZlKGRlc3QpO1xufVxuXG4vKipcbiAqIFRlc3Qgd2hldGhlciBvciBub3QgYGRlc3RgIGlzIGEgc3ViLWRpcmVjdG9yeSBvZiBgc3JjYFxuICogQHBhcmFtIHNyYyBzcmMgZmlsZSBwYXRoXG4gKiBAcGFyYW0gZGVzdCBkZXN0IGZpbGUgcGF0aFxuICogQHBhcmFtIHNlcCBwYXRoIHNlcGFyYXRvclxuICovXG5leHBvcnQgZnVuY3Rpb24gaXNTdWJkaXIoXG4gIHNyYzogc3RyaW5nIHwgVVJMLFxuICBkZXN0OiBzdHJpbmcgfCBVUkwsXG4gIHNlcDogc3RyaW5nID0gcGF0aC5TRVAsXG4pOiBib29sZWFuIHtcbiAgaWYgKHNyYyA9PT0gZGVzdCkge1xuICAgIHJldHVybiBmYWxzZTtcbiAgfVxuICBzcmMgPSB0b1BhdGhTdHJpbmcoc3JjKTtcbiAgY29uc3Qgc3JjQXJyYXkgPSBzcmMuc3BsaXQoc2VwKTtcbiAgZGVzdCA9IHRvUGF0aFN0cmluZyhkZXN0KTtcbiAgY29uc3QgZGVzdEFycmF5ID0gZGVzdC5zcGxpdChzZXApO1xuICByZXR1cm4gc3JjQXJyYXkuZXZlcnkoKGN1cnJlbnQsIGkpID0+IGRlc3RBcnJheVtpXSA9PT0gY3VycmVudCk7XG59XG5cbmV4cG9ydCB0eXBlIFBhdGhUeXBlID0gXCJmaWxlXCIgfCBcImRpclwiIHwgXCJzeW1saW5rXCI7XG5cbi8qKlxuICogR2V0IGEgaHVtYW4gcmVhZGFibGUgZmlsZSB0eXBlIHN0cmluZy5cbiAqXG4gKiBAcGFyYW0gZmlsZUluZm8gQSBGaWxlSW5mbyBkZXNjcmliZXMgYSBmaWxlIGFuZCBpcyByZXR1cm5lZCBieSBgc3RhdGAsXG4gKiAgICAgICAgICAgICAgICAgYGxzdGF0YFxuICovXG5leHBvcnQgZnVuY3Rpb24gZ2V0RmlsZUluZm9UeXBlKGZpbGVJbmZvOiBEZW5vLkZpbGVJbmZvKTogUGF0aFR5cGUgfCB1bmRlZmluZWQge1xuICByZXR1cm4gZmlsZUluZm8uaXNGaWxlXG4gICAgPyBcImZpbGVcIlxuICAgIDogZmlsZUluZm8uaXNEaXJlY3RvcnlcbiAgICA/IFwiZGlyXCJcbiAgICA6IGZpbGVJbmZvLmlzU3ltbGlua1xuICAgID8gXCJzeW1saW5rXCJcbiAgICA6IHVuZGVmaW5lZDtcbn1cblxuZXhwb3J0IGludGVyZmFjZSBXYWxrRW50cnkgZXh0ZW5kcyBEZW5vLkRpckVudHJ5IHtcbiAgcGF0aDogc3RyaW5nO1xufVxuXG4vKiogQ3JlYXRlIFdhbGtFbnRyeSBmb3IgdGhlIGBwYXRoYCBzeW5jaHJvbm91c2x5ICovXG5leHBvcnQgZnVuY3Rpb24gY3JlYXRlV2Fsa0VudHJ5U3luYyhwYXRoOiBzdHJpbmcgfCBVUkwpOiBXYWxrRW50cnkge1xuICBwYXRoID0gdG9QYXRoU3RyaW5nKHBhdGgpO1xuICBwYXRoID0gbm9ybWFsaXplKHBhdGgpO1xuICBjb25zdCBuYW1lID0gYmFzZW5hbWUocGF0aCk7XG4gIGNvbnN0IGluZm8gPSBEZW5vLnN0YXRTeW5jKHBhdGgpO1xuICByZXR1cm4ge1xuICAgIHBhdGgsXG4gICAgbmFtZSxcbiAgICBpc0ZpbGU6IGluZm8uaXNGaWxlLFxuICAgIGlzRGlyZWN0b3J5OiBpbmZvLmlzRGlyZWN0b3J5LFxuICAgIGlzU3ltbGluazogaW5mby5pc1N5bWxpbmssXG4gIH07XG59XG5cbi8qKiBDcmVhdGUgV2Fsa0VudHJ5IGZvciB0aGUgYHBhdGhgIGFzeW5jaHJvbm91c2x5ICovXG5leHBvcnQgYXN5bmMgZnVuY3Rpb24gY3JlYXRlV2Fsa0VudHJ5KHBhdGg6IHN0cmluZyB8IFVSTCk6IFByb21pc2U8V2Fsa0VudHJ5PiB7XG4gIHBhdGggPSB0b1BhdGhTdHJpbmcocGF0aCk7XG4gIHBhdGggPSBub3JtYWxpemUocGF0aCk7XG4gIGNvbnN0IG5hbWUgPSBiYXNlbmFtZShwYXRoKTtcbiAgY29uc3QgaW5mbyA9IGF3YWl0IERlbm8uc3RhdChwYXRoKTtcbiAgcmV0dXJuIHtcbiAgICBwYXRoLFxuICAgIG5hbWUsXG4gICAgaXNGaWxlOiBpbmZvLmlzRmlsZSxcbiAgICBpc0RpcmVjdG9yeTogaW5mby5pc0RpcmVjdG9yeSxcbiAgICBpc1N5bWxpbms6IGluZm8uaXNTeW1saW5rLFxuICB9O1xufVxuXG4vKipcbiAqIENvbnZlcnQgYSBVUkwgb3Igc3RyaW5nIHRvIGEgcGF0aFxuICogQHBhcmFtIHBhdGhVcmwgQSBVUkwgb3Igc3RyaW5nIHRvIGJlIGNvbnZlcnRlZFxuICovXG5leHBvcnQgZnVuY3Rpb24gdG9QYXRoU3RyaW5nKFxuICBwYXRoVXJsOiBzdHJpbmcgfCBVUkwsXG4pOiBzdHJpbmcge1xuICByZXR1cm4gcGF0aFVybCBpbnN0YW5jZW9mIFVSTCA/IHBhdGguZnJvbUZpbGVVcmwocGF0aFVybCkgOiBwYXRoVXJsO1xufVxuIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLDBFQUEwRTtBQUMxRSxZQUFZLFVBQVUsaUJBQWlCO0FBQ3ZDLFNBQVMsUUFBUSxFQUFFLFNBQVMsUUFBUSxpQkFBaUI7QUFFckQ7Ozs7Q0FJQyxHQUNELE9BQU8sU0FBUyxXQUNkLEdBQWlCLEVBQ2pCLElBQWtCO0VBRWxCLE1BQU0sYUFBYTtFQUNuQixPQUFPLGFBQWE7RUFFcEIsT0FBTyxLQUFLLE9BQU8sQ0FBQyxTQUFTLEtBQUssT0FBTyxDQUFDO0FBQzVDO0FBRUE7Ozs7O0NBS0MsR0FDRCxPQUFPLFNBQVMsU0FDZCxHQUFpQixFQUNqQixJQUFrQixFQUNsQixNQUFjLEtBQUssR0FBRztFQUV0QixJQUFJLFFBQVEsTUFBTTtJQUNoQixPQUFPO0VBQ1Q7RUFDQSxNQUFNLGFBQWE7RUFDbkIsTUFBTSxXQUFXLElBQUksS0FBSyxDQUFDO0VBQzNCLE9BQU8sYUFBYTtFQUNwQixNQUFNLFlBQVksS0FBSyxLQUFLLENBQUM7RUFDN0IsT0FBTyxTQUFTLEtBQUssQ0FBQyxDQUFDLFNBQVMsSUFBTSxTQUFTLENBQUMsRUFBRSxLQUFLO0FBQ3pEO0FBSUE7Ozs7O0NBS0MsR0FDRCxPQUFPLFNBQVMsZ0JBQWdCLFFBQXVCO0VBQ3JELE9BQU8sU0FBUyxNQUFNLEdBQ2xCLFNBQ0EsU0FBUyxXQUFXLEdBQ3BCLFFBQ0EsU0FBUyxTQUFTLEdBQ2xCLFlBQ0E7QUFDTjtBQU1BLGtEQUFrRCxHQUNsRCxPQUFPLFNBQVMsb0JBQW9CLElBQWtCO0VBQ3BELE9BQU8sYUFBYTtFQUNwQixPQUFPLFVBQVU7RUFDakIsTUFBTSxPQUFPLFNBQVM7RUFDdEIsTUFBTSxPQUFPLEtBQUssUUFBUSxDQUFDO0VBQzNCLE9BQU87SUFDTDtJQUNBO0lBQ0EsUUFBUSxLQUFLLE1BQU07SUFDbkIsYUFBYSxLQUFLLFdBQVc7SUFDN0IsV0FBVyxLQUFLLFNBQVM7RUFDM0I7QUFDRjtBQUVBLG1EQUFtRCxHQUNuRCxPQUFPLGVBQWUsZ0JBQWdCLElBQWtCO0VBQ3RELE9BQU8sYUFBYTtFQUNwQixPQUFPLFVBQVU7RUFDakIsTUFBTSxPQUFPLFNBQVM7RUFDdEIsTUFBTSxPQUFPLE1BQU0sS0FBSyxJQUFJLENBQUM7RUFDN0IsT0FBTztJQUNMO0lBQ0E7SUFDQSxRQUFRLEtBQUssTUFBTTtJQUNuQixhQUFhLEtBQUssV0FBVztJQUM3QixXQUFXLEtBQUssU0FBUztFQUMzQjtBQUNGO0FBRUE7OztDQUdDLEdBQ0QsT0FBTyxTQUFTLGFBQ2QsT0FBcUI7RUFFckIsT0FBTyxtQkFBbUIsTUFBTSxLQUFLLFdBQVcsQ0FBQyxXQUFXO0FBQzlEIn0=
+// denoCacheMetadata=7881646863120027769,14429128907153974829

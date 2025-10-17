@@ -1,0 +1,39 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import {
+  assertArgs,
+  lastPathSegment,
+  stripSuffix,
+} from "../_common/basename.ts";
+import { CHAR_COLON } from "../_common/constants.ts";
+import { stripTrailingSeparators } from "../_common/strip_trailing_separators.ts";
+import { isPathSeparator, isWindowsDeviceRoot } from "./_util.ts";
+
+/**
+ * Return the last portion of a `path`.
+ * Trailing directory separators are ignored, and optional suffix is removed.
+ *
+ * @param path - path to extract the name from.
+ * @param [suffix] - suffix to remove from extracted name.
+ */
+export function basename(path: string, suffix = ""): string {
+  assertArgs(path, suffix);
+
+  // Check for a drive letter prefix so as not to mistake the following
+  // path separator as an extra separator at the end of the path that can be
+  // disregarded
+  let start = 0;
+  if (path.length >= 2) {
+    const drive = path.charCodeAt(0);
+    if (isWindowsDeviceRoot(drive)) {
+      if (path.charCodeAt(1) === CHAR_COLON) start = 2;
+    }
+  }
+
+  const lastSegment = lastPathSegment(path, isPathSeparator, start);
+  const strippedSegment = stripTrailingSeparators(lastSegment, isPathSeparator);
+  return suffix ? stripSuffix(strippedSegment, suffix) : strippedSegment;
+}
+
+// denoCacheMetadata={"headers":{"cross-origin-embedder-policy":"same-origin","strict-transport-security":"max-age=63072000; includeSubDomains; preload","vary":"Accept-Encoding, Origin","last-modified":"Fri, 24 Nov 2023 02:50:10 GMT","access-control-allow-origin":"*","server-timing":"fetchSource;dur=20","x-frame-options":"DENY","date":"Thu, 13 Feb 2025 16:33:39 GMT","via":"http/2 edgeproxy-h","x-amz-cf-pop":"SIN52-P1","x-amz-replication-status":"COMPLETED","cross-origin-resource-policy":"same-origin","x-amz-version-id":"ka9QD4DBcjKSSUF1G7KNJfeN3I4ucQ1W","x-amz-server-side-encryption":"AES256","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","content-type":"application/typescript; charset=utf-8","content-length":"1314","x-content-type-options":"nosniff","cache-control":"public, max-age=31536000, immutable","age":"21245023","x-amz-cf-id":"TBtr_dDyOoc_oFxu7P8GCcyPwOyH5Ag1Y0knwMRE6LKTYwCRHQ9TpA==","cross-origin-opener-policy":"same-origin","x-cache":"Hit from cloudfront","accept-ranges":"bytes","etag":"\"415eef3589b8d2f0afc878e87b5aedcf\"","referrer-policy":"strict-origin-when-cross-origin","server":"deno/gcp-asia-southeast1"},"url":"https://deno.land/std@0.208.0/path/windows/basename.ts","time":1760709442}

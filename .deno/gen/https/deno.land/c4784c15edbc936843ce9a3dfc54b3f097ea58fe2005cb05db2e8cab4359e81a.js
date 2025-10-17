@@ -1,0 +1,9 @@
+export function printError(message) {
+  console.error(`%cerror%c: ${message}`, "color: red; font-weight: bold", "");
+}
+export function error(message) {
+  printError(message);
+  Deno.exit(1);
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3gvZnJlc2hAMS43LjMvc3JjL2Rldi9lcnJvci50cyJdLCJzb3VyY2VzQ29udGVudCI6WyJleHBvcnQgZnVuY3Rpb24gcHJpbnRFcnJvcihtZXNzYWdlOiBzdHJpbmcpIHtcbiAgY29uc29sZS5lcnJvcihgJWNlcnJvciVjOiAke21lc3NhZ2V9YCwgXCJjb2xvcjogcmVkOyBmb250LXdlaWdodDogYm9sZFwiLCBcIlwiKTtcbn1cblxuZXhwb3J0IGZ1bmN0aW9uIGVycm9yKG1lc3NhZ2U6IHN0cmluZyk6IG5ldmVyIHtcbiAgcHJpbnRFcnJvcihtZXNzYWdlKTtcbiAgRGVuby5leGl0KDEpO1xufVxuIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLE9BQU8sU0FBUyxXQUFXLE9BQWU7RUFDeEMsUUFBUSxLQUFLLENBQUMsQ0FBQyxXQUFXLEVBQUUsU0FBUyxFQUFFLGlDQUFpQztBQUMxRTtBQUVBLE9BQU8sU0FBUyxNQUFNLE9BQWU7RUFDbkMsV0FBVztFQUNYLEtBQUssSUFBSSxDQUFDO0FBQ1oifQ==
+// denoCacheMetadata=13719994942020441807,5568139673087519397

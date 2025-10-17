@@ -1,0 +1,41 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+
+/** A library of assertion functions.
+ * If the assertion is false an `AssertionError` will be thrown which will
+ * result in pretty-printed diff of failing assertion.
+ *
+ * This module is browser compatible, but do not rely on good formatting of
+ * values for AssertionError messages in browsers.
+ *
+ * @module
+ */
+
+export * from "./assert_almost_equals.ts";
+export * from "./assert_array_includes.ts";
+export * from "./assert_equals.ts";
+export * from "./assert_exists.ts";
+export * from "./assert_false.ts";
+export * from "./assert_greater_or_equal.ts";
+export * from "./assert_greater.ts";
+export * from "./assert_instance_of.ts";
+export * from "./assert_is_error.ts";
+export * from "./assert_less_or_equal.ts";
+export * from "./assert_less.ts";
+export * from "./assert_match.ts";
+export * from "./assert_not_equals.ts";
+export * from "./assert_not_instance_of.ts";
+export * from "./assert_not_match.ts";
+export * from "./assert_not_strict_equals.ts";
+export * from "./assert_object_match.ts";
+export * from "./assert_rejects.ts";
+export * from "./assert_strict_equals.ts";
+export * from "./assert_string_includes.ts";
+export * from "./assert_throws.ts";
+export * from "./assert.ts";
+export * from "./assertion_error.ts";
+export * from "./equal.ts";
+export * from "./fail.ts";
+export * from "./unimplemented.ts";
+export * from "./unreachable.ts";
+
+// denoCacheMetadata={"headers":{"content-length":"1427","date":"Tue, 11 Mar 2025 11:49:44 GMT","x-amz-version-id":"0yFjvkmeitu82ak76Gf8lD1tqGbOXVu4","x-frame-options":"DENY","server":"deno/gcp-asia-southeast1","access-control-allow-origin":"*","cross-origin-opener-policy":"same-origin","referrer-policy":"strict-origin-when-cross-origin","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-replication-status":"COMPLETED","x-amz-cf-id":"PG7ly9XVuKU36dFcxZOSp2yGmJVNVteCVf6fQcEiO-IW3u5-2VhudQ==","x-amz-server-side-encryption":"AES256","content-type":"application/typescript; charset=utf-8","age":"19015655","via":"http/2 edgeproxy-h","vary":"Accept-Encoding, Origin","cross-origin-resource-policy":"same-origin","cross-origin-embedder-policy":"same-origin","x-amz-cf-pop":"SIN52-P1","last-modified":"Thu, 15 Feb 2024 05:02:27 GMT","server-timing":"fetchSource;dur=16","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","x-cache":"Hit from cloudfront","accept-ranges":"bytes","etag":"\"5dad03ba9de3c4d0a21916f9791c1129\"","x-content-type-options":"nosniff","cache-control":"public, max-age=31536000, immutable"},"url":"https://deno.land/std@0.216.0/assert/mod.ts","time":1760709438}

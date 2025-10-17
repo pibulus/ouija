@@ -1,0 +1,28 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import { isWindows } from "./_os.ts";
+import { fromFileUrl as posixFromFileUrl } from "./posix/from_file_url.ts";
+import { fromFileUrl as windowsFromFileUrl } from "./windows/from_file_url.ts";
+
+/**
+ * Converts a file URL to a path string.
+ *
+ * ```ts
+ * import { fromFileUrl } from "https://deno.land/std@$STD_VERSION/path/from_file_url.ts";
+ *
+ * // posix
+ * fromFileUrl("file:///home/foo"); // "/home/foo"
+ *
+ * // win32
+ * fromFileUrl("file:///home/foo"); // "\\home\\foo"
+ * fromFileUrl("file:///C:/Users/foo"); // "C:\\Users\\foo"
+ * fromFileUrl("file://localhost/home/foo"); // "\\\\localhost\\home\\foo"
+ * ```
+ * @param url of a file URL
+ */
+export function fromFileUrl(url: string | URL): string {
+  return isWindows ? windowsFromFileUrl(url) : posixFromFileUrl(url);
+}
+
+// denoCacheMetadata={"headers":{"x-frame-options":"DENY","referrer-policy":"strict-origin-when-cross-origin","x-amz-replication-status":"COMPLETED","x-cache":"Hit from cloudfront","x-content-type-options":"nosniff","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","etag":"\"36e2d2b922b037b4bb62e42ccb856e06\"","cross-origin-resource-policy":"same-origin","last-modified":"Fri, 24 Nov 2023 02:50:10 GMT","strict-transport-security":"max-age=63072000; includeSubDomains; preload","cache-control":"public, max-age=31536000, immutable","access-control-allow-origin":"*","cross-origin-opener-policy":"same-origin","content-length":"894","accept-ranges":"bytes","content-type":"application/typescript; charset=utf-8","server":"deno/gcp-asia-southeast1","age":"18141495","date":"Fri, 21 Mar 2025 14:39:06 GMT","x-amz-cf-id":"WopTaWyyPeq0zJOyYNN0tjNMOrsQ2g25s_-1Puc4XfM_CAZ-e_u2Lw==","cross-origin-embedder-policy":"same-origin","x-amz-server-side-encryption":"AES256","via":"http/2 edgeproxy-h","server-timing":"fetchSource;dur=10","x-amz-cf-pop":"SIN52-P1","x-amz-version-id":"NV4IHSYRL2MniY_DOqouc9Hl7gTHrknz","vary":"Accept-Encoding, Origin"},"url":"https://deno.land/std@0.208.0/path/from_file_url.ts","time":1760709441}

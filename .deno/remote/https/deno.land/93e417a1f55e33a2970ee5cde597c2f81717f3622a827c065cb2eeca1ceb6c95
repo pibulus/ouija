@@ -1,0 +1,46 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import { assertArg } from "../_common/dirname.ts";
+import { stripTrailingSeparators } from "../_common/strip_trailing_separators.ts";
+import { isPosixPathSeparator } from "./_util.ts";
+
+/**
+ * Return the directory path of a `path`.
+ * @param path - path to extract the directory from.
+ */
+export function dirname(path: string): string {
+  assertArg(path);
+
+  let end = -1;
+  let matchedNonSeparator = false;
+
+  for (let i = path.length - 1; i >= 1; --i) {
+    if (isPosixPathSeparator(path.charCodeAt(i))) {
+      if (matchedNonSeparator) {
+        end = i;
+        break;
+      }
+    } else {
+      matchedNonSeparator = true;
+    }
+  }
+
+  // No matches. Fallback based on provided path:
+  //
+  // - leading slashes paths
+  //     "/foo" => "/"
+  //     "///foo" => "/"
+  // - no slash path
+  //     "foo" => "."
+  if (end === -1) {
+    return isPosixPathSeparator(path.charCodeAt(0)) ? "/" : ".";
+  }
+
+  return stripTrailingSeparators(
+    path.slice(0, end),
+    isPosixPathSeparator,
+  );
+}
+
+// denoCacheMetadata={"headers":{"server-timing":"fetchSource;dur=16","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","x-amz-server-side-encryption":"AES256","cross-origin-embedder-policy":"same-origin","cross-origin-resource-policy":"same-origin","x-amz-cf-id":"QLCEZcOclQN67aMpElB_Hb2PUjeNGLC805OezSa85YC2WHVbcz3aYA==","x-cache":"Hit from cloudfront","x-amz-replication-status":"COMPLETED","strict-transport-security":"max-age=63072000; includeSubDomains; preload","etag":"\"18ef5f15fa81efb1aa08572cc8d3658a\"","content-type":"application/typescript; charset=utf-8","content-length":"1109","via":"http/2 edgeproxy-h","accept-ranges":"bytes","server":"deno/gcp-asia-southeast1","access-control-allow-origin":"*","last-modified":"Fri, 24 Nov 2023 02:50:10 GMT","x-amz-cf-pop":"SIN52-P1","x-amz-version-id":"ZvzfNVZwsALJsdvQnvGaxXNLfl4U6lSb","age":"18141495","x-frame-options":"DENY","cross-origin-opener-policy":"same-origin","referrer-policy":"strict-origin-when-cross-origin","vary":"Accept-Encoding, Origin","cache-control":"public, max-age=31536000, immutable","date":"Fri, 21 Mar 2025 14:39:07 GMT","x-content-type-options":"nosniff"},"url":"https://deno.land/std@0.208.0/path/posix/dirname.ts","time":1760709441}

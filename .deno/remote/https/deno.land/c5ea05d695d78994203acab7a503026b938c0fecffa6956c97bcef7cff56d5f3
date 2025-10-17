@@ -1,0 +1,32 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+/** The type of the result of parsing JSON. */
+export type JsonValue =
+  | { [key: string]: JsonValue | undefined }
+  | JsonValue[]
+  | string
+  | number
+  | boolean
+  | null;
+
+/**
+ * Options for {@linkcode JsonParseStream} and
+ * {@linkcode ConcatenatedJsonParseStream}.
+ */
+export interface ParseStreamOptions {
+  /**
+   * Controls the buffer of the {@linkcode TransformStream} used internally.
+   *
+   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/TransformStream/TransformStream#writablestrategy}
+   */
+  readonly writableStrategy?: QueuingStrategy<string>;
+  /**
+   * Controls the buffer of the {@linkcode TransformStream} used internally.
+   *
+   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/TransformStream/TransformStream#readablestrategy}
+   */
+  readonly readableStrategy?: QueuingStrategy<JsonValue>;
+}
+
+// denoCacheMetadata={"headers":{"access-control-allow-origin":"*","strict-transport-security":"max-age=63072000; includeSubDomains; preload","date":"Thu, 13 Mar 2025 14:22:32 GMT","content-type":"application/typescript; charset=utf-8","cross-origin-resource-policy":"same-origin","cross-origin-embedder-policy":"same-origin","referrer-policy":"strict-origin-when-cross-origin","etag":"\"ce1fb9ba4c5e756c0d816c6d3f1e29d7\"","x-content-type-options":"nosniff","x-amz-replication-status":"COMPLETED","last-modified":"Thu, 15 Feb 2024 05:02:28 GMT","x-cache":"Hit from cloudfront","age":"18834157","content-length":"963","accept-ranges":"bytes","server":"deno/gcp-asia-southeast1","server-timing":"fetchSource;dur=120","via":"http/2 edgeproxy-h","x-amz-cf-id":"6Y2DxeZoqDYsJSl1906P6fK9qNjYLl9MewRkbj6vLAjlojMsZma2rQ==","cache-control":"public, max-age=31536000, immutable","x-frame-options":"DENY","x-amz-version-id":"t6Esv8TqS3K7AhBc7WzJNyzu5rCVwndH","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","cross-origin-opener-policy":"same-origin","x-amz-server-side-encryption":"AES256","vary":"Accept-Encoding, Origin","x-amz-cf-pop":"SIN52-P1"},"url":"https://deno.land/std@0.216.0/json/common.ts","time":1760709909}

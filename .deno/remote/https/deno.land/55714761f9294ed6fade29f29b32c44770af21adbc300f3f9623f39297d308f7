@@ -1,0 +1,20 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import type { ReleaseType, SemVer } from "./types.ts";
+import { compareIdentifier } from "./_shared.ts";
+
+/**
+ * Returns difference between two versions by the release type, or `undefined` if the versions are the same.
+ */
+export function difference(s0: SemVer, s1: SemVer): ReleaseType | undefined {
+  const hasPrerelease = s0.prerelease?.length || s1.prerelease?.length;
+
+  if (s0.major !== s1.major) return hasPrerelease ? "premajor" : "major";
+  if (s0.minor !== s1.minor) return hasPrerelease ? "preminor" : "minor";
+  if (s0.patch !== s1.patch) return hasPrerelease ? "prepatch" : "patch";
+
+  if (compareIdentifier(s0.prerelease, s1.prerelease) !== 0) {
+    return "prerelease";
+  }
+}
+
+// denoCacheMetadata={"headers":{"x-amz-cf-id":"57YTzb760TmzXm4MaQfJYIIclejuiBnuwEJC9shbgv183O9q_-pjWA==","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","referrer-policy":"strict-origin-when-cross-origin","x-amz-cf-pop":"SIN52-P1","cross-origin-opener-policy":"same-origin","cross-origin-resource-policy":"same-origin","cache-control":"public, max-age=31536000, immutable","accept-ranges":"bytes","content-type":"application/typescript; charset=utf-8","server":"deno/gcp-asia-southeast1","strict-transport-security":"max-age=63072000; includeSubDomains; preload","age":"19097177","x-amz-replication-status":"COMPLETED","via":"http/2 edgeproxy-h","x-amz-server-side-encryption":"AES256","x-content-type-options":"nosniff","x-cache":"Hit from cloudfront","x-frame-options":"DENY","server-timing":"fetchSource;dur=34","content-length":"766","date":"Mon, 10 Mar 2025 13:11:02 GMT","access-control-allow-origin":"*","cross-origin-embedder-policy":"same-origin","etag":"\"7edbb26ab52766787cecffbc3d84f2e5\"","x-amz-version-id":".dhkgXPVBpweqWC9aKSRZ.vV76iMevRm","last-modified":"Thu, 15 Feb 2024 05:02:29 GMT","vary":"Accept-Encoding, Origin"},"url":"https://deno.land/std@0.216.0/semver/difference.ts","time":1760709439}

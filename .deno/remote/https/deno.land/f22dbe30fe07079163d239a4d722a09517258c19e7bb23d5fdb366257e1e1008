@@ -1,0 +1,32 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import { assertArg } from "../_common/normalize.ts";
+import { normalizeString } from "../_common/normalize_string.ts";
+import { isPosixPathSeparator } from "./_util.ts";
+
+/**
+ * Normalize the `path`, resolving `'..'` and `'.'` segments.
+ * Note that resolving these segments does not necessarily mean that all will be eliminated.
+ * A `'..'` at the top-level will be preserved, and an empty path is canonically `'.'`.
+ * @param path to be normalized
+ */
+export function normalize(path: string): string {
+  assertArg(path);
+
+  const isAbsolute = isPosixPathSeparator(path.charCodeAt(0));
+  const trailingSeparator = isPosixPathSeparator(
+    path.charCodeAt(path.length - 1),
+  );
+
+  // Normalize the path
+  path = normalizeString(path, !isAbsolute, "/", isPosixPathSeparator);
+
+  if (path.length === 0 && !isAbsolute) path = ".";
+  if (path.length > 0 && trailingSeparator) path += "/";
+
+  if (isAbsolute) return `/${path}`;
+  return path;
+}
+
+// denoCacheMetadata={"headers":{"x-amz-version-id":"6zinfVYYcuXutJn4nkcaJaUbAqN13Zcj","strict-transport-security":"max-age=63072000; includeSubDomains; preload","access-control-allow-origin":"*","via":"http/2 edgeproxy-h","x-amz-replication-status":"COMPLETED","cross-origin-opener-policy":"same-origin","age":"21252759","cache-control":"public, max-age=31536000, immutable","cross-origin-resource-policy":"same-origin","server":"deno/gcp-asia-southeast1","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","etag":"\"eca5d47ef2b7ed738bc5159d4f41b4a8\"","x-amz-cf-pop":"SIN52-P1","date":"Thu, 13 Feb 2025 14:24:42 GMT","x-frame-options":"DENY","content-length":"1056","x-amz-server-side-encryption":"AES256","x-content-type-options":"nosniff","content-type":"application/typescript; charset=utf-8","last-modified":"Fri, 24 Nov 2023 02:50:10 GMT","server-timing":"fetchSource;dur=18","referrer-policy":"strict-origin-when-cross-origin","x-cache":"Hit from cloudfront","vary":"Accept-Encoding, Origin","accept-ranges":"bytes","cross-origin-embedder-policy":"same-origin","x-amz-cf-id":"yAXypNmVPeo_U5i_gfLcf3jfoBnN_CZudFC8hJ_HHJjpk7YX4UnjIw=="},"url":"https://deno.land/std@0.208.0/path/posix/normalize.ts","time":1760709441}

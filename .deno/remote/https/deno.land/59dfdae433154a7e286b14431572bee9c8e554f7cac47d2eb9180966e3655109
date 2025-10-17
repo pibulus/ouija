@@ -1,0 +1,54 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+
+import { OPERATORS } from "./_constants.ts";
+
+/**
+ * The possible release types are used as an operator for the
+ * increment function and as a result of the difference function.
+ */
+export type ReleaseType =
+  | "pre"
+  | "major"
+  | "premajor"
+  | "minor"
+  | "preminor"
+  | "patch"
+  | "prepatch"
+  | "prerelease";
+
+/**
+ * SemVer comparison operators.
+ */
+export type Operator = typeof OPERATORS[number];
+
+/**
+ * The shape of a valid semantic version comparator
+ * @example >=0.0.0
+ */
+export interface Comparator extends SemVer {
+  operator: Operator;
+  /**
+   * @deprecated (will be removed in 0.216.0) {@linkcode Comparator} extends {@linkcode SemVer}. Use `major`, `minor`, `patch`, `prerelease`, and `build` properties instead.
+   */
+  semver?: SemVer;
+}
+
+/**
+ * A SemVer object parsed into its constituent parts.
+ */
+export interface SemVer {
+  major: number;
+  minor: number;
+  patch: number;
+  prerelease?: (string | number)[];
+  build?: string[];
+}
+
+/**
+ * A type representing a semantic version range. The ranges consist of
+ * a nested array, which represents a set of OR comparisons while the
+ * inner array represents AND comparisons.
+ */
+export type Range = Comparator[][];
+
+// denoCacheMetadata={"headers":{"accept-ranges":"bytes","cache-control":"public, max-age=31536000, immutable","age":"18141496","server":"deno/gcp-asia-southeast1","server-timing":"fetchSource;dur=22","x-frame-options":"DENY","referrer-policy":"strict-origin-when-cross-origin","content-type":"application/typescript; charset=utf-8","etag":"\"eb2af160b148b0aef414c7e270798ff8\"","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","x-amz-cf-pop":"SIN52-P1","cross-origin-resource-policy":"same-origin","x-amz-version-id":"OXxjaS0abpbcdtNc0VG.IRp8d0iY.GtP","strict-transport-security":"max-age=63072000; includeSubDomains; preload","last-modified":"Thu, 15 Feb 2024 05:02:29 GMT","cross-origin-opener-policy":"same-origin","access-control-allow-origin":"*","date":"Fri, 21 Mar 2025 14:39:03 GMT","x-amz-replication-status":"COMPLETED","x-cache":"Hit from cloudfront","x-content-type-options":"nosniff","x-amz-cf-id":"ob9bHlzDX5V7M3MNX62Dfi4nuLjeVsP9myQWpzTO4q7cdmfzLViiVw==","via":"http/2 edgeproxy-h","content-length":"1265","x-amz-server-side-encryption":"AES256","cross-origin-embedder-policy":"same-origin","vary":"Accept-Encoding, Origin"},"url":"https://deno.land/std@0.216.0/semver/types.ts","time":1760709439}

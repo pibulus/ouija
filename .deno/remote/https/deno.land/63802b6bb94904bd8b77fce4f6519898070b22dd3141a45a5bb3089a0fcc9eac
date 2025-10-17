@@ -1,0 +1,59 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { AssertionError } from "./assertion_error.ts";
+
+/** Any constructor */
+// deno-lint-ignore no-explicit-any
+export type AnyConstructor = new (...args: any[]) => any;
+/** Gets constructor type */
+export type GetConstructorType<T extends AnyConstructor> = T extends // deno-lint-ignore no-explicit-any
+new (...args: any) => infer C ? C
+  : never;
+
+/**
+ * Make an assertion that `obj` is an instance of `type`.
+ * If not then throw.
+ *
+ * @example
+ * ```ts
+ * import { assertInstanceOf } from "https://deno.land/std@$STD_VERSION/assert/assert_instance_of.ts";
+ *
+ * assertInstanceOf(new Date(), Date); // Doesn't throw
+ * assertInstanceOf(new Date(), Number); // Throws
+ * ```
+ */
+export function assertInstanceOf<T extends AnyConstructor>(
+  actual: unknown,
+  expectedType: T,
+  msg = "",
+): asserts actual is GetConstructorType<T> {
+  if (actual instanceof expectedType) return;
+
+  const msgSuffix = msg ? `: ${msg}` : ".";
+  const expectedTypeStr = expectedType.name;
+
+  let actualTypeStr = "";
+  if (actual === null) {
+    actualTypeStr = "null";
+  } else if (actual === undefined) {
+    actualTypeStr = "undefined";
+  } else if (typeof actual === "object") {
+    actualTypeStr = actual.constructor?.name ?? "Object";
+  } else {
+    actualTypeStr = typeof actual;
+  }
+
+  if (expectedTypeStr === actualTypeStr) {
+    msg =
+      `Expected object to be an instance of "${expectedTypeStr}"${msgSuffix}`;
+  } else if (actualTypeStr === "function") {
+    msg =
+      `Expected object to be an instance of "${expectedTypeStr}" but was not an instanced object${msgSuffix}`;
+  } else {
+    msg =
+      `Expected object to be an instance of "${expectedTypeStr}" but was "${actualTypeStr}"${msgSuffix}`;
+  }
+
+  throw new AssertionError(msg);
+}
+
+// denoCacheMetadata={"headers":{"cache-control":"public, max-age=31536000, immutable","server-timing":"fetchSource;dur=18","cross-origin-resource-policy":"same-origin","x-amz-replication-status":"COMPLETED","x-amz-cf-id":"lcV28mn-b0EGMFd5Q726phgV6Etv1mQr_DDiEaS9AjQ_EyeOneyhNA==","cross-origin-opener-policy":"same-origin","access-control-allow-origin":"*","x-frame-options":"DENY","last-modified":"Thu, 15 Feb 2024 05:02:27 GMT","accept-ranges":"bytes","via":"http/2 edgeproxy-h","x-amz-cf-pop":"SIN52-P1","content-type":"application/typescript; charset=utf-8","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-cache":"Hit from cloudfront","x-amz-version-id":"kpbOpRLoHEcB1GohZ3KN_2EOiMZGQ1nG","vary":"Accept-Encoding, Origin","age":"21179176","date":"Fri, 14 Feb 2025 10:51:03 GMT","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","referrer-policy":"strict-origin-when-cross-origin","etag":"\"afda9bf7f1157b6f9d4679fe41c85aa7\"","server":"deno/gcp-asia-southeast1","content-length":"1818","x-amz-server-side-encryption":"AES256","x-content-type-options":"nosniff","cross-origin-embedder-policy":"same-origin"},"url":"https://deno.land/std@0.216.0/assert/assert_instance_of.ts","time":1760709438}

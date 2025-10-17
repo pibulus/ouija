@@ -1,0 +1,268 @@
+import { PARTIAL_SEARCH_PARAM } from "../constants.ts";
+import { BaseRoute, FreshContext } from "./types.ts";
+
+export type Handler<T = Record<string, unknown>> = (
+  req: Request,
+  ctx: FreshContext<T>,
+) => Response | Promise<Response>;
+
+export type FinalHandler = (
+  req: Request,
+  ctx: FreshContext,
+  route?: InternalRoute,
+) => {
+  destination: DestinationKind;
+  handler: () => Response | Promise<Response>;
+};
+
+export type ErrorHandler<T = Record<string, unknown>> = (
+  req: Request,
+  ctx: FreshContext<T>,
+  err: unknown,
+) => Response | Promise<Response>;
+
+type UnknownMethodHandler = (
+  req: Request,
+  ctx: FreshContext,
+  knownMethods: KnownMethod[],
+) => Response | Promise<Response>;
+
+export type MatchHandler = (
+  req: Request,
+  ctx: FreshContext,
+) => Response | Promise<Response>;
+
+export interface Routes {
+  [key: string]: {
+    baseRoute: BaseRoute;
+    methods: {
+      [K in KnownMethod | "default"]?: MatchHandler;
+    };
+  };
+}
+
+export type DestinationKind = "internal" | "static" | "route" | "notFound";
+
+export type InternalRoute = {
+  baseRoute: BaseRoute;
+  originalPattern: string;
+  pattern: URLPattern | string;
+  methods: { [K in KnownMethod]?: MatchHandler };
+  default?: MatchHandler;
+  destination: DestinationKind;
+};
+
+export interface RouterOptions {
+  internalRoutes: Routes;
+  staticRoutes: Routes;
+  routes: Routes;
+  otherHandler: Handler;
+  errorHandler: ErrorHandler;
+  unknownMethodHandler?: UnknownMethodHandler;
+}
+
+export type KnownMethod = typeof knownMethods[number];
+
+export const knownMethods = [
+  "GET",
+  "HEAD",
+  "POST",
+  "PUT",
+  "DELETE",
+  "OPTIONS",
+  "PATCH",
+] as const;
+
+export function defaultOtherHandler(_req: Request): Response {
+  return new Response(null, {
+    status: 404,
+  });
+}
+
+export function defaultErrorHandler(
+  _req: Request,
+  ctx: FreshContext,
+): Response {
+  console.error(ctx.error);
+
+  return new Response(null, {
+    status: 500,
+  });
+}
+
+export function defaultUnknownMethodHandler(
+  _req: Request,
+  _ctx: FreshContext,
+  knownMethods: KnownMethod[],
+): Response {
+  return new Response(null, {
+    status: 405,
+    headers: {
+      Accept: knownMethods.join(", "),
+    },
+  });
+}
+
+export const IS_PATTERN = /[*:{}+?()]/;
+
+function processRoutes(
+  processedRoutes: Array<InternalRoute | null>,
+  routes: Routes,
+  destination: DestinationKind,
+) {
+  for (const [path, def] of Object.entries(routes)) {
+    const pattern = destination === "static" || !IS_PATTERN.test(path)
+      ? path
+      : new URLPattern({ pathname: path });
+
+    const entry: InternalRoute = {
+      baseRoute: def.baseRoute,
+      pattern,
+      originalPattern: path,
+      methods: {},
+      default: undefined,
+      destination,
+    };
+
+    for (const [method, handler] of Object.entries(def.methods)) {
+      if (method === "default") {
+        entry.default = handler;
+      } else if (knownMethods.includes(method as KnownMethod)) {
+        entry.methods[method as KnownMethod] = handler;
+      }
+    }
+
+    processedRoutes.push(entry);
+  }
+}
+
+export interface RouteResult {
+  route: InternalRoute | undefined;
+  params: Record<string, string>;
+  isPartial: boolean;
+}
+
+export function getParamsAndRoute(
+  {
+    internalRoutes,
+    staticRoutes,
+    routes,
+  }: RouterOptions,
+): (
+  url: URL,
+) => RouteResult {
+  const processedRoutes: Array<InternalRoute | null> = [];
+  processRoutes(processedRoutes, internalRoutes, "internal");
+  processRoutes(processedRoutes, staticRoutes, "static");
+  processRoutes(processedRoutes, routes, "route");
+
+  const statics = new Map<string, RouteResult>();
+
+  return (url: URL) => {
+    const isPartial = url.searchParams.has(PARTIAL_SEARCH_PARAM);
+    const pathname = url.pathname;
+
+    const cached = statics.get(pathname);
+    if (cached !== undefined) {
+      cached.isPartial = isPartial;
+      return cached;
+    }
+
+    for (let i = 0; i < processedRoutes.length; i++) {
+      const route = processedRoutes[i];
+      if (route === null) continue;
+
+      // Static routes where the full pattern contains no dynamic
+      // parts and must be an exact match. We use that for static
+      // files.
+      if (typeof route.pattern === "string") {
+        if (route.pattern === pathname) {
+          processedRoutes[i] = null;
+          const res = { route: route, params: {}, isPartial };
+          statics.set(route.pattern, res);
+          return res;
+        }
+
+        continue;
+      }
+
+      const res = route.pattern.exec(url);
+
+      if (res !== null) {
+        const params: Record<string, string> = {};
+        for (const [key, value] of Object.entries(res.pathname.groups)) {
+          params[key] = value === undefined ? "" : value;
+        }
+
+        return {
+          route: route,
+          params,
+          isPartial,
+        };
+      }
+    }
+    return {
+      route: undefined,
+      params: {},
+      isPartial,
+    };
+  };
+}
+
+export function router(
+  {
+    otherHandler,
+    unknownMethodHandler,
+  }: RouterOptions,
+): FinalHandler {
+  unknownMethodHandler ??= defaultUnknownMethodHandler;
+
+  return (req, ctx, route) => {
+    if (route) {
+      // If not overridden, HEAD requests should be handled as GET requests but without the body.
+      if (req.method === "HEAD" && !route.methods["HEAD"]) {
+        req = new Request(req.url, { method: "GET", headers: req.headers });
+      }
+
+      for (const [method, handler] of Object.entries(route.methods)) {
+        if (req.method === method) {
+          return {
+            destination: route.destination,
+            handler: () => handler(req, ctx),
+          };
+        }
+      }
+
+      if (route.default) {
+        return {
+          destination: route.destination,
+          handler: () => route.default!(req, ctx),
+        };
+      } else {
+        return {
+          destination: route.destination,
+          handler: () =>
+            unknownMethodHandler!(
+              req,
+              ctx,
+              Object.keys(route.methods) as KnownMethod[],
+            ),
+        };
+      }
+    }
+
+    return {
+      destination: "notFound",
+      handler: () => otherHandler!(req, ctx),
+    };
+  };
+}
+
+export function withBase(src: string, base?: string) {
+  if (base !== undefined && src.startsWith("/") && !src.startsWith(base)) {
+    return base + src;
+  }
+  return src;
+}
+
+// denoCacheMetadata={"headers":{"content-type":"application/typescript; charset=utf-8","age":"31535477","etag":"\"d61e36db62e7fd5cec777a59dd109381\"","cross-origin-opener-policy":"same-origin","last-modified":"Mon, 14 Oct 2024 12:51:13 GMT","referrer-policy":"strict-origin-when-cross-origin","x-amz-cf-id":"wsn2CkO02tWpL1r8eBDuSzgR4gbgoc5XE73WzyCJxdVjNKYPO0p5VA==","x-amz-cf-pop":"SIN52-P1","accept-ranges":"bytes","content-length":"6279","date":"Thu, 17 Oct 2024 14:13:51 GMT","x-amz-replication-status":"COMPLETED","x-amz-server-side-encryption":"AES256","strict-transport-security":"max-age=63072000; includeSubDomains; preload","cross-origin-embedder-policy":"same-origin","server":"deno/gcp-asia-southeast1","vary":"Accept-Encoding, Origin","via":"http/2 edgeproxy-h","x-cache":"Hit from cloudfront","x-content-type-options":"nosniff","server-timing":"fetchSource;dur=12","x-amz-version-id":"g3CcRonTlc8shD.rHQbngyJuOVBx4U.G","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","x-frame-options":"DENY","cross-origin-resource-policy":"same-origin","access-control-allow-origin":"*","cache-control":"public, max-age=31536000, immutable"},"url":"https://deno.land/x/fresh@1.7.3/src/server/router.ts","time":1760709907}

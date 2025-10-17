@@ -1,0 +1,28 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { AssertionError } from "./assertion_error.ts";
+
+/**
+ * Make an assertion that `actual` match RegExp `expected`. If not
+ * then throw.
+ *
+ * @example
+ * ```ts
+ * import { assertMatch } from "https://deno.land/std@$STD_VERSION/assert/assert_match.ts";
+ *
+ * assertMatch("Raptor", RegExp(/Raptor/)); // Doesn't throw
+ * assertMatch("Denosaurus", RegExp(/Raptor/)); // Throws
+ * ```
+ */
+export function assertMatch(
+  actual: string,
+  expected: RegExp,
+  msg?: string,
+) {
+  if (!expected.test(actual)) {
+    const msgSuffix = msg ? `: ${msg}` : ".";
+    msg = `Expected actual: "${actual}" to match: "${expected}"${msgSuffix}`;
+    throw new AssertionError(msg);
+  }
+}
+
+// denoCacheMetadata={"headers":{"access-control-allow-origin":"*","content-type":"application/typescript; charset=utf-8","accept-ranges":"bytes","date":"Sun, 09 Mar 2025 19:15:03 GMT","cross-origin-resource-policy":"same-origin","server":"deno/gcp-asia-southeast1","x-amz-cf-id":"DeAEPK83X7eZDGtMUYx7XpUoqTThoY0opxSKIfp_84BIPLNh3jT97A==","x-amz-replication-status":"COMPLETED","x-amz-server-side-encryption":"AES256","x-amz-version-id":"Qbr9Nua7LmoFhNSb9CyJw7Q5iVpXNEPN","x-content-type-options":"nosniff","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","referrer-policy":"strict-origin-when-cross-origin","x-cache":"Hit from cloudfront","cross-origin-embedder-policy":"same-origin","last-modified":"Thu, 15 Feb 2024 05:02:27 GMT","x-amz-cf-pop":"SIN52-P1","vary":"Accept-Encoding, Origin","x-frame-options":"DENY","content-length":"750","cross-origin-opener-policy":"same-origin","etag":"\"5faee6c862be5d9618331274930edd4e\"","strict-transport-security":"max-age=63072000; includeSubDomains; preload","age":"19161736","cache-control":"public, max-age=31536000, immutable","server-timing":"fetchSource;dur=48","via":"http/2 edgeproxy-h"},"url":"https://deno.land/std@0.216.0/assert/assert_match.ts","time":1760709439}

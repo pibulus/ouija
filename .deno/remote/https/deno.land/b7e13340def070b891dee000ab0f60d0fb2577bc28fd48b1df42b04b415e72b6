@@ -1,0 +1,72 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import { isIterator, isToken, needsEncoding } from "./_util.ts";
+
+/** Serializes the media type and the optional parameters as a media type
+ * conforming to RFC 2045 and RFC 2616.
+ *
+ * The type and parameter names are written in lower-case.
+ *
+ * When any of the arguments results in a standard violation then the return
+ * value will be an empty string (`""`).
+ *
+ * @example
+ * ```ts
+ * import { formatMediaType } from "https://deno.land/std@$STD_VERSION/media_types/format_media_type.ts";
+ *
+ * formatMediaType("text/plain", { charset: "UTF-8" }); // "text/plain; charset=UTF-8"
+ * ```
+ */
+export function formatMediaType(
+  type: string,
+  param?: Record<string, string> | Iterable<[string, string]>,
+): string {
+  let b = "";
+  const [major = "", sub] = type.split("/");
+  if (!sub) {
+    if (!isToken(type)) {
+      return "";
+    }
+    b += type.toLowerCase();
+  } else {
+    if (!isToken(major) || !isToken(sub)) {
+      return "";
+    }
+    b += `${major.toLowerCase()}/${sub.toLowerCase()}`;
+  }
+
+  if (param) {
+    param = isIterator(param) ? Object.fromEntries(param) : param;
+    const attrs = Object.keys(param);
+    attrs.sort();
+
+    for (const attribute of attrs) {
+      if (!isToken(attribute)) {
+        return "";
+      }
+      const value = param[attribute]!;
+      b += `; ${attribute.toLowerCase()}`;
+
+      const needEnc = needsEncoding(value);
+      if (needEnc) {
+        b += "*";
+      }
+      b += "=";
+
+      if (needEnc) {
+        b += `utf-8''${encodeURIComponent(value)}`;
+        continue;
+      }
+
+      if (isToken(value)) {
+        b += value;
+        continue;
+      }
+      b += `"${value.replace(/["\\]/gi, (m) => `\\${m}`)}"`;
+    }
+  }
+  return b;
+}
+
+// denoCacheMetadata={"headers":{"access-control-allow-origin":"*","cross-origin-resource-policy":"same-origin","server":"deno/gcp-asia-southeast1","x-amz-replication-status":"COMPLETED","server-timing":"fetchSource;dur=12","x-content-type-options":"nosniff","cache-control":"public, max-age=31536000, immutable","x-cache":"Hit from cloudfront","referrer-policy":"strict-origin-when-cross-origin","x-amz-server-side-encryption":"AES256","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","date":"Mon, 03 Mar 2025 00:45:20 GMT","age":"19747189","x-amz-cf-id":"2zLPCNfqwaKC9Js1jxQE6SHxWB0qgZJsbYt7cnJZx5guFZH7I-2B-Q==","content-length":"1808","accept-ranges":"bytes","cross-origin-opener-policy":"same-origin","etag":"\"ecf5c7f9d9a6d7e9cf9efc7ed65680d1\"","last-modified":"Thu, 15 Feb 2024 05:02:29 GMT","strict-transport-security":"max-age=63072000; includeSubDomains; preload","vary":"Accept-Encoding, Origin","x-frame-options":"DENY","content-type":"application/typescript; charset=utf-8","via":"http/2 edgeproxy-h","x-amz-cf-pop":"SIN52-P1","x-amz-version-id":"g3VPD6gESPydC0ABMsYzydefMqUt9QNn","cross-origin-embedder-policy":"same-origin"},"url":"https://deno.land/std@0.216.0/media_types/format_media_type.ts","time":1760709908}

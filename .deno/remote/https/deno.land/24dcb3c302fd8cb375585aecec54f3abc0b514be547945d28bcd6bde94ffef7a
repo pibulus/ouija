@@ -1,0 +1,39 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import {
+  assertArgs,
+  lastPathSegment,
+  stripSuffix,
+} from "../_common/basename.ts";
+import { CHAR_COLON } from "../_common/constants.ts";
+import { stripTrailingSeparators } from "../_common/strip_trailing_separators.ts";
+import { isPathSeparator, isWindowsDeviceRoot } from "./_util.ts";
+
+/**
+ * Return the last portion of a `path`.
+ * Trailing directory separators are ignored, and optional suffix is removed.
+ *
+ * @param path - path to extract the name from.
+ * @param [suffix] - suffix to remove from extracted name.
+ */
+export function basename(path: string, suffix = ""): string {
+  assertArgs(path, suffix);
+
+  // Check for a drive letter prefix so as not to mistake the following
+  // path separator as an extra separator at the end of the path that can be
+  // disregarded
+  let start = 0;
+  if (path.length >= 2) {
+    const drive = path.charCodeAt(0);
+    if (isWindowsDeviceRoot(drive)) {
+      if (path.charCodeAt(1) === CHAR_COLON) start = 2;
+    }
+  }
+
+  const lastSegment = lastPathSegment(path, isPathSeparator, start);
+  const strippedSegment = stripTrailingSeparators(lastSegment, isPathSeparator);
+  return suffix ? stripSuffix(strippedSegment, suffix) : strippedSegment;
+}
+
+// denoCacheMetadata={"headers":{"server-timing":"fetchSource;dur=6","referrer-policy":"strict-origin-when-cross-origin","date":"Fri, 14 Feb 2025 10:51:02 GMT","x-amz-cf-pop":"SIN52-P1","etag":"\"38bf3ffe2645a662abac6065e01402d1\"","cross-origin-opener-policy":"same-origin","vary":"Accept-Encoding, Origin","age":"21179177","x-amz-server-side-encryption":"AES256","cross-origin-embedder-policy":"same-origin","server":"deno/gcp-asia-southeast1","via":"http/2 edgeproxy-h","x-cache":"Hit from cloudfront","x-amz-cf-id":"hgM72Sb9efNJrcCZZc6fOMt9Cdj25BVQV342SAAs-oTY1SN_5nvE9Q==","x-frame-options":"DENY","cache-control":"public, max-age=31536000, immutable","content-length":"1314","x-content-type-options":"nosniff","last-modified":"Thu, 15 Feb 2024 05:02:29 GMT","accept-ranges":"bytes","cross-origin-resource-policy":"same-origin","x-amz-replication-status":"COMPLETED","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","content-type":"application/typescript; charset=utf-8","x-amz-version-id":"Mv5ZdHLulA2CjUS0j8L4cn3b757JTcYS","access-control-allow-origin":"*","strict-transport-security":"max-age=63072000; includeSubDomains; preload"},"url":"https://deno.land/std@0.216.0/path/windows/basename.ts","time":1760709439}

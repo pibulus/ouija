@@ -1,0 +1,150 @@
+import { RenderState } from "./state.ts";
+import { setRenderState } from "./preact_hooks.ts";
+import { renderToString } from "../deps.ts";
+import {
+  ComponentType,
+  Fragment,
+  h,
+  isValidElement,
+  toChildArray,
+  VNode,
+} from "preact";
+import { HEAD_CONTEXT } from "../../runtime/head.ts";
+import { CSP_CONTEXT } from "../../runtime/csp.ts";
+import { withBase } from "../router.ts";
+
+export function renderHtml(state: RenderState) {
+  setRenderState(state);
+  state.renderingUserTemplate = true;
+  state.headChildren = false;
+
+  const componentStack = state.componentStack;
+  try {
+    const routeComponent = componentStack[componentStack.length - 1];
+    let finalComp = h(routeComponent, state.routeOptions) as VNode;
+
+    // Skip page component
+    let i = componentStack.length - 1;
+    while (i--) {
+      const component = componentStack[i] as ComponentType;
+      const curComp = finalComp;
+
+      finalComp = h(component, {
+        ...state.routeOptions,
+        Component() {
+          return curComp;
+        },
+        // deno-lint-ignore no-explicit-any
+      } as any) as VNode;
+    }
+
+    const app = h(
+      CSP_CONTEXT.Provider,
+      // deno-lint-ignore no-explicit-any
+      { value: state.csp } as any,
+      h(HEAD_CONTEXT.Provider, {
+        value: state.headVNodes,
+        children: finalComp,
+      }),
+    ) as VNode;
+
+    let html = renderToString(app);
+
+    for (const [id, children] of state.slots.entries()) {
+      const slotHtml = renderToString(h(Fragment, null, children) as VNode);
+      const templateId = id.replace(/:/g, "-");
+      html += `<template id="${templateId}">${slotHtml}</template>`;
+    }
+
+    return html;
+  } finally {
+    setRenderState(null);
+  }
+}
+
+export function renderOuterDocument(
+  state: RenderState,
+  opts: {
+    bodyHtml: string;
+    lang?: string;
+    preloads: string[];
+    moduleScripts: [src: string, nonce: string][];
+  },
+) {
+  const {
+    docHtml,
+    docHead,
+    renderedHtmlTag,
+    docBody,
+    docHeadNodes,
+    headVNodes,
+  } = state;
+  let docTitle = state.docTitle;
+
+  // Filter out duplicate head vnodes by "key" if set
+  const filteredHeadNodes: VNode[] = [];
+
+  if (headVNodes.length > 0) {
+    const seen = new Map<string, VNode>();
+    const userChildren = toChildArray(headVNodes);
+    for (let i = 0; i < userChildren.length; i++) {
+      const child = userChildren[i];
+
+      if (isValidElement(child)) {
+        if (child.type === "title") {
+          docTitle = child;
+        } else if (child.key !== undefined) {
+          seen.set(child.key, child);
+        } else {
+          filteredHeadNodes.push(child);
+        }
+      }
+    }
+
+    if (seen.size > 0) {
+      filteredHeadNodes.push(...seen.values());
+    }
+  }
+
+  const page = h(
+    "html",
+    docHtml ?? { lang: opts.lang },
+    h(
+      "head",
+      docHead,
+      !renderedHtmlTag ? h("meta", { charset: "utf-8" }) : null,
+      !renderedHtmlTag
+        ? (h("meta", {
+          name: "viewport",
+          content: "width=device-width, initial-scale=1.0",
+        }))
+        : null,
+      docTitle,
+      docHeadNodes.map((node) => h(node.type, node.props)),
+      opts.preloads.map((src) =>
+        h("link", { rel: "modulepreload", href: withBase(src, state.basePath) })
+      ),
+      opts.moduleScripts.map(([src, nonce]) =>
+        h("script", {
+          src: withBase(src, state.basePath),
+          nonce,
+          type: "module",
+        })
+      ),
+      filteredHeadNodes,
+    ),
+    h("body", {
+      ...docBody,
+      dangerouslySetInnerHTML: { __html: opts.bodyHtml },
+    }),
+  ) as VNode;
+
+  try {
+    setRenderState(state);
+    return "<!DOCTYPE html>" + renderToString(page);
+  } finally {
+    setRenderState(null);
+  }
+}
+
+// denoCacheMetadata={"headers":{"content-length":"3706","accept-ranges":"bytes","age":"31535477","via":"http/2 edgeproxy-h","x-amz-cf-pop":"SIN52-P1","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","last-modified":"Mon, 14 Oct 2024 12:51:13 GMT","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-replication-status":"COMPLETED","access-control-allow-origin":"*","vary":"Accept-Encoding, Origin","cross-origin-resource-policy":"same-origin","cache-control":"public, max-age=31536000, immutable","x-amz-server-side-encryption":"AES256","cross-origin-opener-policy":"same-origin","server-timing":"fetchSource;dur=52","x-frame-options":"DENY","server":"deno/gcp-asia-southeast1","x-amz-cf-id":"57az0fCqE5LEN6jLpJH3o-nM36mi4tR5jMD87jp7LkZl5ltVLoCR-g==","x-cache":"Hit from cloudfront","content-type":"application/typescript; charset=utf-8","date":"Thu, 17 Oct 2024 14:13:52 GMT","etag":"\"3aed7172b26ed155b653a13246f0a9e6\"","cross-origin-embedder-policy":"same-origin","x-amz-version-id":"Gj3PrmETmnNNpwYEjFL5LnShq_i667A8","referrer-policy":"strict-origin-when-cross-origin","x-content-type-options":"nosniff"},"url":"https://deno.land/x/fresh@1.7.3/src/server/rendering/template.tsx","time":1760709908}

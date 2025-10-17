@@ -1,0 +1,31 @@
+// Copyright 2018-2025 the Deno authors. MIT license.
+// This module is browser compatible.
+
+import { isWindows } from "jsr:@std/internal@^1.0.10/os";
+import { extname as posixExtname } from "./posix/extname.ts";
+import { extname as windowsExtname } from "./windows/extname.ts";
+/**
+ * Return the extension of the path with leading period (".").
+ *
+ * @example Usage
+ * ```ts
+ * import { extname } from "@std/path/extname";
+ * import { assertEquals } from "@std/assert";
+ *
+ * if (Deno.build.os === "windows") {
+ *   assertEquals(extname("C:\\home\\user\\Documents\\image.png"), ".png");
+ *   assertEquals(extname(new URL("file:///C:/home/user/Documents/image.png")), ".png");
+ * } else {
+ *   assertEquals(extname("/home/user/Documents/image.png"), ".png");
+ *   assertEquals(extname(new URL("file:///home/user/Documents/image.png")), ".png");
+ * }
+ * ```
+ *
+ * @param path Path with extension.
+ * @returns The file extension. E.g. returns `.ts` for `file.ts`.
+ */
+export function extname(path: string | URL): string {
+  return isWindows ? windowsExtname(path) : posixExtname(path);
+}
+
+// denoCacheMetadata={"headers":{"cross-origin-resource-policy":"cross-origin","age":"1","date":"Fri, 17 Oct 2025 14:05:12 GMT","x-goog-stored-content-encoding":"identity","etag":"\"05a8c4dbc7c16db6e817485d37d91984\"","x-goog-storage-class":"STANDARD","x-goog-hash":"crc32c=56gX/Q==,md5=BajE28fBbbboF0hdN9kZhA==","x-jsr-cache-status":"revalidated","x-content-type-options":"nosniff","server":"UploadServer","access-control-allow-origin":"*","access-control-expose-headers":"*","alt-svc":"h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000","accept-ranges":"bytes","x-goog-metageneration":"1","x-goog-generation":"1755088699400764","content-length":"1086","via":"1.1 google","x-robots-tag":"noindex","x-goog-stored-content-length":"1086","x-jsr-cache-id":"MEL","x-guploader-uploadid":"AAwnv3Irk-YQ6cFXNW8gjYuvyE8dejrt86koIBeUSob6m27_I4LU-eGml7PBgl9uwN_ABvaQo41b4ZQ","content-type":"text/typescript","content-security-policy":"default-src 'none'; script-src 'none'; style-src 'none'; img-src 'none'; font-src 'none'; connect-src 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'; sandbox; form-action 'none';","expires":"Sat, 17 Oct 2026 14:05:12 GMT","last-modified":"Wed, 13 Aug 2025 12:38:19 GMT","cache-control":"public, max-age=31536000, immutable"},"url":"https://jsr.io/@std/path/1.1.2/extname.ts","time":1760709913}

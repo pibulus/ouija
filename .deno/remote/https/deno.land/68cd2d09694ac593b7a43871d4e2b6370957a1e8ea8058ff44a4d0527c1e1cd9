@@ -1,0 +1,25 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { INVALID } from "./constants.ts";
+import type { Range, SemVer } from "./types.ts";
+import { testRange } from "./test_range.ts";
+import { comparatorMin } from "./_comparator_min.ts";
+import { lessThan } from "./less_than.ts";
+
+/**
+ * The minimum valid SemVer for a given range or INVALID
+ * @param range The range to calculate the min for
+ * @returns A valid SemVer or INVALID
+ */
+export function rangeMin(range: Range): SemVer {
+  let min;
+  for (const comparators of range) {
+    for (const comparator of comparators) {
+      const candidate = comparatorMin(comparator);
+      if (!testRange(candidate, range)) continue;
+      min = (min && lessThan(min, candidate)) ? min : candidate;
+    }
+  }
+  return min ?? INVALID;
+}
+
+// denoCacheMetadata={"headers":{"x-amz-cf-pop":"SIN52-P1","x-content-type-options":"nosniff","vary":"Accept-Encoding, Origin","accept-ranges":"bytes","date":"Sun, 09 Mar 2025 19:15:03 GMT","x-amz-server-side-encryption":"AES256","age":"19161736","x-cache":"Hit from cloudfront","access-control-allow-origin":"*","x-amz-cf-id":"aVlkkEnGV9iuFdHe8-Hsb6k6yZ03bmTAg5CZngSYhliynyNsxgnNow==","x-frame-options":"DENY","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-version-id":"JD_NJrrIHIsKByoa50r7BwuSwhSpTs0F","content-type":"application/typescript; charset=utf-8","cross-origin-opener-policy":"same-origin","via":"http/2 edgeproxy-h","x-amz-replication-status":"COMPLETED","cross-origin-embedder-policy":"same-origin","etag":"\"9446bacb8b7e9d16dc18f18770e4eb15\"","referrer-policy":"strict-origin-when-cross-origin","server-timing":"fetchSource;dur=22","last-modified":"Thu, 15 Feb 2024 05:02:29 GMT","cross-origin-resource-policy":"same-origin","cache-control":"public, max-age=31536000, immutable","content-length":"807","server":"deno/gcp-asia-southeast1"},"url":"https://deno.land/std@0.216.0/semver/range_min.ts","time":1760709438}

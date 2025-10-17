@@ -1,0 +1,47 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+
+/**
+ * Stringify an object into a valid `.env` file format.
+ *
+ * @example
+ * ```ts
+ * import { stringify } from "https://deno.land/std@$STD_VERSION/dotenv/stringify.ts";
+ *
+ * const object = { GREETING: "hello world" };
+ * const string = stringify(object); // GREETING='hello world'
+ * ```
+ *
+ * @param object object to be stringified
+ * @returns string of object
+ */
+export function stringify(object: Record<string, string>): string {
+  const lines: string[] = [];
+  for (const [key, value] of Object.entries(object)) {
+    let quote;
+
+    let escapedValue = value ?? "";
+    if (key.startsWith("#")) {
+      console.warn(
+        `key starts with a '#' indicates a comment and is ignored: '${key}'`,
+      );
+      continue;
+    } else if (escapedValue.includes("\n")) {
+      // escape inner new lines
+      escapedValue = escapedValue.replaceAll("\n", "\\n");
+      quote = `"`;
+    } else if (escapedValue.match(/\W/)) {
+      quote = "'";
+    }
+
+    if (quote) {
+      // escape inner quotes
+      escapedValue = escapedValue.replaceAll(quote, `\\${quote}`);
+      escapedValue = `${quote}${escapedValue}${quote}`;
+    }
+    const line = `${key}=${escapedValue}`;
+    lines.push(line);
+  }
+  return lines.join("\n");
+}
+
+// denoCacheMetadata={"headers":{"date":"Sun, 02 Mar 2025 05:05:02 GMT","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-cache":"Hit from cloudfront","last-modified":"Thu, 15 Feb 2024 05:02:27 GMT","etag":"\"34d35a84405d67f267f652a75471db93\"","cache-control":"public, max-age=31536000, immutable","cross-origin-embedder-policy":"same-origin","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","vary":"Accept-Encoding, Origin","x-amz-cf-pop":"SIN52-P1","referrer-policy":"strict-origin-when-cross-origin","cross-origin-resource-policy":"same-origin","server":"deno/gcp-asia-southeast1","x-amz-replication-status":"COMPLETED","server-timing":"fetchSource;dur=22","x-content-type-options":"nosniff","x-amz-version-id":"0zyeZd4inuIU1ef8ldXtLo_JejPcNrH6","content-type":"application/typescript; charset=utf-8","age":"19818006","via":"http/2 edgeproxy-h","x-amz-cf-id":"wsLEJr-htQsboQxlC3H_5roCGMweas56iinuXwO5B2zoJRwY2GZYfw==","access-control-allow-origin":"*","content-length":"1302","accept-ranges":"bytes","cross-origin-opener-policy":"same-origin","x-amz-server-side-encryption":"AES256","x-frame-options":"DENY"},"url":"https://deno.land/std@0.216.0/dotenv/stringify.ts","time":1760709908}

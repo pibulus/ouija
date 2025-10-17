@@ -1,0 +1,25 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import type { Range, SemVer } from "./types.ts";
+import { testRange } from "./test_range.ts";
+import { lessThan } from "./less_than.ts";
+
+/**
+ * Returns the lowest version in the list that satisfies the range, or `undefined` if
+ * none of them do.
+ * @param versions The versions to check.
+ * @param range The range of possible versions to compare to.
+ * @returns The lowest version in versions that satisfies the range.
+ */
+export function minSatisfying(
+  versions: SemVer[],
+  range: Range,
+): SemVer | undefined {
+  let min;
+  for (const version of versions) {
+    if (!testRange(version, range)) continue;
+    min = min && lessThan(min, version) ? min : version;
+  }
+  return min;
+}
+
+// denoCacheMetadata={"headers":{"cross-origin-embedder-policy":"same-origin","cross-origin-resource-policy":"same-origin","accept-ranges":"bytes","x-amz-server-side-encryption":"AES256","date":"Fri, 14 Mar 2025 19:14:53 GMT","content-length":"763","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-cf-id":"uXS9QQCF2rlFZBRjsqHzfji0M90eaTq7u-ONy54exenGT7YZUBaE5Q==","x-frame-options":"DENY","x-amz-cf-pop":"SIN52-P1","server-timing":"fetchSource;dur=26","via":"http/2 edgeproxy-h","x-amz-version-id":"UKqb_lbq9OpCWMoepLMB2nEdf6NzrjXh","vary":"Accept-Encoding, Origin","content-type":"application/typescript; charset=utf-8","referrer-policy":"strict-origin-when-cross-origin","x-cache":"Hit from cloudfront","age":"18729746","cache-control":"public, max-age=31536000, immutable","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","last-modified":"Thu, 15 Feb 2024 05:02:29 GMT","server":"deno/gcp-asia-southeast1","cross-origin-opener-policy":"same-origin","etag":"\"ba25d2d684f081ad56bd3adac825fe8f\"","x-amz-replication-status":"COMPLETED","x-content-type-options":"nosniff","access-control-allow-origin":"*"},"url":"https://deno.land/std@0.216.0/semver/min_satisfying.ts","time":1760709439}

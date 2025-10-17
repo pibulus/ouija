@@ -1,0 +1,33 @@
+// Copyright 2018-2025 the Deno authors. MIT license.
+// This module is browser compatible.
+
+import { isWindows } from "jsr:@std/internal@^1.0.10/os";
+import { toNamespacedPath as posixToNamespacedPath } from "./posix/to_namespaced_path.ts";
+import { toNamespacedPath as windowsToNamespacedPath } from "./windows/to_namespaced_path.ts";
+
+/**
+ * Resolves path to a namespace path.  This is a no-op on
+ * non-windows systems.
+ *
+ * @example Usage
+ * ```ts
+ * import { toNamespacedPath } from "@std/path/to-namespaced-path";
+ * import { assertEquals } from "@std/assert";
+ *
+ * if (Deno.build.os === "windows") {
+ *   assertEquals(toNamespacedPath("C:\\foo\\bar"), "\\\\?\\C:\\foo\\bar");
+ * } else {
+ *   assertEquals(toNamespacedPath("/foo/bar"), "/foo/bar");
+ * }
+ * ```
+ *
+ * @param path Path to resolve to namespace.
+ * @returns The resolved namespace path.
+ */
+export function toNamespacedPath(path: string): string {
+  return isWindows
+    ? windowsToNamespacedPath(path)
+    : posixToNamespacedPath(path);
+}
+
+// denoCacheMetadata={"headers":{"x-goog-stored-content-encoding":"identity","content-length":"1013","cross-origin-resource-policy":"cross-origin","server":"UploadServer","cache-control":"public, max-age=31536000, immutable","content-type":"text/typescript","x-content-type-options":"nosniff","age":"1","x-goog-generation":"1755088699224194","accept-ranges":"bytes","x-goog-hash":"crc32c=PFdT2w==,md5=YxbhgnWx4HUkSWV490s12w==","x-goog-stored-content-length":"1013","x-guploader-uploadid":"AAwnv3JXbRdgNK-2b_A5s3gDHp_TYR5vfKnV2wddMaWG_eBi4Ajsufq99NIVTKioDT8kg4u8","x-goog-metageneration":"1","etag":"\"6316e18275b1e07524496578f74b35db\"","content-security-policy":"default-src 'none'; script-src 'none'; style-src 'none'; img-src 'none'; font-src 'none'; connect-src 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'; sandbox; form-action 'none';","x-goog-storage-class":"STANDARD","date":"Fri, 17 Oct 2025 14:05:12 GMT","expires":"Sat, 17 Oct 2026 14:05:12 GMT","x-jsr-cache-status":"revalidated","via":"1.1 google","access-control-expose-headers":"*","last-modified":"Wed, 13 Aug 2025 12:38:19 GMT","alt-svc":"h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000","access-control-allow-origin":"*","x-jsr-cache-id":"MEL","x-robots-tag":"noindex"},"url":"https://jsr.io/@std/path/1.1.2/to_namespaced_path.ts","time":1760709913}

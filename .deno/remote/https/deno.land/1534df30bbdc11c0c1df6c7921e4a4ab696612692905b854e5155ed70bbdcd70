@@ -1,0 +1,83 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { dirname } from "../path/dirname.ts";
+import { resolve } from "../path/resolve.ts";
+import { ensureDir, ensureDirSync } from "./ensure_dir.ts";
+import { getFileInfoType } from "./_get_file_info_type.ts";
+import { toPathString } from "./_to_path_string.ts";
+
+const isWindows = Deno.build.os === "windows";
+
+function resolveSymlinkTarget(target: string | URL, linkName: string | URL) {
+  if (typeof target !== "string") return target; // URL is always absolute path
+  if (typeof linkName === "string") {
+    return resolve(dirname(linkName), target);
+  } else {
+    return new URL(target, linkName);
+  }
+}
+
+/**
+ * Ensures that the link exists, and points to a valid file.
+ * If the directory structure does not exist, it is created.
+ *
+ * @param target the source file path
+ * @param linkName the destination link path
+ */
+export async function ensureSymlink(
+  target: string | URL,
+  linkName: string | URL,
+) {
+  const targetRealPath = resolveSymlinkTarget(target, linkName);
+  const srcStatInfo = await Deno.lstat(targetRealPath);
+  const srcFilePathType = getFileInfoType(srcStatInfo);
+
+  await ensureDir(dirname(toPathString(linkName)));
+
+  const options: Deno.SymlinkOptions | undefined = isWindows
+    ? {
+      type: srcFilePathType === "dir" ? "dir" : "file",
+    }
+    : undefined;
+
+  try {
+    await Deno.symlink(target, linkName, options);
+  } catch (error) {
+    if (!(error instanceof Deno.errors.AlreadyExists)) {
+      throw error;
+    }
+  }
+}
+
+/**
+ * Ensures that the link exists, and points to a valid file.
+ * If the directory structure does not exist, it is created.
+ *
+ * @param target the source file path
+ * @param linkName the destination link path
+ */
+export function ensureSymlinkSync(
+  target: string | URL,
+  linkName: string | URL,
+) {
+  const targetRealPath = resolveSymlinkTarget(target, linkName);
+  const srcStatInfo = Deno.lstatSync(targetRealPath);
+  const srcFilePathType = getFileInfoType(srcStatInfo);
+
+  ensureDirSync(dirname(toPathString(linkName)));
+
+  const options: Deno.SymlinkOptions | undefined = isWindows
+    ? {
+      type: srcFilePathType === "dir" ? "dir" : "file",
+    }
+    : undefined;
+
+  try {
+    Deno.symlinkSync(target, linkName, options);
+  } catch (error) {
+    if (!(error instanceof Deno.errors.AlreadyExists)) {
+      throw error;
+    }
+  }
+}
+
+// denoCacheMetadata={"headers":{"x-cache":"Hit from cloudfront","x-content-type-options":"nosniff","accept-ranges":"bytes","x-amz-version-id":"o1071ZQliKNeme0JjdtDTswyKjKsQVEX","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-cf-pop":"SIN52-P1","x-frame-options":"DENY","content-length":"2389","cross-origin-resource-policy":"same-origin","age":"21179176","vary":"Accept-Encoding, Origin","via":"http/2 edgeproxy-h","x-amz-replication-status":"COMPLETED","content-type":"application/typescript; charset=utf-8","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","cache-control":"public, max-age=31536000, immutable","server":"deno/gcp-asia-southeast1","etag":"\"af7761d8931d91955a662abd1dcf5444\"","cross-origin-embedder-policy":"same-origin","x-amz-cf-id":"tBDczkDrCpvo-XJQgq3mH3qs0GkNKYrLW_4yh1M6a5_1Ept_F87vLA==","cross-origin-opener-policy":"same-origin","date":"Fri, 14 Feb 2025 10:51:03 GMT","last-modified":"Thu, 15 Feb 2024 05:02:28 GMT","referrer-policy":"strict-origin-when-cross-origin","x-amz-server-side-encryption":"AES256","access-control-allow-origin":"*","server-timing":"fetchSource;dur=16"},"url":"https://deno.land/std@0.216.0/fs/ensure_symlink.ts","time":1760709438}

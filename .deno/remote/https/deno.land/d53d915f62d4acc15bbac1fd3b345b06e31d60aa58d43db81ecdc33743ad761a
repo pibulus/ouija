@@ -1,0 +1,29 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import { encodeWhitespace } from "../_common/to_file_url.ts";
+import { isAbsolute } from "./is_absolute.ts";
+
+/**
+ * Converts a path string to a file URL.
+ *
+ * ```ts
+ * import { toFileUrl } from "https://deno.land/std@$STD_VERSION/path/posix/to_file_url.ts";
+ *
+ * toFileUrl("/home/foo"); // new URL("file:///home/foo")
+ * ```
+ * @param path to convert to file URL
+ */
+export function toFileUrl(path: string): URL {
+  if (!isAbsolute(path)) {
+    throw new TypeError("Must be an absolute path.");
+  }
+
+  const url = new URL("file:///");
+  url.pathname = encodeWhitespace(
+    path.replace(/%/g, "%25").replace(/\\/g, "%5C"),
+  );
+  return url;
+}
+
+// denoCacheMetadata={"headers":{"referrer-policy":"strict-origin-when-cross-origin","x-content-type-options":"nosniff","x-amz-server-side-encryption":"AES256","date":"Fri, 14 Feb 2025 10:51:03 GMT","age":"21179176","access-control-allow-origin":"*","content-length":"761","cross-origin-resource-policy":"same-origin","etag":"\"ed04c05b3dc6bc176896d64f36ebda10\"","server":"deno/gcp-asia-southeast1","vary":"Accept-Encoding, Origin","via":"http/2 edgeproxy-h","cache-control":"public, max-age=31536000, immutable","x-amz-replication-status":"COMPLETED","x-amz-cf-pop":"SIN52-P1","x-amz-version-id":"WfqE1cieqTA5wkpMH2vCGNV9DCBKOmtY","x-cache":"Hit from cloudfront","cross-origin-embedder-policy":"same-origin","x-frame-options":"DENY","content-type":"application/typescript; charset=utf-8","cross-origin-opener-policy":"same-origin","server-timing":"fetchSource;dur=24","accept-ranges":"bytes","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","last-modified":"Thu, 15 Feb 2024 05:02:29 GMT","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-cf-id":"usizbMpLeofK2m51EdPYnTQ05WJYUK3B5YfsCE251j8AxseH3AOoSA=="},"url":"https://deno.land/std@0.216.0/path/posix/to_file_url.ts","time":1760709438}

@@ -1,0 +1,28 @@
+// Copyright 2018-2025 the Deno authors. MIT license.
+// This module is browser compatible.
+
+export function common(paths: string[], sep: string): string {
+  const [first = "", ...remaining] = paths;
+  const parts = first.split(sep);
+
+  let endOfPrefix = parts.length;
+  let append = "";
+  for (const path of remaining) {
+    const compare = path.split(sep);
+    if (compare.length <= endOfPrefix) {
+      endOfPrefix = compare.length;
+      append = "";
+    }
+
+    for (let i = 0; i < endOfPrefix; i++) {
+      if (compare[i] !== parts[i]) {
+        endOfPrefix = i;
+        append = i === 0 ? "" : sep;
+        break;
+      }
+    }
+  }
+  return parts.slice(0, endOfPrefix).join(sep) + append;
+}
+
+// denoCacheMetadata={"headers":{"x-goog-hash":"crc32c=ei81Mw==,md5=STnLOtsoU5lMAPIy9eRoNg==","x-goog-stored-content-encoding":"identity","accept-ranges":"bytes","content-security-policy":"default-src 'none'; script-src 'none'; style-src 'none'; img-src 'none'; font-src 'none'; connect-src 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'; sandbox; form-action 'none';","x-goog-generation":"1755088699245074","date":"Fri, 17 Oct 2025 14:05:13 GMT","x-jsr-cache-status":"revalidated","cross-origin-resource-policy":"cross-origin","server":"UploadServer","x-goog-stored-content-length":"697","via":"1.1 google","expires":"Sat, 17 Oct 2026 14:05:13 GMT","x-goog-storage-class":"STANDARD","x-goog-metageneration":"1","content-length":"697","cache-control":"public, max-age=31536000, immutable","last-modified":"Wed, 13 Aug 2025 12:38:19 GMT","etag":"\"4939cb3adb2853994c00f232f5e46836\"","x-jsr-cache-id":"MEL","x-robots-tag":"noindex","access-control-allow-origin":"*","access-control-expose-headers":"*","x-content-type-options":"nosniff","alt-svc":"h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000","x-guploader-uploadid":"AAwnv3K14QcILDudmyygdbGA2TtGxiKO89MH_YJm7DyQXMeHJFosIebPzOHg9z6cgINmkQ9O6xOyW6s","content-type":"text/typescript","age":"0"},"url":"https://jsr.io/@std/path/1.1.2/_common/common.ts","time":1760709913}

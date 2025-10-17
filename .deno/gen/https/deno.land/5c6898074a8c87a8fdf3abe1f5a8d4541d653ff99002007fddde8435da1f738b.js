@@ -1,0 +1,22 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import {
+  checkIdentifier,
+  compareIdentifier,
+  compareNumber,
+} from "./_shared.ts";
+/**
+ * Compare two semantic version objects.
+ *
+ * Returns `0` if `s0 === s1`, or `1` if `s0` is greater, or `-1` if `s1` is
+ * greater.
+ *
+ * Sorts in ascending order if passed to `Array.sort()`,
+ */ export function compare(s0, s1) {
+  if (s0 === s1) return 0;
+  return compareNumber(s0.major, s1.major) ||
+    compareNumber(s0.minor, s1.minor) || compareNumber(s0.patch, s1.patch) ||
+    checkIdentifier(s0.prerelease, s1.prerelease) ||
+    compareIdentifier(s0.prerelease, s1.prerelease);
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3N0ZEAwLjIxNi4wL3NlbXZlci9jb21wYXJlLnRzIl0sInNvdXJjZXNDb250ZW50IjpbIi8vIENvcHlyaWdodCAyMDE4LTIwMjQgdGhlIERlbm8gYXV0aG9ycy4gQWxsIHJpZ2h0cyByZXNlcnZlZC4gTUlUIGxpY2Vuc2UuXG5pbXBvcnQgdHlwZSB7IFNlbVZlciB9IGZyb20gXCIuL3R5cGVzLnRzXCI7XG5pbXBvcnQge1xuICBjaGVja0lkZW50aWZpZXIsXG4gIGNvbXBhcmVJZGVudGlmaWVyLFxuICBjb21wYXJlTnVtYmVyLFxufSBmcm9tIFwiLi9fc2hhcmVkLnRzXCI7XG5cbi8qKlxuICogQ29tcGFyZSB0d28gc2VtYW50aWMgdmVyc2lvbiBvYmplY3RzLlxuICpcbiAqIFJldHVybnMgYDBgIGlmIGBzMCA9PT0gczFgLCBvciBgMWAgaWYgYHMwYCBpcyBncmVhdGVyLCBvciBgLTFgIGlmIGBzMWAgaXNcbiAqIGdyZWF0ZXIuXG4gKlxuICogU29ydHMgaW4gYXNjZW5kaW5nIG9yZGVyIGlmIHBhc3NlZCB0byBgQXJyYXkuc29ydCgpYCxcbiAqL1xuZXhwb3J0IGZ1bmN0aW9uIGNvbXBhcmUoXG4gIHMwOiBTZW1WZXIsXG4gIHMxOiBTZW1WZXIsXG4pOiAxIHwgMCB8IC0xIHtcbiAgaWYgKHMwID09PSBzMSkgcmV0dXJuIDA7XG4gIHJldHVybiAoXG4gICAgY29tcGFyZU51bWJlcihzMC5tYWpvciwgczEubWFqb3IpIHx8XG4gICAgY29tcGFyZU51bWJlcihzMC5taW5vciwgczEubWlub3IpIHx8XG4gICAgY29tcGFyZU51bWJlcihzMC5wYXRjaCwgczEucGF0Y2gpIHx8XG4gICAgY2hlY2tJZGVudGlmaWVyKHMwLnByZXJlbGVhc2UsIHMxLnByZXJlbGVhc2UpIHx8XG4gICAgY29tcGFyZUlkZW50aWZpZXIoczAucHJlcmVsZWFzZSwgczEucHJlcmVsZWFzZSlcbiAgKTtcbn1cbiJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSwwRUFBMEU7QUFFMUUsU0FDRSxlQUFlLEVBQ2YsaUJBQWlCLEVBQ2pCLGFBQWEsUUFDUixlQUFlO0FBRXRCOzs7Ozs7O0NBT0MsR0FDRCxPQUFPLFNBQVMsUUFDZCxFQUFVLEVBQ1YsRUFBVTtFQUVWLElBQUksT0FBTyxJQUFJLE9BQU87RUFDdEIsT0FDRSxjQUFjLEdBQUcsS0FBSyxFQUFFLEdBQUcsS0FBSyxLQUNoQyxjQUFjLEdBQUcsS0FBSyxFQUFFLEdBQUcsS0FBSyxLQUNoQyxjQUFjLEdBQUcsS0FBSyxFQUFFLEdBQUcsS0FBSyxLQUNoQyxnQkFBZ0IsR0FBRyxVQUFVLEVBQUUsR0FBRyxVQUFVLEtBQzVDLGtCQUFrQixHQUFHLFVBQVUsRUFBRSxHQUFHLFVBQVU7QUFFbEQifQ==
+// denoCacheMetadata=17618358257547234308,7575572043085214622

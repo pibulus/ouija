@@ -1,0 +1,74 @@
+// Copyright 2018-2025 the Deno authors. MIT license.
+// This module is browser compatible.
+
+/**
+ * Returns the index of the first occurrence of the needle array in the source
+ * array, or -1 if it is not present.
+ *
+ * A start index can be specified as the third argument that begins the search
+ * at that given index. The start index defaults to the start of the array.
+ *
+ * The complexity of this function is `O(source.length * needle.length)`.
+ *
+ * @param source Source array to check.
+ * @param needle Needle array to check for.
+ * @param start Start index in the source array to begin the search. Defaults to
+ * 0.
+ * @returns Index of the first occurrence of the needle array in the source
+ * array, or -1 if it is not present.
+ *
+ * @example Basic usage
+ * ```ts
+ * import { indexOfNeedle } from "@std/bytes/index-of-needle";
+ * import { assertEquals } from "@std/assert";
+ *
+ * const source = new Uint8Array([0, 1, 2, 1, 2, 1, 2, 3]);
+ * const needle = new Uint8Array([1, 2]);
+ * const notNeedle = new Uint8Array([5, 0]);
+ *
+ * assertEquals(indexOfNeedle(source, needle), 1);
+ * assertEquals(indexOfNeedle(source, notNeedle), -1);
+ * ```
+ *
+ * @example Start index
+ * ```ts
+ * import { indexOfNeedle } from "@std/bytes/index-of-needle";
+ * import { assertEquals } from "@std/assert";
+ *
+ * const source = new Uint8Array([0, 1, 2, 1, 2, 1, 2, 3]);
+ * const needle = new Uint8Array([1, 2]);
+ *
+ * assertEquals(indexOfNeedle(source, needle, 2), 3);
+ * assertEquals(indexOfNeedle(source, needle, 6), -1);
+ * ```
+ * Defining a start index will begin the search at the specified index in the
+ * source array.
+ */
+export function indexOfNeedle(
+  source: Uint8Array,
+  needle: Uint8Array,
+  start = 0,
+): number {
+  if (start < 0) {
+    start = Math.max(0, source.length + start);
+  }
+  if (needle.length > source.length - start) {
+    return -1;
+  }
+  const s = needle[0];
+  for (let i = start; i < source.length; i++) {
+    if (source[i] !== s) continue;
+    let matched = 1;
+    let j = i + 1;
+    while (matched < needle.length && source[j] === needle[j - i]) {
+      matched++;
+      j++;
+    }
+    if (matched === needle.length) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+// denoCacheMetadata={"headers":{"x-guploader-uploadid":"AAwnv3L6fCGTrlZIkbNP0XvClYvrIVERrE86F-U_z3ygi4ruv4XdYQUp2lIz0LJGUgPacvXSeX13Yt4","x-jsr-cache-status":"revalidated","x-robots-tag":"noindex","access-control-allow-origin":"*","x-content-type-options":"nosniff","alt-svc":"h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000","access-control-expose-headers":"*","cross-origin-resource-policy":"cross-origin","x-goog-metageneration":"1","x-goog-generation":"1747121135099176","x-goog-stored-content-encoding":"identity","x-goog-stored-content-length":"2182","content-length":"2182","accept-ranges":"bytes","x-goog-hash":"crc32c=R2E7Tw==,md5=MeiClVDN0I2UWEERr1nKCw==","x-goog-storage-class":"STANDARD","expires":"Sat, 17 Oct 2026 14:05:12 GMT","cache-control":"public, max-age=31536000, immutable","via":"1.1 google","date":"Fri, 17 Oct 2025 14:05:12 GMT","last-modified":"Tue, 13 May 2025 07:25:35 GMT","etag":"\"31e8829550cdd08d94584111af59ca0b\"","content-type":"text/typescript","server":"UploadServer","age":"1","content-security-policy":"default-src 'none'; script-src 'none'; style-src 'none'; img-src 'none'; font-src 'none'; connect-src 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'; sandbox; form-action 'none';","x-jsr-cache-id":"MEL"},"url":"https://jsr.io/@std/bytes/1.0.6/index_of_needle.ts","time":1760709913}

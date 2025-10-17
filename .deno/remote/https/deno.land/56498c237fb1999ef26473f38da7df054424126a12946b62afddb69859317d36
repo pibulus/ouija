@@ -1,0 +1,30 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import {
+  assertArgs,
+  lastPathSegment,
+  stripSuffix,
+} from "../_common/basename.ts";
+import { stripTrailingSeparators } from "../_common/strip_trailing_separators.ts";
+import { isPosixPathSeparator } from "./_util.ts";
+
+/**
+ * Return the last portion of a `path`.
+ * Trailing directory separators are ignored, and optional suffix is removed.
+ *
+ * @param path - path to extract the name from.
+ * @param [suffix] - suffix to remove from extracted name.
+ */
+export function basename(path: string, suffix = ""): string {
+  assertArgs(path, suffix);
+
+  const lastSegment = lastPathSegment(path, isPosixPathSeparator);
+  const strippedSegment = stripTrailingSeparators(
+    lastSegment,
+    isPosixPathSeparator,
+  );
+  return suffix ? stripSuffix(strippedSegment, suffix) : strippedSegment;
+}
+
+// denoCacheMetadata={"headers":{"x-amz-server-side-encryption":"AES256","x-amz-cf-id":"CvoWU234JB5juOvctPeRJUi1Zbml6Nv4ypTRYjvjb6q-qpduBhcDfw==","content-length":"908","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","cross-origin-resource-policy":"same-origin","content-type":"application/typescript; charset=utf-8","date":"Thu, 13 Feb 2025 15:18:54 GMT","x-amz-replication-status":"COMPLETED","access-control-allow-origin":"*","last-modified":"Fri, 24 Nov 2023 02:50:10 GMT","x-amz-version-id":"a667oBroEVAXU8xRYSX82s4SHpQE2qiB","x-content-type-options":"nosniff","etag":"\"4a44f15a3fa8f22f9ec385360dcc3ddf\"","cross-origin-embedder-policy":"same-origin","cross-origin-opener-policy":"same-origin","via":"http/2 edgeproxy-h","x-cache":"Hit from cloudfront","strict-transport-security":"max-age=63072000; includeSubDomains; preload","cache-control":"public, max-age=31536000, immutable","x-frame-options":"DENY","server":"deno/gcp-asia-southeast1","x-amz-cf-pop":"SIN52-P1","accept-ranges":"bytes","server-timing":"fetchSource;dur=20","vary":"Accept-Encoding, Origin","referrer-policy":"strict-origin-when-cross-origin","age":"21249508"},"url":"https://deno.land/std@0.208.0/path/posix/basename.ts","time":1760709442}

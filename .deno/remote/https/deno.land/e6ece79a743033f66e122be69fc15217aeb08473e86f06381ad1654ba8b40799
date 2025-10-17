@@ -1,0 +1,142 @@
+import { createContext } from "preact";
+import { useContext } from "preact/hooks";
+
+export const SELF = "'self'";
+export const UNSAFE_INLINE = "'unsafe-inline'";
+export const UNSAFE_EVAL = "'unsafe-eval'";
+export const UNSAFE_HASHES = "'unsafe-hashes'";
+export const NONE = "'none'";
+export const STRICT_DYNAMIC = "'strict-dynamic'";
+
+export function nonce(val: string) {
+  return `'nonce-${val}'`;
+}
+
+export interface ContentSecurityPolicy {
+  directives: ContentSecurityPolicyDirectives;
+  reportOnly: boolean;
+}
+
+export interface ContentSecurityPolicyDirectives {
+  // Fetch directives
+  /**
+   * Defines the valid sources for web workers and nested browsing contexts
+   * loaded using elements such as <frame> and <iframe>.
+   */
+  childSrc?: string[];
+  /**
+   * Restricts the URLs which can be loaded using script interfaces.
+   */
+  connectSrc?: string[];
+  /**
+   * Serves as a fallback for the other fetch directives.
+   */
+  defaultSrc?: string[];
+  /**
+   * Specifies valid sources for fonts loaded using @font-face.
+   */
+  fontSrc?: string[];
+  /**
+   * Specifies valid sources for nested browsing contexts loading using elements
+   * such as <frame> and <iframe>.
+   */
+  frameSrc?: string[];
+  /**
+   * Specifies valid sources of images and favicons.
+   */
+  imgSrc?: string[];
+  /**
+   * Specifies valid sources of application manifest files.
+   */
+  manifestSrc?: string[];
+  /**
+   * Specifies valid sources for loading media using the <audio> , <video> and
+   * <track> elements.
+   */
+  mediaSrc?: string[];
+  /**
+   * Specifies valid sources for the <object>, <embed>, and <applet> elements.
+   */
+  objectSrc?: string[];
+  /**
+   * Specifies valid sources to be prefetched or prerendered.
+   */
+  prefetchSrc?: string[];
+  /**
+   * Specifies valid sources for JavaScript.
+   */
+  scriptSrc?: string[];
+  /**
+   * Specifies valid sources for JavaScript <script> elements.
+   */
+  scriptSrcElem?: string[];
+  /**
+   * Specifies valid sources for JavaScript inline event handlers.
+   */
+  scriptSrcAttr?: string[];
+  /**
+   * Specifies valid sources for stylesheets.
+   */
+  styleSrc?: string[];
+  /**
+   * Specifies valid sources for stylesheets <style> elements and <link>
+   * elements with rel="stylesheet".
+   */
+  styleSrcElem?: string[];
+  /**
+   * Specifies valid sources for inline styles applied to individual DOM
+   * elements.
+   */
+  styleSrcAttr?: string[];
+  /**
+   * Specifies valid sources for Worker, SharedWorker, or ServiceWorker scripts.
+   */
+  workerSrc?: string[];
+
+  // Document directives
+  /**
+   * Restricts the URLs which can be used in a document's <base> element.
+   */
+  baseUri?: string[];
+  /**
+   * Enables a sandbox for the requested resource similar to the <iframe>
+   * sandbox attribute.
+   */
+  sandbox?: string[];
+
+  // Navigation directives
+  /**
+   * Restricts the URLs which can be used as the target of a form submissions
+   * from a given context.
+   */
+  formAction?: string[];
+  /**
+   * Specifies valid parents that may embed a page using <frame>, <iframe>,
+   * <object>, <embed>, or <applet>.
+   */
+  frameAncestors?: string[];
+  /**
+   * Restricts the URLs to which a document can initiate navigation by any
+   * means, including <form> (if form-action is not specified), <a>,
+   * window.location, window.open, etc.
+   */
+  navigateTo?: string[];
+
+  /**
+   * The URI to report CSP violations to.
+   */
+  reportUri?: string;
+}
+
+export const CSP_CONTEXT = createContext<ContentSecurityPolicy | undefined>(
+  undefined,
+);
+
+export function useCSP(mutator: (csp: ContentSecurityPolicy) => void) {
+  const csp = useContext(CSP_CONTEXT);
+  if (csp) {
+    mutator(csp);
+  }
+}
+
+// denoCacheMetadata={"headers":{"x-cache":"Hit from cloudfront","content-length":"3641","x-content-type-options":"nosniff","cross-origin-resource-policy":"same-origin","server":"deno/gcp-asia-southeast1","accept-ranges":"bytes","age":"31535478","content-type":"application/typescript; charset=utf-8","x-amz-cf-pop":"SIN52-P1","x-amz-replication-status":"COMPLETED","server-timing":"fetchSource;dur=30","date":"Thu, 17 Oct 2024 14:13:51 GMT","x-amz-cf-id":"0FKxAcj0yTrXK37poqxxosGjkEwusFbJoqDu-7WRVP9188hMV8iGyg==","referrer-policy":"strict-origin-when-cross-origin","via":"http/2 edgeproxy-h","x-amz-version-id":"tuRbjW6cWYFYD.J9SKX5e9NxpYmnanGB","x-frame-options":"DENY","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","cross-origin-embedder-policy":"same-origin","vary":"Accept-Encoding, Origin","cross-origin-opener-policy":"same-origin","strict-transport-security":"max-age=63072000; includeSubDomains; preload","access-control-allow-origin":"*","last-modified":"Mon, 14 Oct 2024 12:51:13 GMT","etag":"\"a68772491063b0a83ad988a6010689a1\"","x-amz-server-side-encryption":"AES256","cache-control":"public, max-age=31536000, immutable"},"url":"https://deno.land/x/fresh@1.7.3/src/runtime/csp.ts","time":1760709908}

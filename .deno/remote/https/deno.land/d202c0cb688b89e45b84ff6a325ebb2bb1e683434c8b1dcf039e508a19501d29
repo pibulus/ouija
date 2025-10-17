@@ -1,0 +1,29 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { AssertionError } from "./assertion_error.ts";
+
+/**
+ * Make an assertion that `actual` not match RegExp `expected`. If match
+ * then throw.
+ *
+ * @example
+ * ```ts
+ * import { assertNotMatch } from "https://deno.land/std@$STD_VERSION/assert/assert_not_match.ts";
+ *
+ * assertNotMatch("Denosaurus", RegExp(/Raptor/)); // Doesn't throw
+ * assertNotMatch("Raptor", RegExp(/Raptor/)); // Throws
+ * ```
+ */
+export function assertNotMatch(
+  actual: string,
+  expected: RegExp,
+  msg?: string,
+) {
+  if (expected.test(actual)) {
+    const msgSuffix = msg ? `: ${msg}` : ".";
+    msg =
+      `Expected actual: "${actual}" to not match: "${expected}"${msgSuffix}`;
+    throw new AssertionError(msg);
+  }
+}
+
+// denoCacheMetadata={"headers":{"referrer-policy":"strict-origin-when-cross-origin","x-amz-cf-id":"-rXVo3fEEywI1j6yGujiQYaIuoj5-POtGlIBSA2iVbJKocNnEQiuew==","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-cf-pop":"SIN52-P1","cross-origin-resource-policy":"same-origin","etag":"\"d145f6e293d2231c8c88ccbd090a2234\"","server":"deno/gcp-asia-southeast1","x-amz-replication-status":"COMPLETED","content-length":"781","x-amz-version-id":"ssBAA6lPu5wAKy2CEdlaSg09A9sUzJEU","cross-origin-embedder-policy":"same-origin","cross-origin-opener-policy":"same-origin","vary":"Accept-Encoding, Origin","x-cache":"Hit from cloudfront","date":"Fri, 21 Mar 2025 11:39:37 GMT","last-modified":"Thu, 15 Feb 2024 05:02:27 GMT","via":"http/2 edgeproxy-h","x-amz-server-side-encryption":"AES256","age":"18152262","access-control-allow-origin":"*","cache-control":"public, max-age=31536000, immutable","server-timing":"fetchSource;dur=16","x-frame-options":"DENY","accept-ranges":"bytes","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","x-content-type-options":"nosniff","content-type":"application/typescript; charset=utf-8"},"url":"https://deno.land/std@0.216.0/assert/assert_not_match.ts","time":1760709438}

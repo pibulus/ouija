@@ -1,0 +1,5 @@
+/* esm.sh - @babel/helper-validator-identifier@7.22.20 */
+export * from "/@babel/helper-validator-identifier@7.22.20/denonext/helper-validator-identifier.mjs";
+export { default } from "/@babel/helper-validator-identifier@7.22.20/denonext/helper-validator-identifier.mjs";
+
+// denoCacheMetadata={"headers":{"date":"Fri, 17 Oct 2025 13:57:19 GMT","cache-control":"public, max-age=31536000, immutable","access-control-expose-headers":"X-ESM-Path, X-TypeScript-Types","x-esm-path":"/@babel/helper-validator-identifier@7.22.20/denonext/helper-validator-identifier.mjs","cf-ray":"99004dec3a8d5aa4-MEL","access-control-allow-origin":"*","vary":"User-Agent","x-typescript-types":"https://esm.sh/@types/babel__helper-validator-identifier@~7.15.2/index.d.ts","cf-cache-status":"DYNAMIC","alt-svc":"h3=\":443\"; ma=86400","content-type":"application/javascript; charset=utf-8","server":"cloudflare"},"url":"https://esm.sh/@babel/helper-validator-identifier@7.22.20","time":1760709439}

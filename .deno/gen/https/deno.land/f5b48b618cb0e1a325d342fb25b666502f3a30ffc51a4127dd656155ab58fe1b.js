@@ -1,0 +1,35 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { parseBuild, parseNumber, parsePrerelease } from "./_shared.ts";
+import { FULL_REGEXP, MAX_LENGTH } from "./_shared.ts";
+/**
+ * Attempt to parse a string as a semantic version, returning either a `SemVer`
+ * object or throws a TypeError.
+ * @param version The version string to parse
+ * @returns A valid SemVer
+ */ export function parse(version) {
+  if (typeof version !== "string") {
+    throw new TypeError(`version must be a string`);
+  }
+  if (version.length > MAX_LENGTH) {
+    throw new TypeError(`version is longer than ${MAX_LENGTH} characters`);
+  }
+  version = version.trim();
+  const groups = version.match(FULL_REGEXP)?.groups;
+  if (!groups) throw new TypeError(`Invalid Version: ${version}`);
+  const major = parseNumber(groups.major, "Invalid major version");
+  const minor = parseNumber(groups.minor, "Invalid minor version");
+  const patch = parseNumber(groups.patch, "Invalid patch version");
+  const prerelease = groups.prerelease
+    ? parsePrerelease(groups.prerelease)
+    : [];
+  const build = groups.buildmetadata ? parseBuild(groups.buildmetadata) : [];
+  return {
+    major,
+    minor,
+    patch,
+    prerelease,
+    build,
+  };
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3N0ZEAwLjIxNi4wL3NlbXZlci9wYXJzZS50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIvLyBDb3B5cmlnaHQgMjAxOC0yMDI0IHRoZSBEZW5vIGF1dGhvcnMuIEFsbCByaWdodHMgcmVzZXJ2ZWQuIE1JVCBsaWNlbnNlLlxuaW1wb3J0IHsgU2VtVmVyIH0gZnJvbSBcIi4vdHlwZXMudHNcIjtcbmltcG9ydCB7IHBhcnNlQnVpbGQsIHBhcnNlTnVtYmVyLCBwYXJzZVByZXJlbGVhc2UgfSBmcm9tIFwiLi9fc2hhcmVkLnRzXCI7XG5pbXBvcnQgeyBGVUxMX1JFR0VYUCwgTUFYX0xFTkdUSCB9IGZyb20gXCIuL19zaGFyZWQudHNcIjtcblxuLyoqXG4gKiBBdHRlbXB0IHRvIHBhcnNlIGEgc3RyaW5nIGFzIGEgc2VtYW50aWMgdmVyc2lvbiwgcmV0dXJuaW5nIGVpdGhlciBhIGBTZW1WZXJgXG4gKiBvYmplY3Qgb3IgdGhyb3dzIGEgVHlwZUVycm9yLlxuICogQHBhcmFtIHZlcnNpb24gVGhlIHZlcnNpb24gc3RyaW5nIHRvIHBhcnNlXG4gKiBAcmV0dXJucyBBIHZhbGlkIFNlbVZlclxuICovXG5leHBvcnQgZnVuY3Rpb24gcGFyc2UodmVyc2lvbjogc3RyaW5nKTogU2VtVmVyIHtcbiAgaWYgKHR5cGVvZiB2ZXJzaW9uICE9PSBcInN0cmluZ1wiKSB7XG4gICAgdGhyb3cgbmV3IFR5cGVFcnJvcihcbiAgICAgIGB2ZXJzaW9uIG11c3QgYmUgYSBzdHJpbmdgLFxuICAgICk7XG4gIH1cblxuICBpZiAodmVyc2lvbi5sZW5ndGggPiBNQVhfTEVOR1RIKSB7XG4gICAgdGhyb3cgbmV3IFR5cGVFcnJvcihcbiAgICAgIGB2ZXJzaW9uIGlzIGxvbmdlciB0aGFuICR7TUFYX0xFTkdUSH0gY2hhcmFjdGVyc2AsXG4gICAgKTtcbiAgfVxuXG4gIHZlcnNpb24gPSB2ZXJzaW9uLnRyaW0oKTtcblxuICBjb25zdCBncm91cHMgPSB2ZXJzaW9uLm1hdGNoKEZVTExfUkVHRVhQKT8uZ3JvdXBzO1xuICBpZiAoIWdyb3VwcykgdGhyb3cgbmV3IFR5cGVFcnJvcihgSW52YWxpZCBWZXJzaW9uOiAke3ZlcnNpb259YCk7XG5cbiAgY29uc3QgbWFqb3IgPSBwYXJzZU51bWJlcihncm91cHMubWFqb3IsIFwiSW52YWxpZCBtYWpvciB2ZXJzaW9uXCIpO1xuICBjb25zdCBtaW5vciA9IHBhcnNlTnVtYmVyKGdyb3Vwcy5taW5vciwgXCJJbnZhbGlkIG1pbm9yIHZlcnNpb25cIik7XG4gIGNvbnN0IHBhdGNoID0gcGFyc2VOdW1iZXIoZ3JvdXBzLnBhdGNoLCBcIkludmFsaWQgcGF0Y2ggdmVyc2lvblwiKTtcblxuICBjb25zdCBwcmVyZWxlYXNlID0gZ3JvdXBzLnByZXJlbGVhc2VcbiAgICA/IHBhcnNlUHJlcmVsZWFzZShncm91cHMucHJlcmVsZWFzZSlcbiAgICA6IFtdO1xuICBjb25zdCBidWlsZCA9IGdyb3Vwcy5idWlsZG1ldGFkYXRhID8gcGFyc2VCdWlsZChncm91cHMuYnVpbGRtZXRhZGF0YSkgOiBbXTtcblxuICByZXR1cm4ge1xuICAgIG1ham9yLFxuICAgIG1pbm9yLFxuICAgIHBhdGNoLFxuICAgIHByZXJlbGVhc2UsXG4gICAgYnVpbGQsXG4gIH07XG59XG4iXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUEsMEVBQTBFO0FBRTFFLFNBQVMsVUFBVSxFQUFFLFdBQVcsRUFBRSxlQUFlLFFBQVEsZUFBZTtBQUN4RSxTQUFTLFdBQVcsRUFBRSxVQUFVLFFBQVEsZUFBZTtBQUV2RDs7Ozs7Q0FLQyxHQUNELE9BQU8sU0FBUyxNQUFNLE9BQWU7RUFDbkMsSUFBSSxPQUFPLFlBQVksVUFBVTtJQUMvQixNQUFNLElBQUksVUFDUixDQUFDLHdCQUF3QixDQUFDO0VBRTlCO0VBRUEsSUFBSSxRQUFRLE1BQU0sR0FBRyxZQUFZO0lBQy9CLE1BQU0sSUFBSSxVQUNSLENBQUMsdUJBQXVCLEVBQUUsV0FBVyxXQUFXLENBQUM7RUFFckQ7RUFFQSxVQUFVLFFBQVEsSUFBSTtFQUV0QixNQUFNLFNBQVMsUUFBUSxLQUFLLENBQUMsY0FBYztFQUMzQyxJQUFJLENBQUMsUUFBUSxNQUFNLElBQUksVUFBVSxDQUFDLGlCQUFpQixFQUFFLFNBQVM7RUFFOUQsTUFBTSxRQUFRLFlBQVksT0FBTyxLQUFLLEVBQUU7RUFDeEMsTUFBTSxRQUFRLFlBQVksT0FBTyxLQUFLLEVBQUU7RUFDeEMsTUFBTSxRQUFRLFlBQVksT0FBTyxLQUFLLEVBQUU7RUFFeEMsTUFBTSxhQUFhLE9BQU8sVUFBVSxHQUNoQyxnQkFBZ0IsT0FBTyxVQUFVLElBQ2pDLEVBQUU7RUFDTixNQUFNLFFBQVEsT0FBTyxhQUFhLEdBQUcsV0FBVyxPQUFPLGFBQWEsSUFBSSxFQUFFO0VBRTFFLE9BQU87SUFDTDtJQUNBO0lBQ0E7SUFDQTtJQUNBO0VBQ0Y7QUFDRiJ9
+// denoCacheMetadata=6122136022470526616,2452864791283786346

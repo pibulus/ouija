@@ -1,0 +1,42 @@
+import { signal, computed, batch, effect, Signal, type ReadonlySignal, untracked } from "https://esm.sh/@preact/signals-core@1.8.0/dist/signals-core.d.ts";
+export { signal, computed, batch, effect, Signal, type ReadonlySignal, untracked, };
+export declare function useSignal<T>(value: T): Signal<T>;
+export declare function useComputed<T>(compute: () => T): ReadonlySignal<T>;
+export declare function useSignalEffect(cb: () => void | (() => void)): void;
+/**
+ * @todo Determine which Reactive implementation we'll be using.
+ * @internal
+ */
+/**
+ * @internal
+ * Update a Reactive's using the properties of an object or other Reactive.
+ * Also works for Signals.
+ * @example
+ *   // Update a Reactive with Object.assign()-like syntax:
+ *   const r = reactive({ name: "Alice" });
+ *   update(r, { name: "Bob" });
+ *   update(r, { age: 42 }); // property 'age' does not exist in type '{ name?: string }'
+ *   update(r, 2); // '2' has no properties in common with '{ name?: string }'
+ *   console.log(r.name.value); // "Bob"
+ *
+ * @example
+ *   // Update a Reactive with the properties of another Reactive:
+ *   const A = reactive({ name: "Alice" });
+ *   const B = reactive({ name: "Bob", age: 42 });
+ *   update(A, B);
+ *   console.log(`${A.name} is ${A.age}`); // "Bob is 42"
+ *
+ * @example
+ *   // Update a signal with assign()-like syntax:
+ *   const s = signal(42);
+ *   update(s, "hi"); // Argument type 'string' not assignable to type 'number'
+ *   update(s, {}); // Argument type '{}' not assignable to type 'number'
+ *   update(s, 43);
+ *   console.log(s.value); // 43
+ *
+ * @param obj The Reactive or Signal to be updated
+ * @param update The value, Signal, object or Reactive to update `obj` to match
+ * @param overwrite If `true`, any properties `obj` missing from `update` are set to `undefined`
+ */
+
+// denoCacheMetadata={"headers":{"alt-svc":"h3=\":443\"; ma=86400","cf-ray":"9900595e2e92d81c-MEL","last-modified":"Tue, 29 Jul 2025 08:32:15 GMT","date":"Fri, 17 Oct 2025 14:05:08 GMT","content-type":"application/typescript; charset=utf-8","access-control-allow-origin":"*","vary":"accept-encoding","content-length":"1809","cache-control":"public, max-age=31536000, immutable","server":"cloudflare","cf-cache-status":"HIT"},"url":"https://esm.sh/@preact/signals@1.2.2/dist/signals.d.ts","time":1760709908}

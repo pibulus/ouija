@@ -10,34 +10,34 @@ const RAW_COORDS: RawCoord[] = [
   { key: "NO", x: 0.84, y: 0.12 },
 
   // First row: A-M (arced across top third)
-  { key: "A", x: 0.125, y: 0.28 },
-  { key: "B", x: 0.185, y: 0.31 },
-  { key: "C", x: 0.245, y: 0.335 },
-  { key: "D", x: 0.305, y: 0.355 },
-  { key: "E", x: 0.365, y: 0.365 },
-  { key: "F", x: 0.425, y: 0.37 },
-  { key: "G", x: 0.485, y: 0.37 },
-  { key: "H", x: 0.545, y: 0.365 },
-  { key: "I", x: 0.605, y: 0.355 },
-  { key: "J", x: 0.665, y: 0.335 },
-  { key: "K", x: 0.725, y: 0.3 },
-  { key: "L", x: 0.785, y: 0.26 },
-  { key: "M", x: 0.845, y: 0.215 },
+  { key: "A", x: 0.125, y: 0.37 },
+  { key: "B", x: 0.185, y: 0.38 },
+  { key: "C", x: 0.245, y: 0.388 },
+  { key: "D", x: 0.305, y: 0.393 },
+  { key: "E", x: 0.365, y: 0.396 },
+  { key: "F", x: 0.425, y: 0.398 },
+  { key: "G", x: 0.485, y: 0.398 },
+  { key: "H", x: 0.545, y: 0.396 },
+  { key: "I", x: 0.605, y: 0.393 },
+  { key: "J", x: 0.665, y: 0.388 },
+  { key: "K", x: 0.725, y: 0.38 },
+  { key: "L", x: 0.785, y: 0.37 },
+  { key: "M", x: 0.845, y: 0.355 },
 
   // Second row: N-Z (arced below first row)
-  { key: "N", x: 0.155, y: 0.47 },
-  { key: "O", x: 0.21, y: 0.495 },
-  { key: "P", x: 0.265, y: 0.51 },
-  { key: "Q", x: 0.32, y: 0.52 },
-  { key: "R", x: 0.375, y: 0.525 },
-  { key: "S", x: 0.43, y: 0.525 },
-  { key: "T", x: 0.485, y: 0.52 },
-  { key: "U", x: 0.54, y: 0.51 },
-  { key: "V", x: 0.595, y: 0.495 },
-  { key: "W", x: 0.65, y: 0.47 },
-  { key: "X", x: 0.705, y: 0.435 },
-  { key: "Y", x: 0.76, y: 0.395 },
-  { key: "Z", x: 0.815, y: 0.35 },
+  { key: "N", x: 0.155, y: 0.535 },
+  { key: "O", x: 0.21, y: 0.545 },
+  { key: "P", x: 0.265, y: 0.552 },
+  { key: "Q", x: 0.32, y: 0.556 },
+  { key: "R", x: 0.375, y: 0.558 },
+  { key: "S", x: 0.43, y: 0.558 },
+  { key: "T", x: 0.485, y: 0.556 },
+  { key: "U", x: 0.54, y: 0.552 },
+  { key: "V", x: 0.595, y: 0.545 },
+  { key: "W", x: 0.65, y: 0.535 },
+  { key: "X", x: 0.705, y: 0.52 },
+  { key: "Y", x: 0.76, y: 0.5 },
+  { key: "Z", x: 0.815, y: 0.475 },
 
   // Numbers row at bottom
   { key: "1", x: 0.215, y: 0.68 },
@@ -67,7 +67,7 @@ type Props = {
   eyebrow?: string;
 };
 
-const PLANCHETTE_SIZE = 148;
+const PLANCHETTE_SIZE = 168;
 const INPUT_IDLE_MS = 4500;
 const WINDOW_Y_OFFSET = 0.024;
 
@@ -247,15 +247,45 @@ export default function PlanchetteBoard({
     setPlanchettePosition(planchette, start);
     await fade(planchette, 0, 1, 720);
     let cursor = { ...start };
+    let lastKey: string | null = null;
     for (const { key, point } of targets) {
-      await movePlanchette(planchette, cursor, point, speedPxPerSec);
+      // If same letter twice, lift off and return
+      if (key === lastKey) {
+        const liftPoint = { x: cursor.x, y: cursor.y - 80 };
+        await movePlanchetteWithSpring(
+          planchette,
+          cursor,
+          liftPoint,
+          speedPxPerSec * 1.5,
+        );
+        await delay(200);
+        await movePlanchetteWithSpring(
+          planchette,
+          liftPoint,
+          point,
+          speedPxPerSec * 1.5,
+        );
+      } else {
+        await movePlanchetteWithSpring(
+          planchette,
+          cursor,
+          point,
+          speedPxPerSec,
+        );
+      }
       setKeyActive(key, true);
       await softBlip();
       await delay(pauseMs);
       setKeyActive(key, false);
       cursor = point;
+      lastKey = key;
     }
-    await movePlanchette(planchette, cursor, exit, speedPxPerSec * 0.85);
+    await movePlanchetteWithSpring(
+      planchette,
+      cursor,
+      exit,
+      speedPxPerSec * 0.85,
+    );
     await fade(planchette, 1, 0, 680);
     planchette.style.transform = `translate(-9999px, -9999px)`;
   }
@@ -421,6 +451,23 @@ export default function PlanchetteBoard({
     });
   }
 
+  async function movePlanchetteWithSpring(
+    el: HTMLElement,
+    start: Vec2,
+    end: Vec2,
+    speed: number,
+  ) {
+    const distance = Math.hypot(end.x - start.x, end.y - start.y);
+    const duration = Math.max(620, (distance / Math.max(speed, 1)) * 1000);
+    const control = controlForArc(start, end);
+    await rafTween(duration, (t) => {
+      // Spring easing with overshoot
+      const eased = easeOutBack(t);
+      const point = quadBezier(start, control, end, eased);
+      setPlanchettePosition(el, point);
+    });
+  }
+
   function setPlanchettePosition(el: HTMLElement, point: Vec2) {
     const halfWidth = (el.offsetWidth || PLANCHETTE_SIZE) / 2;
     const halfHeight = (el.offsetHeight || PLANCHETTE_SIZE) / 2;
@@ -455,6 +502,12 @@ export default function PlanchetteBoard({
 
   function easeInOutSine(t: number) {
     return 0.5 - 0.5 * Math.cos(Math.PI * t);
+  }
+
+  function easeOutBack(t: number) {
+    const c1 = 1.70158;
+    const c3 = c1 + 1;
+    return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
   }
 
   async function rafTween(

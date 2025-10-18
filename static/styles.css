@@ -417,12 +417,20 @@ button {
   pointer-events: none;
 }
 
+/* Toggle glow on/off by commenting/uncommenting these blocks */
+
 .board-key.flash {
+  /* GLOW DISABLED - Uncomment below to enable */
+  /*
   color: rgba(253, 228, 186, 0.86);
   opacity: 1;
+  */
+  opacity: 0;
 }
 
 .board-key.active {
+  /* GLOW DISABLED - Uncomment below to enable */
+  /*
   color: #fef5dc;
   text-shadow:
     0 0 12px rgba(253, 228, 186, 0.85),
@@ -430,6 +438,8 @@ button {
   transform: translate(-50%, -50%) scale(1.08);
   z-index: 2;
   opacity: 1;
+  */
+  opacity: 0;
 }
 
 .board-key.goodbye {
@@ -440,8 +450,8 @@ button {
   position: absolute;
   top: 0;
   left: 0;
-  width: clamp(110px, 14vw, 190px);
-  height: clamp(110px, 14vw, 190px);
+  width: clamp(125px, 16vw, 210px);
+  height: clamp(125px, 16vw, 210px);
   pointer-events: none;
   opacity: 0;
   filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.55));

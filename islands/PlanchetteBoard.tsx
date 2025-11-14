@@ -69,7 +69,7 @@ type Props = {
 
 const PLANCHETTE_SIZE = 168;
 const INPUT_IDLE_MS = 4500;
-const WINDOW_Y_OFFSET = 0.024;
+const WINDOW_Y_OFFSET = -0.012;
 
 export default function PlanchetteBoard({
   incomingMessage = "HELLO PABLO",

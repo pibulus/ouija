@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "party:dev": "partykit dev",
+    "party:deploy": "partykit deploy"
+  },
+  "dependencies": {
+    "partykit": "^0.0.115",
+    "partysocket": "^1.1.6"
+  }
+}

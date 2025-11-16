@@ -172,12 +172,8 @@ export function AboutModal() {
           /* Header */
           .about-header {
             padding: 1.5rem 1.75rem;
-            background: linear-gradient(
-              135deg,
-              rgba(222, 202, 162, 0.58),
-              rgba(143, 112, 68, 0.48)
-            );
-            border: 2.5px solid rgba(58, 44, 28, 0.7);
+            background: rgba(28, 24, 32, 0.92);
+            border: 2px solid rgba(88, 78, 98, 0.4);
             border-bottom: none;
             border-radius: 16px 16px 0 0;
             backdrop-filter: blur(18px);
@@ -195,7 +191,7 @@ export function AboutModal() {
             font-size: clamp(1.5rem, 4vw, 2rem);
             letter-spacing: 0.12em;
             text-transform: uppercase;
-            color: rgba(30, 20, 12, 0.95);
+            color: rgba(243, 230, 200, 0.95);
             font-weight: 700;
             line-height: 1.2;
             margin: 0;
@@ -205,7 +201,7 @@ export function AboutModal() {
             font-size: clamp(0.7rem, 1.5vw, 0.85rem);
             letter-spacing: 0.3em;
             text-transform: uppercase;
-            color: rgba(30, 20, 12, 0.65);
+            color: rgba(180, 165, 145, 0.75);
             font-weight: 600;
             margin: 0;
           }
@@ -217,9 +213,9 @@ export function AboutModal() {
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            border: 2px solid rgba(58, 44, 28, 0.6);
-            background: rgba(235, 215, 184, 0.5);
-            color: rgba(42, 26, 14, 0.8);
+            border: 2px solid rgba(88, 78, 98, 0.5);
+            background: rgba(45, 38, 52, 0.6);
+            color: rgba(200, 185, 165, 0.9);
             font-size: 1.4rem;
             line-height: 1;
             cursor: pointer;
@@ -230,20 +226,16 @@ export function AboutModal() {
           }
 
           .about-close:hover {
-            background: rgba(235, 215, 184, 0.75);
-            border-color: rgba(58, 44, 28, 0.8);
+            background: rgba(55, 48, 62, 0.85);
+            border-color: rgba(88, 78, 98, 0.7);
             transform: scale(1.05);
           }
 
           /* Content */
           .about-content {
             padding: 1.75rem;
-            background: linear-gradient(
-              135deg,
-              rgba(15, 12, 21, 0.95),
-              rgba(25, 20, 30, 0.95)
-            );
-            border: 2.5px solid rgba(58, 44, 28, 0.7);
+            background: rgba(18, 15, 24, 0.95);
+            border: 2px solid rgba(88, 78, 98, 0.4);
             border-top: none;
             border-radius: 0 0 16px 16px;
             backdrop-filter: blur(16px);

@@ -1,6 +1,7 @@
 import type { JSX } from "preact";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { AboutLink } from "./AboutModal.tsx";
+import { useOuijaParty } from "../hooks/useOuijaParty.ts";
 
 type RawCoord = { key: string; x: number; y: number };
 
@@ -69,7 +70,7 @@ type Props = {
 
 const PLANCHETTE_SIZE = 168;
 const INPUT_IDLE_MS = 4500;
-const WINDOW_Y_OFFSET = 0.024;
+const WINDOW_Y_OFFSET = -0.012;
 
 export default function PlanchetteBoard({
   incomingMessage = "HELLO PABLO",
@@ -94,6 +95,27 @@ export default function PlanchetteBoard({
   const sendTimerRef = useRef<number | null>(null);
   const [typedPreview, setTypedPreview] = useState("");
   const [showIntro, setShowIntro] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // PartyKit connection
+  const { connected, presenceCount, sending, sendMessage } = useOuijaParty({
+    host: globalThis.location?.hostname === "localhost"
+      ? "localhost:1999"
+      : "ouija-board.pibulus.partykit.dev", // Update with your PartyKit URL
+    room: "main",
+    onMessageReceived: (text) => {
+      // Add received message to queue for animation
+      queueRef.current.push(text);
+      processQueue();
+    },
+    onPresenceChange: (count) => {
+      console.log(`👻 ${count} spirits present`);
+    },
+    onError: (error) => {
+      setErrorMessage(error);
+      setTimeout(() => setErrorMessage(""), 3000);
+    },
+  });
 
   useEffect(() => {
     const initial = sanitizeMessage(incomingMessage);
@@ -204,8 +226,18 @@ export default function PlanchetteBoard({
     pendingBufferRef.current = "";
     setTypedPreview("");
     if (!next) return;
-    queueRef.current.push(next);
-    processQueue();
+
+    // Send to PartyKit server instead of local queue
+    if (connected) {
+      sendMessage(next);
+      // Also animate locally so user sees their own message
+      queueRef.current.push(next);
+      processQueue();
+    } else {
+      // Fallback to local-only if not connected
+      queueRef.current.push(next);
+      processQueue();
+    }
   }
 
   function processQueue() {
@@ -390,14 +422,42 @@ export default function PlanchetteBoard({
         >
         </audio>
         <div class="typed-preview" aria-live="polite">
-          {typedPreview
-            ? <span>Composing: {typedPreview}</span>
-            : (
-              <span class="hint">
-                Start typing or tap letters to send a message.
-              </span>
-            )}
+          {errorMessage && (
+            <span class="error-msg" style={{ color: "rgba(255, 100, 100, 0.9)" }}>
+              {errorMessage}
+            </span>
+          )}
+          {!errorMessage && typedPreview && (
+            <span>Composing: {typedPreview}</span>
+          )}
+          {!errorMessage && !typedPreview && (
+            <span class="hint">
+              Start typing or tap letters to send a message.
+            </span>
+          )}
         </div>
+        {presenceCount > 1 && (
+          <div
+            class="presence-indicator"
+            style={{
+              position: "absolute",
+              top: "clamp(1rem, 2.5vw, 2rem)",
+              right: "clamp(1rem, 2.5vw, 2rem)",
+              padding: "0.5rem 0.9rem",
+              background: "rgba(28, 24, 32, 0.85)",
+              border: "1.5px solid rgba(88, 78, 98, 0.4)",
+              borderRadius: "12px",
+              color: "rgba(200, 185, 165, 0.9)",
+              fontSize: "clamp(0.7rem, 1.3vw, 0.85rem)",
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              zIndex: "6",
+              backdropFilter: "blur(12px)",
+            } as JSX.CSSProperties}
+          >
+            👻 {presenceCount} spirits present
+          </div>
+        )}
       </div>
     </section>
   );

@@ -1,0 +1,7 @@
+{
+  "name": "ouija-board",
+  "main": "party/ouija-room.ts",
+  "parties": {
+    "ouija": "party/ouija-room.ts"
+  }
+}

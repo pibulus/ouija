@@ -1,35 +1,27 @@
 # Ouija
 
-**A real-time digital spirit board for leaving and receiving tiny messages.**
+**A digital spirit board that draws one cosmic message and spells it through the
+planchette.**
 
-Ouija is a simple ritual object: receive a message, leave one behind, and watch
-the planchette spell the next trace across the board. It is playful, slow on
-purpose, and built around the feeling of asynchronous presence rather than chat.
+Ouija is intentionally simple now: open the board, tap **Begin**, receive one
+message. No accounts, no chat, no guestbook, no queue. The whole app is the
+little moment of watching the board move.
 
 ## What It Does
 
-- Shows a full-screen spirit board with an animated planchette.
-- Dispenses one queued message to each visitor.
-- Lets the visitor leave a short message for someone else.
-- Uses PartyKit for real-time presence and persistent message storage.
-- Falls back to local messages when the live connection is unavailable.
-- Plays ambient audio and soft generated tones after user interaction.
+- Draws one message from a local oracle deck on each page load.
+- Animates the planchette across the board coordinates.
+- Reveals the message after the spelling completes.
+- Offers a single **Draw Again** action for a fresh message.
+- Plays ambient audio and soft generated tones after the user taps Begin.
 
 ## Run Locally
-
-Fresh app:
 
 ```bash
 deno task start
 ```
 
-PartyKit room:
-
-```bash
-npm run party:dev
-```
-
-Open `http://localhost:8000`. PartyKit runs on `localhost:1999`.
+Open `http://localhost:8000`.
 
 ## Checks
 
@@ -38,48 +30,31 @@ deno task check
 deno task build
 ```
 
-`my-party/` and `.partykit/` are local PartyKit scaffold/runtime folders and are
-intentionally excluded from Deno checks.
-
 ## Project Map
 
 ```text
 routes/
   _app.tsx              App shell, metadata, global stylesheet
-  index.tsx             Main board page
+  index.tsx             Draws the message and renders the board
   _404.tsx              Branded lost-signal page
 islands/
-  PlanchetteBoard.tsx   Board animation, message entry, audio cues
+  PlanchetteBoard.tsx   Board animation, single-message ritual, audio cues
   AboutModal.tsx        About dialog
-hooks/
-  useOuijaParty.ts      PartySocket client, seen-message memory, queue requests
-party/
-  ouija-room.ts         PartyKit message queue, storage, presence, rate limits
+utils/
+  oracleMessages.ts     Local oracle deck and crypto-random draw
 static/
   ghostboard.png        Main board artwork
   planchette.png        Planchette artwork
   ambient_loop.mp3      Background audio loop
 ```
 
-## Message Flow
+## Flow
 
-1. Visitor opens the board.
-2. `useOuijaParty` connects to PartyKit room `main`.
-3. `ouija-room.ts` sends an unseen queued message, or a seeded fallback.
-4. `PlanchetteBoard` animates the planchette across the board letters.
-5. The message entry appears.
-6. Visitor leaves a short message.
-7. PartyKit stores it and the visitor receives the next queued message.
-
-## Production Notes
-
-- PartyKit deploy target is configured in `partykit.json`.
-- The client currently points production traffic at
-  `ouija-board.pibulus.partykit.dev`.
-- Message retention is one week.
-- Message length is capped at 50 characters server-side and 32 characters in the
-  current UI.
-- Send cooldown is 30 seconds per connection.
+1. Server draws one message with `drawOracleMessage()`.
+2. Visitor taps **Begin**.
+3. The planchette spells the message across the board.
+4. The message appears as text.
+5. **Draw Again** reloads the page for a fresh draw.
 
 ## Built By Pablo
 

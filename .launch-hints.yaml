@@ -2,24 +2,23 @@
 name: Ouija
 slug: ouija
 app_type: web-app
-audience: people who like strange little web rituals, async guestbooks, and playful input experiments
+audience: people who like strange little web rituals, tiny oracles, and playful divination interfaces
 problem: >-
-  chat is too literal and guestbooks are too dead; this turns leaving a message
-  into a tiny shared ritual
+  most random-message toys feel like throwaway fortune cookies; this makes the
+  draw feel physical, slow, and a little uncanny
 promise: >-
-  Receive a message, leave one behind, and watch the planchette spell the next
-  trace across the board.
-cta: Open the board.
+  Tap the board once and receive one cosmic message spelled by the planchette.
+cta: Begin the draw.
 differentiators:
-  - A real-time async message queue disguised as a spirit board.
-  - PartyKit presence and storage without turning the experience into chat.
-  - Full-screen board artwork, planchette animation, ambient audio, and soft generated tones.
-  - Local fallback messages keep the ritual alive when the live room is quiet.
+  - One-message ritual with no chat, account, input, or queue.
+  - Full-screen board artwork with real coordinate-based planchette movement.
+  - Crypto-random local oracle deck keeps the mechanism simple and explicit.
+  - Ambient audio and soft generated tones after the user begins.
 proof_points:
-  - PartyKit room with persistent message storage, one-week retention, and presence updates.
+  - Server draws a fresh oracle message on each page load.
   - Planchette spells each message across real board coordinates.
-  - Mobile-first full-screen board with safe-area-aware controls.
-  - Short-message constraints keep the experience focused and strange.
+  - Mobile-first full-screen board with one primary action.
+  - Final message remains visible after the animation completes.
 objections:
   - Needs a production URL and social preview image before a public launch push.
 keywords:
@@ -27,12 +26,12 @@ keywords:
     - Ouija
     - digital spirit board
     - planchette
-    - async guestbook
+    - cosmic message
   audience: strange web ritual people
   intent:
-    - leave a message
-    - receive a message
-    - playful web experiment
+    - draw a cosmic message
+    - draw an oracle
+    - playful web divination
 manual_notes:
-  - Keep it ritual-shaped, not chat-shaped.
+  - Keep it oracle-shaped, not chat-shaped.
   - Do not over-explain the mechanism in the first viewport.

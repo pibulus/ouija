@@ -87,20 +87,19 @@ export function AboutModal() {
             {/* Story */}
             <p class="about-text">
               I'm Pablo. I build tools with personality. This one explores the
-              mystical space between typing and not typing—a spirit board for
-              the digital age.
+              mystical space between asking and receiving—a spirit board for
+              tiny digital omens.
             </p>
 
             {/* What it's for */}
             <div class="about-highlight">
               <p class="about-text-sm">
-                Watch messages arrive from the ether. Type without touching a
-                text field. Let the planchette guide your words across the
-                board.
+                Tap once. The board draws one message and the planchette spells
+                it across the letters.
               </p>
               <p class="about-text-sm">
-                It's playful, it's weird, and it's free. A meditation on input
-                methods and mysticism.
+                It's playful, strange, and deliberately simple: one draw, one
+                message, no chat.
               </p>
             </div>
 

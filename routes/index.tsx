@@ -1,7 +1,10 @@
 import PlanchetteBoard from "../islands/PlanchetteBoard.tsx";
 import { AboutModal } from "../islands/AboutModal.tsx";
+import { drawOracleMessage } from "../utils/oracleMessages.ts";
 
 export default function Home() {
+  const message = drawOracleMessage();
+
   return (
     <>
       {/* About modal */}
@@ -16,10 +19,10 @@ export default function Home() {
 
       <main class="page-shell flicker-candle">
         <PlanchetteBoard
-          incomingMessage="HELLO FROM THE OTHER SIDE"
+          message={message}
           eyebrow="Ghost Node"
-          heading="Today's transmission is arriving…"
-          subtitle="Receive a message, leave one behind, and watch the planchette spell the next trace."
+          heading="Your message is waiting"
+          subtitle="Touch the board once. The planchette will spell what arrived."
         />
       </main>
     </>

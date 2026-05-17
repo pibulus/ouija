@@ -1,24 +1,23 @@
 import type { JSX } from "preact";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { AboutLink } from "./AboutModal.tsx";
-import { useOuijaParty } from "../hooks/useOuijaParty.ts";
-
-const OFFLINE_BACKUP_MESSAGES = [
-  "THE LINE REMAINS OPEN EVEN OFFLINE",
-  "LOCAL SPIRITS KEEP WATCH",
-  "ASK AGAIN—THE BOARD IS LISTENING",
-  "SOME SIGNALS PREFER SILENCE FIRST",
-  "YOU CAN LEAVE A TRACE EVEN WITHOUT WI-FI",
-];
 
 type RawCoord = { key: string; x: number; y: number };
+type Vec2 = { x: number; y: number };
+
+type Props = {
+  message: string;
+  idleDelayMs?: number;
+  pauseMs?: number;
+  speedPxPerSec?: number;
+  heading?: string;
+  subtitle?: string;
+  eyebrow?: string;
+};
 
 const RAW_COORDS: RawCoord[] = [
-  // YES and NO at the top
   { key: "YES", x: 0.16, y: 0.12 },
   { key: "NO", x: 0.84, y: 0.12 },
-
-  // First row: A-M (arced across top third)
   { key: "A", x: 0.125, y: 0.37 },
   { key: "B", x: 0.185, y: 0.38 },
   { key: "C", x: 0.245, y: 0.388 },
@@ -32,8 +31,6 @@ const RAW_COORDS: RawCoord[] = [
   { key: "K", x: 0.725, y: 0.38 },
   { key: "L", x: 0.785, y: 0.37 },
   { key: "M", x: 0.845, y: 0.355 },
-
-  // Second row: N-Z (arced below first row)
   { key: "N", x: 0.155, y: 0.535 },
   { key: "O", x: 0.21, y: 0.545 },
   { key: "P", x: 0.265, y: 0.552 },
@@ -47,8 +44,6 @@ const RAW_COORDS: RawCoord[] = [
   { key: "X", x: 0.705, y: 0.52 },
   { key: "Y", x: 0.76, y: 0.5 },
   { key: "Z", x: 0.815, y: 0.475 },
-
-  // Numbers row at bottom
   { key: "1", x: 0.215, y: 0.68 },
   { key: "2", x: 0.27, y: 0.685 },
   { key: "3", x: 0.325, y: 0.687 },
@@ -59,35 +54,19 @@ const RAW_COORDS: RawCoord[] = [
   { key: "8", x: 0.6, y: 0.682 },
   { key: "9", x: 0.655, y: 0.677 },
   { key: "0", x: 0.71, y: 0.67 },
-
-  // GOOD BYE at the bottom
   { key: "GOODBYE", x: 0.5, y: 0.82 },
 ];
 
-type Vec2 = { x: number; y: number };
-
-type Props = {
-  incomingMessage?: string;
-  idleDelayMs?: number;
-  pauseMs?: number;
-  speedPxPerSec?: number;
-  heading?: string;
-  subtitle?: string;
-  eyebrow?: string;
-};
-
 const PLANCHETTE_SIZE = 168;
 const WINDOW_Y_OFFSET = -0.012;
-const MAX_MESSAGE_LENGTH = 32;
 
 export default function PlanchetteBoard({
-  incomingMessage = "",
-  idleDelayMs = 2000,
-  pauseMs = 680,
-  speedPxPerSec = 320,
-  heading = "Today’s transmission is arriving…",
-  subtitle =
-    "Receive a message, leave one behind, and watch the planchette spell the next trace.",
+  message,
+  idleDelayMs = 180,
+  pauseMs = 90,
+  speedPxPerSec = 1450,
+  heading = "Your message is waiting",
+  subtitle = "Touch the board once. The planchette will spell what arrived.",
   eyebrow = "Ghost Node",
 }: Props) {
   const boardRef = useRef<HTMLDivElement | null>(null);
@@ -97,103 +76,10 @@ export default function PlanchetteBoard({
   const keyElementsRef = useRef(new Map<string, HTMLElement>());
   const keyCentersRef = useRef(new Map<string, Vec2>());
   const boardSizeRef = useRef<Vec2>({ x: 0, y: 0 });
-  const queueRef = useRef<string[]>([]);
   const runningRef = useRef(false);
-  const [showIntro, setShowIntro] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [emptyHint, setEmptyHint] = useState("");
-  const emptyHintTimeoutRef = useRef<number | null>(null);
-  const offlineFallbackRef = useRef([...OFFLINE_BACKUP_MESSAGES]);
-  const offlineReplyTimeoutRef = useRef<number | null>(null);
-  const firstMessageShownRef = useRef(false);
-  const [showMessageEntry, setShowMessageEntry] = useState(false);
-  const [canType, setCanType] = useState(false);
-  const [waitingForReply, setWaitingForReply] = useState(false);
-  const [messageInput, setMessageInput] = useState("");
-  const [shouldRequestNext, setShouldRequestNext] = useState(false);
-
-  const handleQueueEmpty = () => {
-    const expectingReply = waitingForReply || !firstMessageShownRef.current;
-    if (!expectingReply) {
-      setTemporaryHint("The board is quiet. Try again in a moment.");
-      return;
-    }
-
-    const fallback = drawOfflineMessage();
-    if (fallback) {
-      queueRef.current.push(fallback);
-      processQueue();
-      setTemporaryHint("Local spirits whispered from the archive.");
-      return;
-    }
-
-    setTemporaryHint("The board is quiet. Try again in a moment.");
-    setWaitingForReply(false);
-    setCanType(true);
-  };
-
-  // PartyKit connection
-  const {
-    connected,
-    presenceCount,
-    requesting,
-    sending,
-    sendMessage,
-    requestNextMessage,
-  } = useOuijaParty({
-    host: globalThis.location?.hostname === "localhost"
-      ? "localhost:1999"
-      : "ouija-board.pibulus.partykit.dev",
-    room: "main",
-    onMessageReceived: (text) => {
-      if (offlineReplyTimeoutRef.current) {
-        clearTimeout(offlineReplyTimeoutRef.current);
-        offlineReplyTimeoutRef.current = null;
-      }
-      queueRef.current.push(text);
-      processQueue();
-      setEmptyHint("");
-    },
-    onPresenceChange: (count) => {
-      console.log(`👻 ${count} spirits present`);
-    },
-    onQueueEmpty: handleQueueEmpty,
-    onMessageSent: () => {
-      setShouldRequestNext(true);
-    },
-    onError: (error) => {
-      setErrorMessage(error);
-      setTimeout(() => setErrorMessage(""), 3000);
-    },
-  });
-
-  const disableSendButton = !canType || waitingForReply || requesting ||
-    sending || !messageInput.length;
-  const entryStatusText = errorMessage || emptyHint ||
-    (waitingForReply || requesting
-      ? "Listening for the next transmission…"
-      : "Leave a message to receive the next transmission");
-  const entryPlaceholder = canType
-    ? "TYPE YOUR MESSAGE"
-    : "WAITING FOR FIRST MESSAGE";
-
-  useEffect(() => {
-    if (!incomingMessage?.trim()) return;
-    const initial = sanitizeMessage(incomingMessage);
-    if (!initial) return;
-    queueRef.current.push(initial);
-    processQueue();
-  }, [incomingMessage]);
-
-  useEffect(() => {
-    if (!shouldRequestNext) return;
-    setShouldRequestNext(false);
-    if (!connected) {
-      handleQueueEmpty();
-      return;
-    }
-    requestNextMessage();
-  }, [shouldRequestNext, connected, requestNextMessage]);
+  const [phase, setPhase] = useState<"ready" | "spelling" | "complete">(
+    "ready",
+  );
 
   useEffect(() => {
     const boardEl = boardRef.current;
@@ -222,117 +108,34 @@ export default function PlanchetteBoard({
   }, []);
 
   useEffect(() => {
-    const attempt = () => cueBackgroundAudio();
-    globalThis.addEventListener("pointerdown", attempt, { once: true });
-    globalThis.addEventListener("keydown", attempt, { once: true });
-    return () => {
-      globalThis.removeEventListener("pointerdown", attempt);
-      globalThis.removeEventListener("keydown", attempt);
-    };
-  }, []);
-
-  useEffect(() => {
     const planchette = planchetteRef.current;
     if (!planchette) return;
     planchette.style.opacity = "0";
-    planchette.style.transform = `translate(-9999px, -9999px)`;
+    planchette.style.transform = "translate(-9999px, -9999px)";
   }, []);
 
-  function dispatchMessage(text: string) {
-    setWaitingForReply(true);
-    setCanType(false);
-    sendMessage(text);
-    setTemporaryHint("Transmission sent. Listening for the reply…", 3200);
-    if (!connected) {
-      if (offlineReplyTimeoutRef.current) {
-        clearTimeout(offlineReplyTimeoutRef.current);
-      }
-      offlineReplyTimeoutRef.current = globalThis.setTimeout(() => {
-        offlineReplyTimeoutRef.current = null;
-        const fallback = drawOfflineMessage();
-        if (!fallback) return;
-        queueRef.current.push(fallback);
-        processQueue();
-      }, 1800);
-    }
-  }
-
-  function handleInputChange(value: string) {
-    const normalized = value.toUpperCase().replace(/[^A-Z0-9 ?!]/g, "");
-    setMessageInput(clampMessageLength(normalized));
-  }
-
-  function handleInputSubmit() {
-    if (!canType) {
-      setTemporaryHint("Wait for the first transmission before replying.");
-      return;
-    }
-    const sanitized = clampMessageLength(sanitizeMessage(messageInput));
-    if (!sanitized) {
-      setErrorMessage("Type a message first");
-      setTimeout(() => setErrorMessage(""), 3000);
-      return;
-    }
-    dispatchMessage(sanitized);
-    setMessageInput("");
-  }
-
-  function drawOfflineMessage(): string | null {
-    if (!offlineFallbackRef.current.length) {
-      offlineFallbackRef.current = [...OFFLINE_BACKUP_MESSAGES];
-    }
-    const pool = offlineFallbackRef.current;
-    if (!pool.length) return null;
-    const index = Math.floor(Math.random() * pool.length);
-    const [message] = pool.splice(index, 1);
-    return message ?? null;
-  }
-
-  function setTemporaryHint(text: string, duration = 5000) {
-    setEmptyHint(text);
-    if (emptyHintTimeoutRef.current) {
-      clearTimeout(emptyHintTimeoutRef.current);
-    }
-    emptyHintTimeoutRef.current = globalThis.setTimeout(() => {
-      setEmptyHint("");
-      emptyHintTimeoutRef.current = null;
-    }, duration);
-  }
-
-  function afterMessageDisplayed() {
-    setWaitingForReply(false);
-    setCanType(true);
-    if (!firstMessageShownRef.current) {
-      firstMessageShownRef.current = true;
-      setShowMessageEntry(true);
-    }
-  }
-
-  function processQueue() {
+  function beginReading() {
     if (runningRef.current) return;
+    cueBackgroundAudio();
+    setPhase("spelling");
     runningRef.current = true;
     void (async () => {
       try {
-        cueBackgroundAudio();
         await delay(idleDelayMs);
-        while (queueRef.current.length) {
-          const next = queueRef.current.shift();
-          if (!next) continue;
-          await animateMessage(next);
-          afterMessageDisplayed();
-        }
+        await animateMessage(message);
+        setPhase("complete");
       } finally {
         runningRef.current = false;
       }
     })();
   }
 
-  async function animateMessage(message: string) {
+  async function animateMessage(rawMessage: string) {
     const planchette = planchetteRef.current;
     const board = boardRef.current;
     if (!planchette || !board) return;
     recomputeLayout();
-    const targets = buildTargets(message);
+    const targets = buildTargets(sanitizeMessage(rawMessage));
     if (!targets.length) return;
     const boardSize = boardSizeRef.current;
     const planchetteHeight = planchette.offsetHeight || PLANCHETTE_SIZE;
@@ -346,11 +149,10 @@ export default function PlanchetteBoard({
       y: Math.min(boardSize.y - margin * 0.6, boardSize.y * 0.9),
     };
     setPlanchettePosition(planchette, start);
-    await fade(planchette, 0, 1, 720);
+    await fade(planchette, 0, 1, 260);
     let cursor = { ...start };
     let lastKey: string | null = null;
     for (const { key, point } of targets) {
-      // If same letter twice, lift off and return
       if (key === lastKey) {
         const liftPoint = { x: cursor.x, y: cursor.y - 80 };
         await movePlanchetteWithSpring(
@@ -359,7 +161,7 @@ export default function PlanchetteBoard({
           liftPoint,
           speedPxPerSec * 1.5,
         );
-        await delay(200);
+        await delay(45);
         await movePlanchetteWithSpring(
           planchette,
           liftPoint,
@@ -375,7 +177,7 @@ export default function PlanchetteBoard({
         );
       }
       setKeyActive(key, true);
-      await softBlip();
+      softBlip();
       await delay(pauseMs);
       setKeyActive(key, false);
       cursor = point;
@@ -385,21 +187,25 @@ export default function PlanchetteBoard({
       planchette,
       cursor,
       exit,
-      speedPxPerSec * 0.85,
+      speedPxPerSec * 0.9,
     );
-    await fade(planchette, 1, 0, 680);
-    planchette.style.transform = `translate(-9999px, -9999px)`;
+    await fade(planchette, 1, 0, 260);
+    planchette.style.transform = "translate(-9999px, -9999px)";
   }
 
-  function buildTargets(message: string) {
+  function buildTargets(spelledMessage: string) {
     const centers = keyCentersRef.current;
     const results: { key: string; point: Vec2 }[] = [];
-    for (const char of message) {
+    for (const char of spelledMessage) {
       const key = normalizeToKey(char);
       if (!key) continue;
       const point = centers.get(key);
       if (!point) continue;
       results.push({ key, point });
+    }
+    const goodbye = centers.get("GOODBYE");
+    if (results.length && goodbye) {
+      results.push({ key: "GOODBYE", point: goodbye });
     }
     return results;
   }
@@ -407,32 +213,23 @@ export default function PlanchetteBoard({
   return (
     <section class="board-scene">
       <div class="board-wrap">
-        {showIntro && (
+        {phase === "ready" && (
           <aside class="page-header">
             <div class="header-meta">
               <p class="eyebrow">{eyebrow}</p>
               <h1>{heading}</h1>
               <p class="subtitle">{subtitle}</p>
               <div class="header-links">
-                <AboutLink label="About" className="header-link" />
-                <a
-                  href="https://ko-fi.com/pibulus"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="header-link"
+                <button
+                  type="button"
+                  class="header-link primary"
+                  onClick={beginReading}
                 >
-                  Support
-                </a>
+                  Begin
+                </button>
+                <AboutLink label="About" className="header-link" />
               </div>
             </div>
-            <button
-              type="button"
-              class="header-close"
-              onClick={() => setShowIntro(false)}
-              aria-label="Dismiss intro"
-            >
-              ×
-            </button>
           </aside>
         )}
         <div class="board-grid" ref={boardRef}>
@@ -468,10 +265,7 @@ export default function PlanchetteBoard({
               );
             })}
           </div>
-          <div
-            ref={planchetteRef}
-            class="planchette"
-          >
+          <div ref={planchetteRef} class="planchette">
             <img
               src="/planchette.png"
               alt=""
@@ -487,62 +281,25 @@ export default function PlanchetteBoard({
           loop
           playsInline
           class="ambient-player"
-        >
-        </audio>
-        {showMessageEntry && (
-          <div class="message-entry">
-            <p class="message-entry-label">{entryStatusText}</p>
-            <div class="message-entry-field">
-              <input
-                type="text"
-                class="message-entry-input"
-                value={messageInput}
-                onInput={(event) =>
-                  handleInputChange(event.currentTarget.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    event.preventDefault();
-                    handleInputSubmit();
-                  }
-                }}
-                placeholder={entryPlaceholder}
-                maxLength={MAX_MESSAGE_LENGTH}
-                disabled={!canType}
-              />
-              <button
-                type="button"
-                class="message-entry-send"
-                onClick={handleInputSubmit}
-                disabled={disableSendButton}
-              >
-                Send
-              </button>
-            </div>
-            <p class="message-entry-count">
-              {messageInput.length}/{MAX_MESSAGE_LENGTH} characters
-            </p>
-          </div>
-        )}
-        {presenceCount > 1 && (
+        />
+        {phase !== "ready" && (
           <div
-            class="presence-indicator"
-            style={{
-              position: "absolute",
-              top: "clamp(1rem, 2.5vw, 2rem)",
-              right: "clamp(1rem, 2.5vw, 2rem)",
-              padding: "0.5rem 0.9rem",
-              background: "rgba(28, 24, 32, 0.85)",
-              border: "1.5px solid rgba(88, 78, 98, 0.4)",
-              borderRadius: "12px",
-              color: "rgba(200, 185, 165, 0.9)",
-              fontSize: "clamp(0.7rem, 1.3vw, 0.85rem)",
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              zIndex: "6",
-              backdropFilter: "blur(12px)",
-            } as JSX.CSSProperties}
+            class={`oracle-message ${
+              phase === "complete" ? "is-complete" : ""
+            }`}
+            aria-live="polite"
           >
-            👻 {presenceCount} spirits present
+            <p class="oracle-message-label">
+              {phase === "complete" ? "Message received" : "Spelling"}
+            </p>
+            <p class="oracle-message-text">
+              {phase === "complete" ? message : "Watch the board"}
+            </p>
+            {phase === "complete" && (
+              <a class="header-link primary" href="/">
+                Draw Again
+              </a>
+            )}
           </div>
         )}
       </div>
@@ -552,7 +309,6 @@ export default function PlanchetteBoard({
   function normalizeToKey(input: string): string | null {
     const upper = input.toUpperCase();
     if (/^[A-Z0-9]$/.test(upper)) return upper;
-    if (upper === " ") return "GOODBYE";
     if (upper === "?" || upper === "¿") return "YES";
     if (upper === "!" || upper === "¡") return "NO";
     return null;
@@ -560,10 +316,6 @@ export default function PlanchetteBoard({
 
   function sanitizeMessage(raw: string): string {
     return raw.trim().replace(/\s+/g, " ").toUpperCase();
-  }
-
-  function clampMessageLength(text: string): string {
-    return text.slice(0, MAX_MESSAGE_LENGTH);
   }
 
   function setKeyActive(key: string, active: boolean) {
@@ -579,10 +331,9 @@ export default function PlanchetteBoard({
     speed: number,
   ) {
     const distance = Math.hypot(end.x - start.x, end.y - start.y);
-    const duration = Math.max(620, (distance / Math.max(speed, 1)) * 1000);
+    const duration = Math.max(110, (distance / Math.max(speed, 1)) * 1000);
     const control = controlForArc(start, end);
     await rafTween(duration, (t) => {
-      // Spring easing with overshoot
       const eased = easeOutBack(t);
       const point = quadBezier(start, control, end, eased);
       setPlanchettePosition(el, point);
@@ -691,30 +442,32 @@ export default function PlanchetteBoard({
   function cueBackgroundAudio() {
     const audio = backgroundAudioRef.current;
     if (!audio) return;
-    audio.volume = 0.38;
+    audio.volume = 0.28;
     const playPromise = audio.play();
     if (playPromise) playPromise.catch(() => {});
   }
 
-  async function softBlip() {
+  function softBlip() {
     try {
       const ctx = (globalThis as typeof globalThis & {
         __spiritAudio?: AudioContext;
       }).__spiritAudio ?? new AudioContext();
       (globalThis as typeof globalThis & { __spiritAudio?: AudioContext })
         .__spiritAudio = ctx;
-      await ctx.resume().catch(() => {});
+      if (ctx.state === "suspended") {
+        void ctx.resume().catch(() => {});
+      }
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = "sine";
-      osc.frequency.value = 330 + Math.random() * 40;
+      osc.frequency.value = 300 + Math.random() * 80;
       gain.gain.value = 0.00001;
       osc.connect(gain).connect(ctx.destination);
       const now = ctx.currentTime;
-      gain.gain.linearRampToValueAtTime(0.02, now + 0.05);
-      gain.gain.linearRampToValueAtTime(0.00001, now + 0.18);
+      gain.gain.linearRampToValueAtTime(0.018, now + 0.04);
+      gain.gain.linearRampToValueAtTime(0.00001, now + 0.16);
       osc.start(now);
-      osc.stop(now + 0.24);
+      osc.stop(now + 0.22);
     } catch {
       // no audio available
     }

@@ -1,7 +1,7 @@
 import { type PageProps } from "$fresh/server.ts";
 
 const DESCRIPTION =
-  "A real-time digital spirit board: receive a message, leave one behind, and watch the planchette spell the next trace.";
+  "A digital spirit board that draws one cosmic message and spells it through the planchette.";
 
 export default function App({ Component }: PageProps) {
   return (

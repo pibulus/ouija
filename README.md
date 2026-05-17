@@ -3,9 +3,9 @@
 **A digital spirit board that draws one cosmic message and spells it through the
 planchette.**
 
-Ouija is intentionally simple now: open the board, tap **Begin**, receive one
-message. No accounts, no chat, no guestbook, no queue. The whole app is the
-little moment of watching the board move.
+Ouija is intentionally simple now: open the board and the reading begins. No
+accounts, no chat, no guestbook, no queue, no onboarding modal. The whole app is
+the little moment of watching the board move.
 
 ## What It Does
 
@@ -13,7 +13,8 @@ little moment of watching the board move.
 - Animates the planchette across the board coordinates.
 - Reveals the message after the spelling completes.
 - Offers a single **Draw Again** action for a fresh message.
-- Plays ambient audio and soft generated tones after the user taps Begin.
+- Attempts ambient audio and soft generated tones when the browser allows it.
+- Keeps the message source explicit: no hidden inbox, no user-submitted text.
 
 ## Run Locally
 
@@ -39,7 +40,6 @@ routes/
   _404.tsx              Branded lost-signal page
 islands/
   PlanchetteBoard.tsx   Board animation, single-message ritual, audio cues
-  AboutModal.tsx        About dialog
 utils/
   oracleMessages.ts     Local oracle deck and crypto-random draw
 static/
@@ -51,10 +51,18 @@ static/
 ## Flow
 
 1. Server draws one message with `drawOracleMessage()`.
-2. Visitor taps **Begin**.
+2. The page opens directly into the reading.
 3. The planchette spells the message across the board.
 4. The message appears as text.
 5. **Draw Again** reloads the page for a fresh draw.
+
+## Message Source
+
+Messages currently come from `utils/oracleMessages.ts`: a small local oracle
+deck selected server-side with `crypto.getRandomValues()`. That is the whole
+source of truth for now. If this grows later, moon phase, weather, astronomy, or
+another public signal should be folded into that module so the origin stays
+obvious.
 
 ## Built By Pablo
 

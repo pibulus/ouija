@@ -27,6 +27,8 @@ const ORACLE_MESSAGES = [
 ];
 
 export function drawOracleMessage() {
+  // The deck is local by design; Web Crypto makes each page load a clean draw
+  // without pretending there is a hidden inbox or external spirit feed.
   const buffer = new Uint32Array(1);
   crypto.getRandomValues(buffer);
   return ORACLE_MESSAGES[buffer[0] % ORACLE_MESSAGES.length];

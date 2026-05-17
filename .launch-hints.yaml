@@ -7,17 +7,18 @@ problem: >-
   most random-message toys feel like throwaway fortune cookies; this makes the
   draw feel physical, slow, and a little uncanny
 promise: >-
-  Tap the board once and receive one cosmic message spelled by the planchette.
-cta: Begin the draw.
+  Open the board and receive one cosmic message spelled by the planchette.
+cta: Open the board.
 differentiators:
   - One-message ritual with no chat, account, input, or queue.
+  - The reading starts immediately; no instructional modal or setup step.
   - Full-screen board artwork with real coordinate-based planchette movement.
   - Crypto-random local oracle deck keeps the mechanism simple and explicit.
-  - Ambient audio and soft generated tones after the user begins.
+  - Ambient audio and soft generated tones wake when browser gesture rules allow.
 proof_points:
   - Server draws a fresh oracle message on each page load.
   - Planchette spells each message across real board coordinates.
-  - Mobile-first full-screen board with one primary action.
+  - Mobile-first full-screen board with one follow-up action after the reading.
   - Final message remains visible after the animation completes.
 objections:
   - Needs a production URL and social preview image before a public launch push.

@@ -1,18 +1,14 @@
 import type { JSX } from "preact";
 import { useEffect, useRef, useState } from "preact/hooks";
-import { AboutLink } from "./AboutModal.tsx";
 
 type RawCoord = { key: string; x: number; y: number };
 type Vec2 = { x: number; y: number };
 
 type Props = {
   message: string;
-  idleDelayMs?: number;
+  startDelayMs?: number;
   pauseMs?: number;
   speedPxPerSec?: number;
-  heading?: string;
-  subtitle?: string;
-  eyebrow?: string;
 };
 
 const RAW_COORDS: RawCoord[] = [
@@ -62,12 +58,9 @@ const WINDOW_Y_OFFSET = -0.012;
 
 export default function PlanchetteBoard({
   message,
-  idleDelayMs = 180,
+  startDelayMs = 420,
   pauseMs = 90,
   speedPxPerSec = 1450,
-  heading = "Your message is waiting",
-  subtitle = "Touch the board once. The planchette will spell what arrived.",
-  eyebrow = "Ghost Node",
 }: Props) {
   const boardRef = useRef<HTMLDivElement | null>(null);
   const planchetteRef = useRef<HTMLDivElement | null>(null);
@@ -77,9 +70,7 @@ export default function PlanchetteBoard({
   const keyCentersRef = useRef(new Map<string, Vec2>());
   const boardSizeRef = useRef<Vec2>({ x: 0, y: 0 });
   const runningRef = useRef(false);
-  const [phase, setPhase] = useState<"ready" | "spelling" | "complete">(
-    "ready",
-  );
+  const [phase, setPhase] = useState<"spelling" | "complete">("spelling");
 
   useEffect(() => {
     const boardEl = boardRef.current;
@@ -114,6 +105,22 @@ export default function PlanchetteBoard({
     planchette.style.transform = "translate(-9999px, -9999px)";
   }, []);
 
+  useEffect(() => {
+    const startTimer = globalThis.setTimeout(() => {
+      beginReading();
+    }, startDelayMs);
+
+    const wakeAudio = () => cueBackgroundAudio();
+    globalThis.addEventListener("pointerdown", wakeAudio, { once: true });
+    globalThis.addEventListener("keydown", wakeAudio, { once: true });
+
+    return () => {
+      globalThis.clearTimeout(startTimer);
+      globalThis.removeEventListener("pointerdown", wakeAudio);
+      globalThis.removeEventListener("keydown", wakeAudio);
+    };
+  }, [message, startDelayMs]);
+
   function beginReading() {
     if (runningRef.current) return;
     cueBackgroundAudio();
@@ -121,7 +128,7 @@ export default function PlanchetteBoard({
     runningRef.current = true;
     void (async () => {
       try {
-        await delay(idleDelayMs);
+        await waitForBoardLayout();
         await animateMessage(message);
         setPhase("complete");
       } finally {
@@ -213,25 +220,6 @@ export default function PlanchetteBoard({
   return (
     <section class="board-scene">
       <div class="board-wrap">
-        {phase === "ready" && (
-          <aside class="page-header">
-            <div class="header-meta">
-              <p class="eyebrow">{eyebrow}</p>
-              <h1>{heading}</h1>
-              <p class="subtitle">{subtitle}</p>
-              <div class="header-links">
-                <button
-                  type="button"
-                  class="header-link primary"
-                  onClick={beginReading}
-                >
-                  Begin
-                </button>
-                <AboutLink label="About" className="header-link" />
-              </div>
-            </div>
-          </aside>
-        )}
         <div class="board-grid" ref={boardRef}>
           <img
             ref={boardImageRef}
@@ -282,26 +270,22 @@ export default function PlanchetteBoard({
           playsInline
           class="ambient-player"
         />
-        {phase !== "ready" && (
-          <div
-            class={`oracle-message ${
-              phase === "complete" ? "is-complete" : ""
-            }`}
-            aria-live="polite"
-          >
-            <p class="oracle-message-label">
-              {phase === "complete" ? "Message received" : "Spelling"}
-            </p>
-            <p class="oracle-message-text">
-              {phase === "complete" ? message : "Watch the board"}
-            </p>
-            {phase === "complete" && (
-              <a class="header-link primary" href="/">
-                Draw Again
-              </a>
-            )}
-          </div>
-        )}
+        <div
+          class={`oracle-message ${phase === "complete" ? "is-complete" : ""}`}
+          aria-live="polite"
+        >
+          <p class="oracle-message-label">
+            {phase === "complete" ? "Message received" : "Spelling"}
+          </p>
+          <p class="oracle-message-text">
+            {phase === "complete" ? message : "Watch the board"}
+          </p>
+          {phase === "complete" && (
+            <a class="oracle-action" href="/">
+              Draw Again
+            </a>
+          )}
+        </div>
       </div>
     </section>
   );
@@ -415,6 +399,17 @@ export default function PlanchetteBoard({
     return new Promise<void>((resolve) => {
       globalThis.setTimeout(resolve, ms);
     });
+  }
+
+  async function waitForBoardLayout() {
+    for (let attempts = 0; attempts < 30; attempts += 1) {
+      recomputeLayout();
+      const boardSize = boardSizeRef.current;
+      if (boardSize.x > 0 && boardSize.y > 0 && keyCentersRef.current.size) {
+        return;
+      }
+      await delay(50);
+    }
   }
 
   function recomputeLayout() {

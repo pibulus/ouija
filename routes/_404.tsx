@@ -7,7 +7,7 @@ export default function Error404() {
         <p>
           This address is quiet. Return to the board and try the line again.
         </p>
-        <a href="/" class="header-link">Back to the board</a>
+        <a href="/" class="oracle-action">Back to the board</a>
       </div>
     </main>
   );

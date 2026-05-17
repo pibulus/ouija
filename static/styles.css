@@ -253,6 +253,18 @@ button {
   padding: 0;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .page-shell {
   min-height: 100vh;
   min-height: 100dvh;
@@ -267,80 +279,12 @@ button {
   z-index: 1;
 }
 
-.page-header {
-  position: absolute;
-  top: clamp(0.8rem, 2.6vw, 2.4rem);
-  left: clamp(0.9rem, 2.8vw, 3.2rem);
-  transform: none;
-  text-align: left;
-  max-width: clamp(210px, 19vw, 320px);
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  z-index: 5;
-  padding: clamp(0.8rem, 1.5vw, 1.25rem) clamp(1.1rem, 2.1vw, 1.7rem)
-    clamp(1rem, 2vh, 1.6rem);
-  background: rgba(28, 24, 32, 0.88);
-  border: 2px solid rgba(88, 78, 98, 0.4);
-  border-radius: 16px;
-  color: rgba(243, 230, 200, 0.95);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5), 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.page-header .header-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.header-close {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(88, 78, 98, 0.5);
-  background: rgba(45, 38, 52, 0.5);
-  color: rgba(200, 185, 165, 0.85);
-  display: grid;
-  place-items: center;
-  font-size: 1.05rem;
-  line-height: 1;
-  cursor: pointer;
-  transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
-}
-
-.header-close:hover {
-  background: rgba(55, 48, 62, 0.8);
-  color: rgba(220, 205, 185, 1);
-  border-color: rgba(88, 78, 98, 0.7);
-}
-
-.page-header h1 {
-  font-size: clamp(1rem, 2vw, 1.6rem);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(243, 230, 200, 0.95);
-  font-weight: 600;
-  line-height: 1.25;
-}
-
 .eyebrow {
   font-size: clamp(0.62rem, 1.2vw, 0.82rem);
   letter-spacing: 0.38em;
   text-transform: uppercase;
   color: rgba(180, 165, 145, 0.7);
   font-weight: 600;
-}
-
-.subtitle {
-  color: rgba(200, 185, 165, 0.8);
-  line-height: 1.65;
-  font-size: clamp(0.68rem, 1.25vw, 0.92rem);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
 }
 
 .board-scene {
@@ -505,24 +449,17 @@ button {
   display: none;
 }
 
-/* ═════════════════════════════════════════════════════════
-   🔗 HEADER LINKS - About & Ko-fi
-   ════════════════════════════════════════════════════════ */
-
-.header-links {
-  display: flex;
-  gap: 0.6rem;
-  margin-top: 0.4rem;
-  flex-wrap: wrap;
-}
-
-.header-link {
+.oracle-action {
   min-height: 44px;
   padding: 0.35rem 0.9rem;
-  background: rgba(18, 15, 24, 0.7);
-  border: 1.5px solid rgba(88, 78, 98, 0.5);
+  background: linear-gradient(
+    130deg,
+    rgba(255, 255, 255, 0.16),
+    rgba(150, 120, 90, 0.25)
+  );
+  border: 1.5px solid rgba(255, 240, 210, 0.72);
   border-radius: 8px;
-  color: rgba(200, 185, 165, 0.95);
+  color: rgba(255, 240, 215, 0.96);
   font-size: clamp(0.62rem, 1.1vw, 0.75rem);
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -535,46 +472,18 @@ button {
   justify-content: center;
 }
 
-.header-link.primary {
-  border-color: rgba(255, 240, 210, 0.72);
-  background: linear-gradient(
-    130deg,
-    rgba(255, 255, 255, 0.16),
-    rgba(150, 120, 90, 0.25)
-  );
-  color: rgba(255, 240, 215, 0.96);
-}
-
-.header-link:hover {
+.oracle-action:hover {
   background: rgba(28, 24, 32, 0.9);
   transform: translateY(-1px);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
   color: rgba(220, 205, 185, 1);
 }
 
-.header-link:active {
+.oracle-action:active {
   transform: translateY(0);
 }
 
 @media (max-width: 720px) {
-  .page-header {
-    top: max(0.75rem, env(safe-area-inset-top));
-    left: max(0.75rem, env(safe-area-inset-left));
-    max-width: min(82vw, 280px);
-    padding: 0.85rem 1rem 1rem;
-  }
-
-  .page-header h1 {
-    font-size: clamp(1rem, 5.8vw, 1.35rem);
-    letter-spacing: 0.12em;
-  }
-
-  .subtitle {
-    font-size: 0.72rem;
-    letter-spacing: 0.14em;
-    line-height: 1.55;
-  }
-
   .board-wrap {
     width: min(150dvh, 168vw);
     height: min(92dvh, 112vw);

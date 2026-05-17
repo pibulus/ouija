@@ -1,13 +1,19 @@
 {
   "lock": false,
   "tasks": {
-    "check": "deno fmt --check && deno lint && deno check **/*.ts && deno check **/*.tsx",
-    "cli": "echo \"import '\\$fresh/src/dev/cli.ts'\" | deno run --unstable -A -",
+    "check": "deno fmt --check && deno lint && deno check \"**/*.ts\" && deno check \"**/*.tsx\"",
+    "cli": "echo \"import '\\$fresh/src/dev/cli.ts'\" | deno run -A -",
     "manifest": "deno task cli manifest $(pwd)",
-    "start": "deno run -A --watch=static/,routes/ dev.ts",
+    "start": "deno run -A --watch=static/,routes/,islands/,hooks/,party/ dev.ts",
     "build": "deno run -A dev.ts build",
     "preview": "deno run -A main.ts",
     "update": "deno run -A -r https://fresh.deno.dev/update ."
+  },
+  "fmt": {
+    "exclude": [
+      "my-party/",
+      ".partykit/"
+    ]
   },
   "lint": {
     "rules": {
@@ -19,7 +25,9 @@
   },
   "exclude": [
     "**/_fresh/*",
-    ".deno"
+    ".deno",
+    "my-party/",
+    ".partykit/"
   ],
   "imports": {
     "$fresh/": "https://deno.land/x/fresh@1.7.3/",

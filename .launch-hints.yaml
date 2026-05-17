@@ -1,0 +1,38 @@
+# Launch hints for Launch Arsenal.
+name: Ouija
+slug: ouija
+app_type: web-app
+audience: people who like strange little web rituals, async guestbooks, and playful input experiments
+problem: >-
+  chat is too literal and guestbooks are too dead; this turns leaving a message
+  into a tiny shared ritual
+promise: >-
+  Receive a message, leave one behind, and watch the planchette spell the next
+  trace across the board.
+cta: Open the board.
+differentiators:
+  - A real-time async message queue disguised as a spirit board.
+  - PartyKit presence and storage without turning the experience into chat.
+  - Full-screen board artwork, planchette animation, ambient audio, and soft generated tones.
+  - Local fallback messages keep the ritual alive when the live room is quiet.
+proof_points:
+  - PartyKit room with persistent message storage, one-week retention, and presence updates.
+  - Planchette spells each message across real board coordinates.
+  - Mobile-first full-screen board with safe-area-aware controls.
+  - Short-message constraints keep the experience focused and strange.
+objections:
+  - Needs a production URL and social preview image before a public launch push.
+keywords:
+  seed:
+    - Ouija
+    - digital spirit board
+    - planchette
+    - async guestbook
+  audience: strange web ritual people
+  intent:
+    - leave a message
+    - receive a message
+    - playful web experiment
+manual_notes:
+  - Keep it ritual-shaped, not chat-shaped.
+  - Do not over-explain the mechanism in the first viewport.

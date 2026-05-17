@@ -19,7 +19,7 @@ export default function Home() {
           incomingMessage="HELLO FROM THE OTHER SIDE"
           eyebrow="Ghost Node"
           heading="Today's transmission is arriving…"
-          subtitle="Watch the planchette, then leave your own trace without ever touching a text field."
+          subtitle="Receive a message, leave one behind, and watch the planchette spell the next trace."
         />
       </main>
     </>

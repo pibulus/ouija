@@ -1,5 +1,14 @@
 import type * as Party from "partykit/server";
 
+const RETENTION_MS = 7 * 24 * 60 * 60 * 1000; // keep messages for a week
+const MAX_MESSAGES = 500;
+const SEED_MESSAGES = [
+  "HELLO FROM THE OTHER SIDE",
+  "LEAVE A QUESTION AND LISTEN",
+  "THE LINE IS ALWAYS OPEN",
+  "YOUR MESSAGE COULD SPARK THE NEXT OMEN",
+];
+
 /**
  * 👻 Ouija Board Message Queue Server
  *
@@ -12,9 +21,10 @@ interface Message {
   id: string;
 }
 
-interface PresenceInfo {
-  count: number;
-}
+type QueueStorage = {
+  get<T = unknown>(key: string): Promise<T | undefined>;
+  put<T>(key: string, value: T): Promise<void>;
+};
 
 export default class OuijaRoom implements Party.Server {
   constructor(readonly room: Party.Room) {}
@@ -29,12 +39,16 @@ export default class OuijaRoom implements Party.Server {
    * Initialize server - load messages from storage
    */
   async onStart() {
-    const stored = await this.room.storage.get<Message[]>("messages");
+    const stored = await this.storage.get<Message[]>("messages");
     if (stored) {
       this.messages = stored;
-      // Clean up old messages (>24 hours)
-      const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
-      this.messages = this.messages.filter(m => m.timestamp > dayAgo);
+      this.pruneExpiredMessages();
+      this.trimToMaxMessages();
+      await this.saveMessages();
+    }
+
+    if (!this.messages.length) {
+      this.messages = this.createSeedMessages();
       await this.saveMessages();
     }
   }
@@ -42,21 +56,16 @@ export default class OuijaRoom implements Party.Server {
   /**
    * Handle new connection - send presence + dispense a message
    */
-  async onConnect(conn: Party.Connection) {
+  onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
     console.log(`👻 Spirit ${conn.id} entered the séance`);
 
     // Broadcast updated presence count to everyone
     this.broadcastPresence();
 
-    // Dispense a message from the queue to this new visitor
-    const message = this.messages.shift();
+    const seenSet = this.extractSeenSet(ctx);
+    const message = this.pickMessageForVisitor(seenSet);
     if (message) {
-      conn.send(JSON.stringify({
-        type: "dispense",
-        text: message.text,
-        timestamp: message.timestamp,
-      }));
-      await this.saveMessages();
+      this.sendDispense(conn, message);
     } else {
       // Queue is empty
       conn.send(JSON.stringify({
@@ -73,8 +82,40 @@ export default class OuijaRoom implements Party.Server {
       const data = JSON.parse(message);
 
       if (data.type === "send") {
+        if (typeof data.text !== "string") {
+          sender.send(JSON.stringify({
+            type: "error",
+            message: "Message text must be a string",
+          }));
+          return;
+        }
         await this.handleSendMessage(data.text, sender);
+        return;
       }
+
+      if (data.type === "request_next") {
+        const rawSeen = data.seen as unknown;
+        const seenArray: string[] = Array.isArray(rawSeen)
+          ? rawSeen.filter((id): id is string => typeof id === "string")
+          : typeof rawSeen === "string"
+          ? rawSeen.split(",")
+          : [];
+        const seenSet = new Set<string>(
+          seenArray.filter((id) => id.length),
+        );
+        const message = this.pickMessageForVisitor(seenSet);
+        if (message) {
+          this.sendDispense(sender, message);
+        } else {
+          sender.send(JSON.stringify({ type: "queue_empty" }));
+        }
+        return;
+      }
+
+      sender.send(JSON.stringify({
+        type: "error",
+        message: "Unknown message type",
+      }));
     } catch (error) {
       console.error("Error parsing message:", error);
       sender.send(JSON.stringify({
@@ -138,12 +179,9 @@ export default class OuijaRoom implements Party.Server {
       id: `${sender.id}-${Date.now()}`,
     };
 
+    this.pruneExpiredMessages();
     this.messages.push(newMessage);
-
-    // Enforce max queue size (100 messages)
-    if (this.messages.length > 100) {
-      this.messages.shift(); // Remove oldest
-    }
+    this.trimToMaxMessages();
 
     await this.saveMessages();
 
@@ -154,15 +192,14 @@ export default class OuijaRoom implements Party.Server {
     sender.send(JSON.stringify({
       type: "message_sent",
       text: sanitized,
+      id: newMessage.id,
     }));
 
-    // Broadcast to everyone that a new message was added
-    this.room.broadcast(JSON.stringify({
-      type: "new_message_queued",
-      queueLength: this.messages.length,
-    }), [sender.id]);
+    this.broadcastNewMessage(newMessage, sender);
 
-    console.log(`📝 New message queued: "${sanitized}" (queue: ${this.messages.length})`);
+    console.log(
+      `📝 New message queued: "${sanitized}" (queue: ${this.messages.length})`,
+    );
   }
 
   /**
@@ -174,6 +211,25 @@ export default class OuijaRoom implements Party.Server {
       .toUpperCase()
       .replace(/\s+/g, " ") // Collapse multiple spaces
       .replace(/[^A-Z0-9 ?!]/g, ""); // Remove invalid chars
+  }
+
+  /**
+   * Drop any messages older than the retention window
+   */
+  private pruneExpiredMessages() {
+    if (!this.messages.length) return;
+    const cutoff = Date.now() - RETENTION_MS;
+    this.messages = this.messages.filter((message) =>
+      message.timestamp > cutoff
+    );
+  }
+
+  /**
+   * Ensure we keep the most recent messages within MAX_MESSAGES
+   */
+  private trimToMaxMessages() {
+    if (this.messages.length <= MAX_MESSAGES) return;
+    this.messages.splice(0, this.messages.length - MAX_MESSAGES);
   }
 
   /**
@@ -195,7 +251,69 @@ export default class OuijaRoom implements Party.Server {
    * Save messages to persistent storage
    */
   private async saveMessages() {
-    await this.room.storage.put("messages", this.messages);
+    await this.storage.put("messages", this.messages);
+  }
+
+  private get storage(): QueueStorage {
+    return this.room.storage as unknown as QueueStorage;
+  }
+
+  /**
+   * Notify connected clients when the queue grows
+   */
+  private broadcastNewMessage(message: Message, sender: Party.Connection) {
+    this.room.broadcast(
+      JSON.stringify({
+        type: "new_message_queued",
+        queueLength: this.messages.length,
+        text: message.text,
+        timestamp: message.timestamp,
+        id: message.id,
+      }),
+      [sender.id],
+    );
+  }
+
+  /**
+   * Pick a message the visitor hasn't seen yet, fallback to any message
+   */
+  private pickMessageForVisitor(seen: Set<string>): Message | null {
+    if (!this.messages.length) return null;
+    const unseen = this.messages.filter((message) => !seen.has(message.id));
+    const pool = unseen.length ? unseen : this.messages;
+    const choice = pool[Math.floor(Math.random() * pool.length)];
+    return choice ?? null;
+  }
+
+  private extractSeenSet(ctx?: Party.ConnectionContext): Set<string> {
+    try {
+      if (!ctx) return new Set();
+      const url = new URL(ctx.request.url);
+      const seenParam = url.searchParams.get("seen");
+      if (!seenParam) return new Set();
+      const ids = seenParam.split(",").map((id) => id.trim()).filter(Boolean);
+      return new Set(ids);
+    } catch {
+      return new Set();
+    }
+  }
+
+  private sendDispense(target: Party.Connection, message: Message) {
+    target.send(JSON.stringify({
+      type: "dispense",
+      text: message.text,
+      timestamp: message.timestamp,
+      id: message.id,
+    }));
+  }
+
+  private createSeedMessages(): Message[] {
+    const now = Date.now();
+    return SEED_MESSAGES.map((raw, index) => ({
+      text: this.sanitizeMessage(raw),
+      timestamp: now - index * 1000,
+      id: `seed-${index}`,
+    }));
   }
 }
 

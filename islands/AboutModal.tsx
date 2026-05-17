@@ -73,6 +73,7 @@ export function AboutModal() {
               </p>
             </div>
             <button
+              type="button"
               onClick={closeAboutModal}
               class="about-close"
               aria-label="Close about dialog"
@@ -422,6 +423,7 @@ export function AboutLink({
 }: AboutLinkProps) {
   return (
     <button
+      type="button"
       onClick={openAboutModal}
       className={className}
     >

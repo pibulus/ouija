@@ -9,3 +9,11 @@
 _fresh/
 # npm dependencies
 node_modules/
+
+# Local/generated runtime state
+.deno/
+.partykit/
+my-party/
+
+# Local board image experiments
+static/ghostboard[0-9].png

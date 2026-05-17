@@ -3,6 +3,14 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import { AboutLink } from "./AboutModal.tsx";
 import { useOuijaParty } from "../hooks/useOuijaParty.ts";
 
+const OFFLINE_BACKUP_MESSAGES = [
+  "THE LINE REMAINS OPEN EVEN OFFLINE",
+  "LOCAL SPIRITS KEEP WATCH",
+  "ASK AGAIN—THE BOARD IS LISTENING",
+  "SOME SIGNALS PREFER SILENCE FIRST",
+  "YOU CAN LEAVE A TRACE EVEN WITHOUT WI-FI",
+];
+
 type RawCoord = { key: string; x: number; y: number };
 
 const RAW_COORDS: RawCoord[] = [
@@ -69,17 +77,17 @@ type Props = {
 };
 
 const PLANCHETTE_SIZE = 168;
-const INPUT_IDLE_MS = 4500;
 const WINDOW_Y_OFFSET = -0.012;
+const MAX_MESSAGE_LENGTH = 32;
 
 export default function PlanchetteBoard({
-  incomingMessage = "HELLO PABLO",
+  incomingMessage = "",
   idleDelayMs = 2000,
-  pauseMs = 820,
-  speedPxPerSec = 240,
+  pauseMs = 680,
+  speedPxPerSec = 320,
   heading = "Today’s transmission is arriving…",
   subtitle =
-    "Watch the planchette, then leave your own trace without ever touching a text field.",
+    "Receive a message, leave one behind, and watch the planchette spell the next trace.",
   eyebrow = "Ghost Node",
 }: Props) {
   const boardRef = useRef<HTMLDivElement | null>(null);
@@ -91,25 +99,67 @@ export default function PlanchetteBoard({
   const boardSizeRef = useRef<Vec2>({ x: 0, y: 0 });
   const queueRef = useRef<string[]>([]);
   const runningRef = useRef(false);
-  const pendingBufferRef = useRef<string>("");
-  const sendTimerRef = useRef<number | null>(null);
-  const [typedPreview, setTypedPreview] = useState("");
   const [showIntro, setShowIntro] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [emptyHint, setEmptyHint] = useState("");
+  const emptyHintTimeoutRef = useRef<number | null>(null);
+  const offlineFallbackRef = useRef([...OFFLINE_BACKUP_MESSAGES]);
+  const offlineReplyTimeoutRef = useRef<number | null>(null);
+  const firstMessageShownRef = useRef(false);
+  const [showMessageEntry, setShowMessageEntry] = useState(false);
+  const [canType, setCanType] = useState(false);
+  const [waitingForReply, setWaitingForReply] = useState(false);
+  const [messageInput, setMessageInput] = useState("");
+  const [shouldRequestNext, setShouldRequestNext] = useState(false);
+
+  const handleQueueEmpty = () => {
+    const expectingReply = waitingForReply || !firstMessageShownRef.current;
+    if (!expectingReply) {
+      setTemporaryHint("The board is quiet. Try again in a moment.");
+      return;
+    }
+
+    const fallback = drawOfflineMessage();
+    if (fallback) {
+      queueRef.current.push(fallback);
+      processQueue();
+      setTemporaryHint("Local spirits whispered from the archive.");
+      return;
+    }
+
+    setTemporaryHint("The board is quiet. Try again in a moment.");
+    setWaitingForReply(false);
+    setCanType(true);
+  };
 
   // PartyKit connection
-  const { connected, presenceCount, sending, sendMessage } = useOuijaParty({
+  const {
+    connected,
+    presenceCount,
+    requesting,
+    sending,
+    sendMessage,
+    requestNextMessage,
+  } = useOuijaParty({
     host: globalThis.location?.hostname === "localhost"
       ? "localhost:1999"
-      : "ouija-board.pibulus.partykit.dev", // Update with your PartyKit URL
+      : "ouija-board.pibulus.partykit.dev",
     room: "main",
     onMessageReceived: (text) => {
-      // Add received message to queue for animation
+      if (offlineReplyTimeoutRef.current) {
+        clearTimeout(offlineReplyTimeoutRef.current);
+        offlineReplyTimeoutRef.current = null;
+      }
       queueRef.current.push(text);
       processQueue();
+      setEmptyHint("");
     },
     onPresenceChange: (count) => {
       console.log(`👻 ${count} spirits present`);
+    },
+    onQueueEmpty: handleQueueEmpty,
+    onMessageSent: () => {
+      setShouldRequestNext(true);
     },
     onError: (error) => {
       setErrorMessage(error);
@@ -117,13 +167,33 @@ export default function PlanchetteBoard({
     },
   });
 
+  const disableSendButton = !canType || waitingForReply || requesting ||
+    sending || !messageInput.length;
+  const entryStatusText = errorMessage || emptyHint ||
+    (waitingForReply || requesting
+      ? "Listening for the next transmission…"
+      : "Leave a message to receive the next transmission");
+  const entryPlaceholder = canType
+    ? "TYPE YOUR MESSAGE"
+    : "WAITING FOR FIRST MESSAGE";
+
   useEffect(() => {
+    if (!incomingMessage?.trim()) return;
     const initial = sanitizeMessage(incomingMessage);
-    if (initial) {
-      queueRef.current.push(initial);
-      processQueue();
-    }
+    if (!initial) return;
+    queueRef.current.push(initial);
+    processQueue();
   }, [incomingMessage]);
+
+  useEffect(() => {
+    if (!shouldRequestNext) return;
+    setShouldRequestNext(false);
+    if (!connected) {
+      handleQueueEmpty();
+      return;
+    }
+    requestNextMessage();
+  }, [shouldRequestNext, connected, requestNextMessage]);
 
   useEffect(() => {
     const boardEl = boardRef.current;
@@ -162,81 +232,79 @@ export default function PlanchetteBoard({
   }, []);
 
   useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.metaKey || event.ctrlKey || event.altKey) return;
-      if (handleSpecialKeys(event.key)) {
-        event.preventDefault();
-        return;
-      }
-      const key = normalizeToKey(event.key);
-      if (!key) return;
-      event.preventDefault();
-      handleLetterInput(key);
-    };
-    globalThis.addEventListener("keydown", onKeyDown);
-    return () => globalThis.removeEventListener("keydown", onKeyDown);
-  }, []);
-
-  useEffect(() => {
     const planchette = planchetteRef.current;
     if (!planchette) return;
     planchette.style.opacity = "0";
     planchette.style.transform = `translate(-9999px, -9999px)`;
   }, []);
 
-  function handleSpecialKeys(raw: string): boolean {
-    if (raw === "Backspace") {
-      if (!pendingBufferRef.current) return true;
-      pendingBufferRef.current = pendingBufferRef.current.slice(0, -1);
-      setTypedPreview(pendingBufferRef.current);
-      return true;
+  function dispatchMessage(text: string) {
+    setWaitingForReply(true);
+    setCanType(false);
+    sendMessage(text);
+    setTemporaryHint("Transmission sent. Listening for the reply…", 3200);
+    if (!connected) {
+      if (offlineReplyTimeoutRef.current) {
+        clearTimeout(offlineReplyTimeoutRef.current);
+      }
+      offlineReplyTimeoutRef.current = globalThis.setTimeout(() => {
+        offlineReplyTimeoutRef.current = null;
+        const fallback = drawOfflineMessage();
+        if (!fallback) return;
+        queueRef.current.push(fallback);
+        processQueue();
+      }, 1800);
     }
-    if (raw === "Enter") {
-      flushPendingBuffer();
-      return true;
-    }
-    if (raw === "Escape") {
-      pendingBufferRef.current = "";
-      setTypedPreview("");
-      return true;
-    }
-    return false;
   }
 
-  function handleLetterInput(key: string) {
-    cueBackgroundAudio();
-    flashKey(key);
-    const appendedChar = keyToMessageChar(key);
-    pendingBufferRef.current += appendedChar;
-    setTypedPreview(pendingBufferRef.current);
-    if (sendTimerRef.current) {
-      clearTimeout(sendTimerRef.current);
-    }
-    sendTimerRef.current = globalThis.setTimeout(() => {
-      flushPendingBuffer();
-    }, INPUT_IDLE_MS);
+  function handleInputChange(value: string) {
+    const normalized = value.toUpperCase().replace(/[^A-Z0-9 ?!]/g, "");
+    setMessageInput(clampMessageLength(normalized));
   }
 
-  function flushPendingBuffer() {
-    if (sendTimerRef.current) {
-      clearTimeout(sendTimerRef.current);
-      sendTimerRef.current = null;
+  function handleInputSubmit() {
+    if (!canType) {
+      setTemporaryHint("Wait for the first transmission before replying.");
+      return;
     }
-    const next = sanitizeMessage(pendingBufferRef.current);
-    pendingBufferRef.current = "";
-    setTypedPreview("");
-    if (!next) return;
+    const sanitized = clampMessageLength(sanitizeMessage(messageInput));
+    if (!sanitized) {
+      setErrorMessage("Type a message first");
+      setTimeout(() => setErrorMessage(""), 3000);
+      return;
+    }
+    dispatchMessage(sanitized);
+    setMessageInput("");
+  }
 
-    // Send to PartyKit server instead of local queue
-    if (connected) {
-      sendMessage(next);
-      // Also animate locally so user sees their own message
-      queueRef.current.push(next);
-      processQueue();
-    } else {
-      // Fallback to local-only if not connected
-      queueRef.current.push(next);
-      processQueue();
+  function drawOfflineMessage(): string | null {
+    if (!offlineFallbackRef.current.length) {
+      offlineFallbackRef.current = [...OFFLINE_BACKUP_MESSAGES];
+    }
+    const pool = offlineFallbackRef.current;
+    if (!pool.length) return null;
+    const index = Math.floor(Math.random() * pool.length);
+    const [message] = pool.splice(index, 1);
+    return message ?? null;
+  }
+
+  function setTemporaryHint(text: string, duration = 5000) {
+    setEmptyHint(text);
+    if (emptyHintTimeoutRef.current) {
+      clearTimeout(emptyHintTimeoutRef.current);
+    }
+    emptyHintTimeoutRef.current = globalThis.setTimeout(() => {
+      setEmptyHint("");
+      emptyHintTimeoutRef.current = null;
+    }, duration);
+  }
+
+  function afterMessageDisplayed() {
+    setWaitingForReply(false);
+    setCanType(true);
+    if (!firstMessageShownRef.current) {
+      firstMessageShownRef.current = true;
+      setShowMessageEntry(true);
     }
   }
 
@@ -251,6 +319,7 @@ export default function PlanchetteBoard({
           const next = queueRef.current.shift();
           if (!next) continue;
           await animateMessage(next);
+          afterMessageDisplayed();
         }
       } finally {
         runningRef.current = false;
@@ -386,7 +455,6 @@ export default function PlanchetteBoard({
                     left: `${(x * 100).toFixed(2)}%`,
                     top: `${(y * 100).toFixed(2)}%`,
                   } as JSX.CSSProperties}
-                  onClick={() => handleLetterInput(key)}
                   ref={(el) => {
                     if (!el) {
                       keyElementsRef.current.delete(key);
@@ -421,21 +489,40 @@ export default function PlanchetteBoard({
           class="ambient-player"
         >
         </audio>
-        <div class="typed-preview" aria-live="polite">
-          {errorMessage && (
-            <span class="error-msg" style={{ color: "rgba(255, 100, 100, 0.9)" }}>
-              {errorMessage}
-            </span>
-          )}
-          {!errorMessage && typedPreview && (
-            <span>Composing: {typedPreview}</span>
-          )}
-          {!errorMessage && !typedPreview && (
-            <span class="hint">
-              Start typing or tap letters to send a message.
-            </span>
-          )}
-        </div>
+        {showMessageEntry && (
+          <div class="message-entry">
+            <p class="message-entry-label">{entryStatusText}</p>
+            <div class="message-entry-field">
+              <input
+                type="text"
+                class="message-entry-input"
+                value={messageInput}
+                onInput={(event) =>
+                  handleInputChange(event.currentTarget.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    handleInputSubmit();
+                  }
+                }}
+                placeholder={entryPlaceholder}
+                maxLength={MAX_MESSAGE_LENGTH}
+                disabled={!canType}
+              />
+              <button
+                type="button"
+                class="message-entry-send"
+                onClick={handleInputSubmit}
+                disabled={disableSendButton}
+              >
+                Send
+              </button>
+            </div>
+            <p class="message-entry-count">
+              {messageInput.length}/{MAX_MESSAGE_LENGTH} characters
+            </p>
+          </div>
+        )}
         {presenceCount > 1 && (
           <div
             class="presence-indicator"
@@ -471,44 +558,18 @@ export default function PlanchetteBoard({
     return null;
   }
 
-  function keyToMessageChar(key: string): string {
-    if (key === "GOODBYE") return " ";
-    if (key === "YES") return "?";
-    if (key === "NO") return "!";
-    return key;
-  }
-
   function sanitizeMessage(raw: string): string {
     return raw.trim().replace(/\s+/g, " ").toUpperCase();
+  }
+
+  function clampMessageLength(text: string): string {
+    return text.slice(0, MAX_MESSAGE_LENGTH);
   }
 
   function setKeyActive(key: string, active: boolean) {
     const el = keyElementsRef.current.get(key);
     if (!el) return;
     el.classList.toggle("active", active);
-  }
-
-  function flashKey(key: string) {
-    const el = keyElementsRef.current.get(key);
-    if (!el) return;
-    el.classList.add("flash");
-    globalThis.setTimeout(() => el.classList.remove("flash"), 240);
-  }
-
-  async function movePlanchette(
-    el: HTMLElement,
-    start: Vec2,
-    end: Vec2,
-    speed: number,
-  ) {
-    const distance = Math.hypot(end.x - start.x, end.y - start.y);
-    const duration = Math.max(620, (distance / Math.max(speed, 1)) * 1000);
-    const control = controlForArc(start, end);
-    await rafTween(duration, (t) => {
-      const eased = easeInOutSine(t);
-      const point = quadBezier(start, control, end, eased);
-      setPlanchettePosition(el, point);
-    });
   }
 
   async function movePlanchetteWithSpring(

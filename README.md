@@ -60,12 +60,13 @@ static/
 ## Message Source
 
 Messages currently come from `utils/oracleMessages.ts`: a local deck of taopunk
-altar truths, spirit quips, tiny instructions, and Day of the Dead flavored
-soothsaying selected server-side with `crypto.getRandomValues()`. The deck is
-built to feel like a spirit got one useful sentence through: blunt, cute,
-guilty, loving, ominous, or weirdly tender. That is the whole source of truth
-for now. If this grows later, moon phase, weather, astronomy, or another public
-signal should be folded into that module so the origin stays obvious.
+altar truths, spirit quips, tiny instructions, Day of the Dead flavored
+soothsaying, and transformed motifs from reported Ouija folklore selected
+server-side with `crypto.getRandomValues()`. The deck is built to feel like a
+spirit got one useful sentence through: blunt, cute, guilty, loving, ominous, or
+weirdly tender. That is the whole source of truth for now. If this grows later,
+moon phase, weather, astronomy, or another public signal should be folded into
+that module so the origin stays obvious.
 
 ## Built By Pablo
 

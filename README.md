@@ -11,6 +11,7 @@ the little moment of watching the board move.
 
 - Draws one message from a local oracle deck on each page load.
 - Animates the planchette across the board coordinates.
+- Tracks the planchette on mobile by panning the oversized board underneath it.
 - Reveals the message after the spelling completes.
 - Offers a single **Draw Again** action for a fresh message.
 - Attempts ambient audio and soft generated tones when the browser allows it.

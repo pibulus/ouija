@@ -62,6 +62,8 @@ export default function PlanchetteBoard({
   pauseMs = 90,
   speedPxPerSec = 1450,
 }: Props) {
+  const sceneRef = useRef<HTMLElement | null>(null);
+  const boardWrapRef = useRef<HTMLDivElement | null>(null);
   const boardRef = useRef<HTMLDivElement | null>(null);
   const planchetteRef = useRef<HTMLDivElement | null>(null);
   const boardImageRef = useRef<HTMLImageElement | null>(null);
@@ -69,6 +71,7 @@ export default function PlanchetteBoard({
   const keyElementsRef = useRef(new Map<string, HTMLElement>());
   const keyCentersRef = useRef(new Map<string, Vec2>());
   const boardSizeRef = useRef<Vec2>({ x: 0, y: 0 });
+  const cameraOffsetRef = useRef<Vec2>({ x: 0, y: 0 });
   const runningRef = useRef(false);
   const [phase, setPhase] = useState<"spelling" | "complete">("spelling");
 
@@ -198,6 +201,7 @@ export default function PlanchetteBoard({
     );
     await fade(planchette, 1, 0, 260);
     planchette.style.transform = "translate(-9999px, -9999px)";
+    await settleCamera();
   }
 
   function buildTargets(spelledMessage: string) {
@@ -218,8 +222,8 @@ export default function PlanchetteBoard({
   }
 
   return (
-    <section class="board-scene">
-      <div class="board-wrap">
+    <section class="board-scene" ref={sceneRef}>
+      <div class="board-wrap" ref={boardWrapRef}>
         <div class="board-grid" ref={boardRef}>
           <img
             ref={boardImageRef}
@@ -262,30 +266,30 @@ export default function PlanchetteBoard({
             />
           </div>
         </div>
-        <audio
-          ref={backgroundAudioRef}
-          src="/ambient_loop.mp3"
-          preload="auto"
-          loop
-          playsInline
-          class="ambient-player"
-        />
-        <div
-          class={`oracle-message ${phase === "complete" ? "is-complete" : ""}`}
-          aria-live="polite"
-        >
-          <p class="oracle-message-label">
-            {phase === "complete" ? "Message received" : "Spelling"}
-          </p>
-          <p class="oracle-message-text">
-            {phase === "complete" ? message : "Watch the board"}
-          </p>
-          {phase === "complete" && (
-            <a class="oracle-action" href="/">
-              Draw Again
-            </a>
-          )}
-        </div>
+      </div>
+      <audio
+        ref={backgroundAudioRef}
+        src="/ambient_loop.mp3"
+        preload="auto"
+        loop
+        playsInline
+        class="ambient-player"
+      />
+      <div
+        class={`oracle-message ${phase === "complete" ? "is-complete" : ""}`}
+        aria-live="polite"
+      >
+        <p class="oracle-message-label">
+          {phase === "complete" ? "Message received" : "Spelling"}
+        </p>
+        <p class="oracle-message-text">
+          {phase === "complete" ? message : "Watch the board"}
+        </p>
+        {phase === "complete" && (
+          <a class="oracle-action" href="/">
+            Draw Again
+          </a>
+        )}
       </div>
     </section>
   );
@@ -330,6 +334,89 @@ export default function PlanchetteBoard({
     el.style.transform = `translate(${point.x - halfWidth}px, ${
       point.y - halfHeight
     }px)`;
+    setCameraForPoint(point);
+  }
+
+  function setCameraForPoint(point: Vec2) {
+    if (!isMobileCameraEnabled()) {
+      if (cameraOffsetRef.current.x || cameraOffsetRef.current.y) {
+        setCameraOffset({ x: 0, y: 0 });
+      }
+      return;
+    }
+    setCameraOffset(cameraOffsetForPoint(point));
+  }
+
+  function cameraOffsetForPoint(point: Vec2): Vec2 {
+    const scene = sceneRef.current;
+    const boardWrap = boardWrapRef.current;
+    if (!scene || !boardWrap) return { x: 0, y: 0 };
+
+    const viewport = { x: scene.clientWidth, y: scene.clientHeight };
+    const board = {
+      x: boardWrap.offsetWidth,
+      y: boardWrap.offsetHeight,
+    };
+    const base = {
+      x: (viewport.x - board.x) / 2,
+      y: (viewport.y - board.y) / 2,
+    };
+
+    const desired = {
+      x: viewport.x * 0.5 - base.x - point.x,
+      y: viewport.y * 0.44 - base.y - point.y,
+    };
+    const xRange = cameraRange(viewport.x, board.x, base.x);
+    const yRange = cameraRange(viewport.y, board.y, base.y);
+
+    return {
+      x: clamp(desired.x, xRange.min, xRange.max),
+      y: clamp(desired.y, yRange.min, yRange.max),
+    };
+  }
+
+  function cameraRange(viewport: number, board: number, base: number) {
+    if (board > viewport) {
+      return {
+        min: viewport - board - base,
+        max: -base,
+      };
+    }
+    const range = Math.min(110, Math.max(0, (viewport - board) / 2));
+    return { min: -range, max: range };
+  }
+
+  function setCameraOffset(offset: Vec2) {
+    const boardWrap = boardWrapRef.current;
+    if (!boardWrap) return;
+    cameraOffsetRef.current = offset;
+    boardWrap.style.setProperty("--camera-x", `${offset.x.toFixed(2)}px`);
+    boardWrap.style.setProperty("--camera-y", `${offset.y.toFixed(2)}px`);
+  }
+
+  async function settleCamera() {
+    if (!isMobileCameraEnabled()) {
+      setCameraOffset({ x: 0, y: 0 });
+      return;
+    }
+
+    const start = cameraOffsetRef.current;
+    if (Math.hypot(start.x, start.y) < 1) return;
+    await rafTween(320, (t) => {
+      const eased = easeInOutSine(t);
+      setCameraOffset({
+        x: start.x * (1 - eased),
+        y: start.y * (1 - eased),
+      });
+    });
+  }
+
+  function isMobileCameraEnabled() {
+    return globalThis.matchMedia?.("(max-width: 720px)").matches ?? false;
+  }
+
+  function clamp(value: number, min: number, max: number) {
+    return Math.min(max, Math.max(min, value));
   }
 
   function controlForArc(a: Vec2, b: Vec2, strength = 0.2): Vec2 {

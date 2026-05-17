@@ -288,6 +288,7 @@ button {
 }
 
 .board-scene {
+  position: relative;
   width: 100%;
   flex: 1;
   display: flex;
@@ -297,11 +298,14 @@ button {
 
 .board-wrap {
   position: relative;
+  flex: 0 0 auto;
   width: min(100vw, calc(100vh * 1.5));
   height: min(100vh, calc(100vw / 1.5));
   display: flex;
   align-items: center;
   justify-content: center;
+  transform: translate3d(var(--camera-x, 0px), var(--camera-y, 0px), 0);
+  will-change: transform;
 }
 
 .board-grid {
@@ -485,8 +489,8 @@ button {
 
 @media (max-width: 720px) {
   .board-wrap {
-    width: min(150dvh, 168vw);
-    height: min(92dvh, 112vw);
+    width: min(170dvh, 250vw);
+    height: min(113.333dvh, 166.667vw);
   }
 
   .board-grid {

@@ -9,7 +9,7 @@ the little moment of watching the board move.
 
 ## What It Does
 
-- Draws one message from a local oracle deck on each page load.
+- Draws one warning from a local oracle deck on each page load.
 - Animates the planchette across the board coordinates.
 - Tracks the planchette on mobile by panning the oversized board underneath it.
 - Reveals the message after the spelling completes.
@@ -59,11 +59,12 @@ static/
 
 ## Message Source
 
-Messages currently come from `utils/oracleMessages.ts`: a small local oracle
-deck selected server-side with `crypto.getRandomValues()`. That is the whole
-source of truth for now. If this grows later, moon phase, weather, astronomy, or
-another public signal should be folded into that module so the origin stays
-obvious.
+Messages currently come from `utils/oracleMessages.ts`: a local deck of direct
+occult advice lines selected server-side with `crypto.getRandomValues()`. The
+deck is built to feel like a spirit got one useful sentence through: yes, no,
+wait, leave, answer, refuse, return, or say nothing. That is the whole source of
+truth for now. If this grows later, moon phase, weather, astronomy, or another
+public signal should be folded into that module so the origin stays obvious.
 
 ## Built By Pablo
 

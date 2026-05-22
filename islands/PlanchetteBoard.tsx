@@ -198,7 +198,7 @@ export default function PlanchetteBoard({
       cursor = point;
       lastKey = key;
     }
-    await delay(380);
+    await delay(1080);
     await movePlanchetteWithSpring(
       planchette,
       cursor,
@@ -298,7 +298,7 @@ export default function PlanchetteBoard({
       {phase === "complete" && (
         <div class="reading-actions">
           <a class="oracle-action" href="/" aria-label="Draw another omen">
-            Draw Again
+            Ask Again
           </a>
         </div>
       )}
@@ -344,9 +344,13 @@ export default function PlanchetteBoard({
     const height = el.offsetHeight || Math.round(width * 2 / 3);
     const anchorX = width * PLANCHETTE_EYE_ANCHOR.x;
     const anchorY = height * PLANCHETTE_EYE_ANCHOR.y;
+    const drift = performance.now();
+    const rotation = Math.sin(drift / 210) * 1.45 +
+      Math.sin(drift / 89) * 0.55;
+    const scale = 1 + Math.sin(drift / 320) * 0.008;
     el.style.transform = `translate(${point.x - anchorX}px, ${
       point.y - anchorY
-    }px)`;
+    }px) rotate(${rotation.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
     setCameraForPoint(point);
   }
 

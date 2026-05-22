@@ -31,6 +31,60 @@ body {
   overflow: hidden;
 }
 
+@keyframes candle-drift {
+  0%, 100% {
+    opacity: 0.14;
+    transform: translate3d(-42%, -8%, 0) rotate(8deg);
+  }
+  45% {
+    opacity: 0.24;
+    transform: translate3d(28%, 6%, 0) rotate(8deg);
+  }
+  70% {
+    opacity: 0.11;
+    transform: translate3d(8%, -10%, 0) rotate(8deg);
+  }
+}
+
+@keyframes letter-pulse {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.45);
+  }
+  28% {
+    opacity: 0.58;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.35);
+  }
+}
+
+@keyframes eye-shimmer {
+  0%, 100% {
+    opacity: 0.42;
+    transform: translate(-50%, -50%) scale(0.92) rotate(0deg);
+  }
+  44% {
+    opacity: 0.78;
+    transform: translate(-50%, -50%) scale(1.06) rotate(18deg);
+  }
+  70% {
+    opacity: 0.26;
+  }
+}
+
+@keyframes tag-arrive {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px) rotate(-0.8deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) rotate(-0.8deg);
+  }
+}
+
 body:focus-within {
   scroll-behavior: smooth;
 }
@@ -324,17 +378,41 @@ button {
   isolation: isolate;
 }
 
-.board-grid img {
+.board-grid > img {
+  position: relative;
+  z-index: 0;
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
+.board-grid::before {
+  content: "";
+  position: absolute;
+  top: -18%;
+  left: -28%;
+  z-index: 1;
+  width: 70%;
+  height: 140%;
+  background: linear-gradient(
+    96deg,
+    transparent 0%,
+    rgba(255, 213, 142, 0.04) 32%,
+    rgba(255, 238, 188, 0.16) 48%,
+    rgba(118, 86, 57, 0.05) 62%,
+    transparent 100%
+  );
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: candle-drift 11s ease-in-out infinite;
+}
+
 .board-grid::after {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 5;
   border-radius: inherit;
   border: 1px solid rgba(247, 232, 206, 0.18);
   pointer-events: none;
@@ -343,6 +421,8 @@ button {
 .board-keys {
   position: absolute;
   inset: 0;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .board-key {
@@ -361,6 +441,26 @@ button {
   opacity: 0;
 }
 
+.board-key::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(42px, 5.4vw, 92px);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 242, 196, 0.42) 0%,
+    rgba(255, 228, 149, 0.14) 34%,
+    transparent 68%
+  );
+  filter: blur(1px);
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .board-key span {
   pointer-events: none;
 }
@@ -377,17 +477,12 @@ button {
 }
 
 .board-key.active {
-  /* GLOW DISABLED - Uncomment below to enable */
-  /*
-  color: #fef5dc;
-  text-shadow:
-    0 0 12px rgba(253, 228, 186, 0.85),
-    0 0 32px rgba(210, 176, 114, 0.65);
-  transform: translate(-50%, -50%) scale(1.08);
   z-index: 2;
   opacity: 1;
-  */
-  opacity: 0;
+}
+
+.board-key.active::before {
+  animation: letter-pulse 540ms ease-out both;
 }
 
 .board-key.goodbye {
@@ -398,17 +493,58 @@ button {
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 4;
   width: clamp(125px, 16vw, 210px);
   aspect-ratio: 3 / 2;
   pointer-events: none;
   opacity: 0;
-  filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.55));
+  filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.55)) drop-shadow(
+    0 0 16px rgba(214, 186, 132, 0.08)
+  );
   transition: opacity 320ms ease;
   transform-origin: 50% 37%;
   will-change: opacity, transform;
 }
 
+.planchette::before,
+.planchette::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.planchette::before {
+  left: 50%;
+  top: 37%;
+  z-index: 3;
+  width: 26%;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle at 38% 32%,
+    rgba(255, 249, 218, 0.85) 0 8%,
+    rgba(255, 236, 170, 0.32) 16%,
+    rgba(144, 112, 80, 0.08) 42%,
+    transparent 68%
+  );
+  mix-blend-mode: screen;
+  filter: blur(0.4px);
+  animation: eye-shimmer 3.8s ease-in-out infinite;
+}
+
+.planchette::after {
+  inset: 0;
+  z-index: 0;
+  background: url("/planchette.png") center / contain no-repeat;
+  opacity: 0.14;
+  filter: blur(1.4px);
+  mix-blend-mode: screen;
+  transform: translate(8px, 5px) rotate(-2deg);
+}
+
 .planchette img {
+  position: relative;
+  z-index: 1;
   width: 100%;
   height: 100%;
   display: block;
@@ -418,8 +554,8 @@ button {
   position: absolute;
   bottom: clamp(1.2rem, 4vw, 2.6rem);
   left: 50%;
-  transform: translateX(-50%);
   z-index: 20;
+  animation: tag-arrive 520ms ease-out both;
 }
 
 .ambient-player {
@@ -428,30 +564,34 @@ button {
 
 .oracle-action {
   min-height: 44px;
-  padding: 0.35rem 0.9rem;
+  padding: 0.38rem 0.95rem;
   background: linear-gradient(
     130deg,
-    rgba(255, 255, 255, 0.16),
-    rgba(150, 120, 90, 0.25)
+    rgba(32, 25, 31, 0.86),
+    rgba(105, 76, 56, 0.5)
   );
-  border: 1.5px solid rgba(255, 240, 210, 0.72);
-  border-radius: 8px;
+  border: 1.5px solid rgba(255, 231, 181, 0.76);
+  border-radius: 4px;
   color: rgba(255, 240, 215, 0.96);
   font-size: clamp(0.62rem, 1.1vw, 0.75rem);
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
   transition: all 160ms ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 2px 0 rgba(255, 240, 204, 0.16) inset,
+    0 8px 18px rgba(0, 0, 0, 0.34);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transform: rotate(-0.8deg);
+  backdrop-filter: blur(10px);
 }
 
 .oracle-action:hover {
   background: rgba(28, 24, 32, 0.9);
-  transform: translateY(-1px);
+  transform: translateY(-1px) rotate(0.4deg);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
   color: rgba(220, 205, 185, 1);
 }

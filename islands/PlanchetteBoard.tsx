@@ -12,55 +12,55 @@ type Props = {
 };
 
 const RAW_COORDS: RawCoord[] = [
-  { key: "YES", x: 0.16, y: 0.12 },
-  { key: "NO", x: 0.84, y: 0.12 },
-  { key: "A", x: 0.125, y: 0.37 },
-  { key: "B", x: 0.185, y: 0.38 },
-  { key: "C", x: 0.245, y: 0.388 },
-  { key: "D", x: 0.305, y: 0.393 },
-  { key: "E", x: 0.365, y: 0.396 },
-  { key: "F", x: 0.425, y: 0.398 },
-  { key: "G", x: 0.485, y: 0.398 },
-  { key: "H", x: 0.545, y: 0.396 },
-  { key: "I", x: 0.605, y: 0.393 },
-  { key: "J", x: 0.665, y: 0.388 },
-  { key: "K", x: 0.725, y: 0.38 },
-  { key: "L", x: 0.785, y: 0.37 },
-  { key: "M", x: 0.845, y: 0.355 },
-  { key: "N", x: 0.155, y: 0.535 },
-  { key: "O", x: 0.21, y: 0.545 },
-  { key: "P", x: 0.265, y: 0.552 },
-  { key: "Q", x: 0.32, y: 0.556 },
-  { key: "R", x: 0.375, y: 0.558 },
-  { key: "S", x: 0.43, y: 0.558 },
-  { key: "T", x: 0.485, y: 0.556 },
-  { key: "U", x: 0.54, y: 0.552 },
-  { key: "V", x: 0.595, y: 0.545 },
-  { key: "W", x: 0.65, y: 0.535 },
-  { key: "X", x: 0.705, y: 0.52 },
-  { key: "Y", x: 0.76, y: 0.5 },
-  { key: "Z", x: 0.815, y: 0.475 },
-  { key: "1", x: 0.215, y: 0.68 },
-  { key: "2", x: 0.27, y: 0.685 },
-  { key: "3", x: 0.325, y: 0.687 },
-  { key: "4", x: 0.38, y: 0.688 },
-  { key: "5", x: 0.435, y: 0.688 },
-  { key: "6", x: 0.49, y: 0.687 },
-  { key: "7", x: 0.545, y: 0.685 },
-  { key: "8", x: 0.6, y: 0.682 },
-  { key: "9", x: 0.655, y: 0.677 },
-  { key: "0", x: 0.71, y: 0.67 },
-  { key: "GOODBYE", x: 0.5, y: 0.82 },
+  { key: "YES", x: 0.192, y: 0.158 },
+  { key: "NO", x: 0.771, y: 0.158 },
+  { key: "A", x: 0.144, y: 0.422 },
+  { key: "B", x: 0.204, y: 0.373 },
+  { key: "C", x: 0.255, y: 0.344 },
+  { key: "D", x: 0.316, y: 0.323 },
+  { key: "E", x: 0.372, y: 0.305 },
+  { key: "F", x: 0.425, y: 0.289 },
+  { key: "G", x: 0.487, y: 0.296 },
+  { key: "H", x: 0.558, y: 0.299 },
+  { key: "I", x: 0.613, y: 0.312 },
+  { key: "J", x: 0.656, y: 0.33 },
+  { key: "K", x: 0.711, y: 0.349 },
+  { key: "L", x: 0.768, y: 0.383 },
+  { key: "M", x: 0.837, y: 0.421 },
+  { key: "N", x: 0.153, y: 0.573 },
+  { key: "O", x: 0.203, y: 0.53 },
+  { key: "P", x: 0.25, y: 0.489 },
+  { key: "Q", x: 0.308, y: 0.471 },
+  { key: "R", x: 0.362, y: 0.445 },
+  { key: "S", x: 0.421, y: 0.434 },
+  { key: "T", x: 0.473, y: 0.418 },
+  { key: "U", x: 0.53, y: 0.432 },
+  { key: "V", x: 0.591, y: 0.44 },
+  { key: "W", x: 0.66, y: 0.472 },
+  { key: "X", x: 0.724, y: 0.516 },
+  { key: "Y", x: 0.78, y: 0.55 },
+  { key: "Z", x: 0.83, y: 0.603 },
+  { key: "1", x: 0.249, y: 0.645 },
+  { key: "2", x: 0.296, y: 0.643 },
+  { key: "3", x: 0.357, y: 0.642 },
+  { key: "4", x: 0.418, y: 0.642 },
+  { key: "5", x: 0.477, y: 0.64 },
+  { key: "6", x: 0.536, y: 0.643 },
+  { key: "7", x: 0.594, y: 0.633 },
+  { key: "8", x: 0.648, y: 0.643 },
+  { key: "9", x: 0.709, y: 0.642 },
+  { key: "0", x: 0.754, y: 0.642 },
+  { key: "GOODBYE", x: 0.502, y: 0.775 },
 ];
 
 const PLANCHETTE_SIZE = 168;
-const WINDOW_Y_OFFSET = -0.012;
+const PLANCHETTE_EYE_ANCHOR = { x: 0.5, y: 0.37 };
 
 export default function PlanchetteBoard({
   message,
-  startDelayMs = 420,
-  pauseMs = 90,
-  speedPxPerSec = 1450,
+  startDelayMs = 760,
+  pauseMs = 280,
+  speedPxPerSec = 440,
 }: Props) {
   const sceneRef = useRef<HTMLElement | null>(null);
   const boardWrapRef = useRef<HTMLDivElement | null>(null);
@@ -156,32 +156,32 @@ export default function PlanchetteBoard({
     const planchetteHeight = planchette.offsetHeight || PLANCHETTE_SIZE;
     const margin = planchetteHeight * 0.18;
     const start = {
-      x: boardSize.x * 0.9,
-      y: Math.min(boardSize.y - margin, boardSize.y * 0.88),
+      x: boardSize.x * 0.86,
+      y: Math.min(boardSize.y - margin, boardSize.y * 0.84),
     };
     const exit = {
-      x: boardSize.x * 0.18,
-      y: Math.min(boardSize.y - margin * 0.6, boardSize.y * 0.9),
+      x: boardSize.x * 0.2,
+      y: Math.min(boardSize.y - margin * 0.6, boardSize.y * 0.86),
     };
     setPlanchettePosition(planchette, start);
-    await fade(planchette, 0, 1, 260);
+    await fade(planchette, 0, 1, 620);
     let cursor = { ...start };
     let lastKey: string | null = null;
     for (const { key, point } of targets) {
       if (key === lastKey) {
-        const liftPoint = { x: cursor.x, y: cursor.y - 80 };
+        const liftPoint = { x: cursor.x, y: cursor.y - 44 };
         await movePlanchetteWithSpring(
           planchette,
           cursor,
           liftPoint,
-          speedPxPerSec * 1.5,
+          speedPxPerSec * 0.92,
         );
-        await delay(45);
+        await delay(120);
         await movePlanchetteWithSpring(
           planchette,
           liftPoint,
           point,
-          speedPxPerSec * 1.5,
+          speedPxPerSec * 0.92,
         );
       } else {
         await movePlanchetteWithSpring(
@@ -198,13 +198,14 @@ export default function PlanchetteBoard({
       cursor = point;
       lastKey = key;
     }
+    await delay(380);
     await movePlanchetteWithSpring(
       planchette,
       cursor,
       exit,
-      speedPxPerSec * 0.9,
+      speedPxPerSec * 0.82,
     );
-    await fade(planchette, 1, 0, 260);
+    await fade(planchette, 1, 0, 700);
     planchette.style.transform = "translate(-9999px, -9999px)";
     await settleCamera();
   }
@@ -284,24 +285,23 @@ export default function PlanchetteBoard({
         playsInline
         class="ambient-player"
       />
-      <div
-        class={`oracle-message ${phase === "complete" ? "is-complete" : ""}`}
+      <p
+        class="sr-only"
         aria-live="polite"
         aria-atomic="true"
         role="status"
       >
-        <p class="oracle-message-label">
-          {phase === "complete" ? "Message received" : "Spelling"}
-        </p>
-        <p class="oracle-message-text">
-          {phase === "complete" ? message : "Watch the board"}
-        </p>
-        {phase === "complete" && (
+        {phase === "complete"
+          ? "The board has finished."
+          : "The board is moving."}
+      </p>
+      {phase === "complete" && (
+        <div class="reading-actions">
           <a class="oracle-action" href="/" aria-label="Draw another omen">
             Draw Again
           </a>
-        )}
-      </div>
+        </div>
+      )}
     </section>
   );
 
@@ -330,20 +330,22 @@ export default function PlanchetteBoard({
     speed: number,
   ) {
     const distance = Math.hypot(end.x - start.x, end.y - start.y);
-    const duration = Math.max(110, (distance / Math.max(speed, 1)) * 1000);
-    const control = controlForArc(start, end);
+    const duration = Math.max(420, (distance / Math.max(speed, 1)) * 1000);
+    const control = controlForArc(start, end, 0.105);
     await rafTween(duration, (t) => {
-      const eased = easeOutBack(t);
+      const eased = easeInOutCubic(t);
       const point = quadBezier(start, control, end, eased);
       setPlanchettePosition(el, point);
     });
   }
 
   function setPlanchettePosition(el: HTMLElement, point: Vec2) {
-    const halfWidth = (el.offsetWidth || PLANCHETTE_SIZE) / 2;
-    const halfHeight = (el.offsetHeight || PLANCHETTE_SIZE) / 2;
-    el.style.transform = `translate(${point.x - halfWidth}px, ${
-      point.y - halfHeight
+    const width = el.offsetWidth || PLANCHETTE_SIZE;
+    const height = el.offsetHeight || Math.round(width * 2 / 3);
+    const anchorX = width * PLANCHETTE_EYE_ANCHOR.x;
+    const anchorY = height * PLANCHETTE_EYE_ANCHOR.y;
+    el.style.transform = `translate(${point.x - anchorX}px, ${
+      point.y - anchorY
     }px)`;
     setCameraForPoint(point);
   }
@@ -413,7 +415,7 @@ export default function PlanchetteBoard({
 
     const start = cameraOffsetRef.current;
     if (Math.hypot(start.x, start.y) < 1) return;
-    await rafTween(320, (t) => {
+    await rafTween(700, (t) => {
       const eased = easeInOutSine(t);
       setCameraOffset({
         x: start.x * (1 - eased),
@@ -463,10 +465,8 @@ export default function PlanchetteBoard({
     return 0.5 - 0.5 * Math.cos(Math.PI * t);
   }
 
-  function easeOutBack(t: number) {
-    const c1 = 1.70158;
-    const c3 = c1 + 1;
-    return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+  function easeInOutCubic(t: number) {
+    return t < 0.5 ? 4 * t ** 3 : 1 - Math.pow(-2 * t + 2, 3) / 2;
   }
 
   async function rafTween(
@@ -521,18 +521,9 @@ export default function PlanchetteBoard({
     const bounds = boardEl.getBoundingClientRect();
     boardSizeRef.current = { x: bounds.width, y: bounds.height };
     const centers = new Map<string, Vec2>();
-    for (const { key } of RAW_COORDS) {
+    for (const { key, x, y } of RAW_COORDS) {
       const el = keyElementsRef.current.get(key);
-      if (!el) continue;
-      const rect = el.getBoundingClientRect();
-      const localX = rect.left - bounds.left + rect.width / 2;
-      const localY = rect.top - bounds.top + rect.height / 2 -
-        bounds.height * WINDOW_Y_OFFSET;
-      const clampedY = Math.max(
-        rect.height * 0.35,
-        Math.min(bounds.height - rect.height * 0.35, localY),
-      );
-      centers.set(key, { x: localX, y: clampedY });
+      if (el) centers.set(key, { x: bounds.width * x, y: bounds.height * y });
     }
     keyCentersRef.current = centers;
   }

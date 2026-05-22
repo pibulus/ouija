@@ -12,7 +12,7 @@ Open `http://localhost:8000`.
 
 1. Open the page.
 2. Watch the planchette start spelling automatically.
-3. Confirm the final message appears.
+3. Confirm the planchette eye lands on the letters.
 4. Tap **Draw Again** for a fresh message.
 
 ## Useful Commands

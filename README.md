@@ -12,7 +12,7 @@ modal. The whole app is the little moment of watching the board move.
 - Draws one warning from a local oracle deck on each page load.
 - Animates the planchette across the board coordinates.
 - Tracks the planchette on mobile by panning the oversized board underneath it.
-- Reveals the message after the spelling completes.
+- Leaves the message on the board instead of transcribing it afterwards.
 - Offers a single **Draw Again** action for a fresh message.
 - Attempts ambient audio and soft generated tones when the browser allows it.
 - Keeps the message source explicit: no hidden inbox, no user-submitted text.
@@ -53,9 +53,8 @@ static/
 
 1. Server draws one message with `drawOracleMessage()`.
 2. The page opens directly into the reading.
-3. The planchette spells the message across the board.
-4. The message appears as text.
-5. **Draw Again** reloads the page for a fresh draw.
+3. The planchette spells the message across the board, through the eye.
+4. **Draw Again** appears after the board has finished.
 
 ## Message Source
 

@@ -20,7 +20,7 @@ proof_points:
   - Server draws a fresh oracle message on each page load.
   - Planchette spells each message across real board coordinates.
   - Mobile-first full-screen board with one follow-up action after the reading.
-  - Final message remains visible after the animation completes.
+  - The final message is not transcribed; the board movement is the reading.
 objections:
   - Needs Pi deployment and DNS wiring before a public launch push.
 keywords:

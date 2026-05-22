@@ -1,0 +1,25 @@
+{
+  "name": "Ghost Note",
+  "short_name": "Ghost Note",
+  "description": "A one-message spirit board that opens directly into a tiny occult omen.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f0c15",
+  "theme_color": "#0f0c15",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

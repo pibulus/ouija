@@ -132,7 +132,12 @@ export default function PlanchetteBoard({
     void (async () => {
       try {
         await waitForBoardLayout();
-        await animateMessage(message);
+        if (shouldReduceMotion()) {
+          setCameraOffset({ x: 0, y: 0 });
+          await delay(250);
+        } else {
+          await animateMessage(message);
+        }
         setPhase("complete");
       } finally {
         runningRef.current = false;
@@ -222,22 +227,26 @@ export default function PlanchetteBoard({
   }
 
   return (
-    <section class="board-scene" ref={sceneRef}>
+    <section
+      class="board-scene"
+      ref={sceneRef}
+      aria-label="Spirit board reading"
+      aria-busy={phase !== "complete"}
+    >
       <div class="board-wrap" ref={boardWrapRef}>
         <div class="board-grid" ref={boardRef}>
           <img
             ref={boardImageRef}
             src="/ghostboard.png"
-            alt="Spirit board"
+            alt="A dark spirit board used to spell the oracle message"
             draggable={false}
           />
-          <div class="board-keys">
+          <div class="board-keys" aria-hidden="true">
             {RAW_COORDS.map(({ key, x, y }) => {
               const extra = key === "GOODBYE" ? " goodbye" : "";
               return (
-                <button
+                <span
                   key={key}
-                  type="button"
                   class={`board-key ${key.toLowerCase()}${extra}`}
                   data-key={key}
                   style={{
@@ -253,11 +262,11 @@ export default function PlanchetteBoard({
                   }}
                 >
                   <span>{key}</span>
-                </button>
+                </span>
               );
             })}
           </div>
-          <div ref={planchetteRef} class="planchette">
+          <div ref={planchetteRef} class="planchette" aria-hidden="true">
             <img
               src="/planchette.png"
               alt=""
@@ -278,6 +287,8 @@ export default function PlanchetteBoard({
       <div
         class={`oracle-message ${phase === "complete" ? "is-complete" : ""}`}
         aria-live="polite"
+        aria-atomic="true"
+        role="status"
       >
         <p class="oracle-message-label">
           {phase === "complete" ? "Message received" : "Spelling"}
@@ -286,7 +297,7 @@ export default function PlanchetteBoard({
           {phase === "complete" ? message : "Watch the board"}
         </p>
         {phase === "complete" && (
-          <a class="oracle-action" href="/">
+          <a class="oracle-action" href="/" aria-label="Draw another omen">
             Draw Again
           </a>
         )}
@@ -413,6 +424,11 @@ export default function PlanchetteBoard({
 
   function isMobileCameraEnabled() {
     return globalThis.matchMedia?.("(max-width: 720px)").matches ?? false;
+  }
+
+  function shouldReduceMotion() {
+    return globalThis.matchMedia?.("(prefers-reduced-motion: reduce)")
+      .matches ?? false;
   }
 
   function clamp(value: number, min: number, max: number) {

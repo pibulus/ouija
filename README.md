@@ -1,11 +1,11 @@
-# Ouija
+# Ghost Note
 
 **A digital spirit board that draws one cosmic message and spells it through the
 planchette.**
 
-Ouija is intentionally simple now: open the board and the reading begins. No
-accounts, no chat, no guestbook, no queue, no onboarding modal. The whole app is
-the little moment of watching the board move.
+Ghost Note is intentionally simple now: open `https://ghostnote.rip` and the
+reading begins. No accounts, no chat, no guestbook, no queue, no onboarding
+modal. The whole app is the little moment of watching the board move.
 
 ## What It Does
 

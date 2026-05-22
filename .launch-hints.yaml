@@ -1,7 +1,8 @@
 # Launch hints for Launch Arsenal.
-name: Ouija
-slug: ouija
+name: Ghost Note
+slug: ghostnote
 app_type: web-app
+production_url: https://ghostnote.rip
 audience: people who like strange little web rituals, tiny oracles, and playful divination interfaces
 problem: >-
   most random-message toys feel like throwaway fortune cookies; this makes the
@@ -21,9 +22,10 @@ proof_points:
   - Mobile-first full-screen board with one follow-up action after the reading.
   - Final message remains visible after the animation completes.
 objections:
-  - Needs a production URL and social preview image before a public launch push.
+  - Needs Pi deployment and DNS wiring before a public launch push.
 keywords:
   seed:
+    - Ghost Note
     - Ouija
     - digital spirit board
     - planchette

@@ -71,8 +71,15 @@ export default function PlanchetteBoard({
   const keyElementsRef = useRef(new Map<string, HTMLElement>());
   const keyCentersRef = useRef(new Map<string, Vec2>());
   const boardSizeRef = useRef<Vec2>({ x: 0, y: 0 });
+  const sceneSizeRef = useRef<Vec2>({ x: 0, y: 0 });
+  const boardWrapSizeRef = useRef<Vec2>({ x: 0, y: 0 });
+  const planchetteSizeRef = useRef<Vec2>({
+    x: PLANCHETTE_SIZE,
+    y: Math.round(PLANCHETTE_SIZE * 2 / 3),
+  });
   const cameraOffsetRef = useRef<Vec2>({ x: 0, y: 0 });
   const runningRef = useRef(false);
+  const cancelledRef = useRef(false);
   const [phase, setPhase] = useState<"spelling" | "complete">("spelling");
 
   useEffect(() => {
@@ -109,6 +116,7 @@ export default function PlanchetteBoard({
   }, []);
 
   useEffect(() => {
+    cancelledRef.current = false;
     const startTimer = globalThis.setTimeout(() => {
       beginReading();
     }, startDelayMs);
@@ -118,27 +126,30 @@ export default function PlanchetteBoard({
     globalThis.addEventListener("keydown", wakeAudio, { once: true });
 
     return () => {
+      cancelledRef.current = true;
       globalThis.clearTimeout(startTimer);
       globalThis.removeEventListener("pointerdown", wakeAudio);
       globalThis.removeEventListener("keydown", wakeAudio);
+      keyElementsRef.current.forEach((el) => el.classList.remove("active"));
+      backgroundAudioRef.current?.pause();
     };
   }, [message, startDelayMs]);
 
   function beginReading() {
     if (runningRef.current) return;
-    cueBackgroundAudio();
     setPhase("spelling");
     runningRef.current = true;
     void (async () => {
       try {
         await waitForBoardLayout();
+        if (cancelledRef.current) return;
         if (shouldReduceMotion()) {
           setCameraOffset({ x: 0, y: 0 });
           await delay(250);
         } else {
           await animateMessage(message);
         }
-        setPhase("complete");
+        if (!cancelledRef.current) setPhase("complete");
       } finally {
         runningRef.current = false;
       }
@@ -153,7 +164,7 @@ export default function PlanchetteBoard({
     const targets = buildTargets(sanitizeMessage(rawMessage));
     if (!targets.length) return;
     const boardSize = boardSizeRef.current;
-    const planchetteHeight = planchette.offsetHeight || PLANCHETTE_SIZE;
+    const planchetteHeight = planchetteSizeRef.current.y || PLANCHETTE_SIZE;
     const margin = planchetteHeight * 0.18;
     const start = {
       x: boardSize.x * 0.86,
@@ -165,9 +176,11 @@ export default function PlanchetteBoard({
     };
     setPlanchettePosition(planchette, start);
     await fade(planchette, 0, 1, 620);
+    if (cancelledRef.current) return;
     let cursor = { ...start };
     let lastKey: string | null = null;
     for (const { key, point } of targets) {
+      if (cancelledRef.current) return;
       if (key === lastKey) {
         const liftPoint = { x: cursor.x, y: cursor.y - 44 };
         await movePlanchetteWithSpring(
@@ -176,7 +189,9 @@ export default function PlanchetteBoard({
           liftPoint,
           speedPxPerSec * 0.92,
         );
+        if (cancelledRef.current) return;
         await delay(120);
+        if (cancelledRef.current) return;
         await movePlanchetteWithSpring(
           planchette,
           liftPoint,
@@ -191,21 +206,26 @@ export default function PlanchetteBoard({
           speedPxPerSec,
         );
       }
+      if (cancelledRef.current) return;
       setKeyActive(key, true);
       softBlip();
       await delay(pauseMs);
+      if (cancelledRef.current) return;
       setKeyActive(key, false);
       cursor = point;
       lastKey = key;
     }
     await delay(1080);
+    if (cancelledRef.current) return;
     await movePlanchetteWithSpring(
       planchette,
       cursor,
       exit,
       speedPxPerSec * 0.82,
     );
+    if (cancelledRef.current) return;
     await fade(planchette, 1, 0, 700);
+    if (cancelledRef.current) return;
     planchette.style.transform = "translate(-9999px, -9999px)";
     await settleCamera();
   }
@@ -280,19 +300,23 @@ export default function PlanchetteBoard({
       <audio
         ref={backgroundAudioRef}
         src="/ambient_loop.mp3"
-        preload="auto"
+        preload="none"
         loop
         playsInline
         class="ambient-player"
       />
       <p
-        class="sr-only"
+        class={`oracle-result ${phase === "complete" ? "is-complete" : ""}`}
         aria-live="polite"
         aria-atomic="true"
         role="status"
       >
         {phase === "complete"
-          ? "The board has finished."
+          ? (
+            <>
+              The board says <span>{message}</span>.
+            </>
+          )
           : "The board is moving."}
       </p>
       {phase === "complete" && (
@@ -333,6 +357,7 @@ export default function PlanchetteBoard({
     const duration = Math.max(420, (distance / Math.max(speed, 1)) * 1000);
     const control = controlForArc(start, end, 0.105);
     await rafTween(duration, (t) => {
+      if (cancelledRef.current) return;
       const eased = easeInOutCubic(t);
       const point = quadBezier(start, control, end, eased);
       setPlanchettePosition(el, point);
@@ -340,8 +365,7 @@ export default function PlanchetteBoard({
   }
 
   function setPlanchettePosition(el: HTMLElement, point: Vec2) {
-    const width = el.offsetWidth || PLANCHETTE_SIZE;
-    const height = el.offsetHeight || Math.round(width * 2 / 3);
+    const { x: width, y: height } = planchetteSizeRef.current;
     const anchorX = width * PLANCHETTE_EYE_ANCHOR.x;
     const anchorY = height * PLANCHETTE_EYE_ANCHOR.y;
     const drift = performance.now();
@@ -369,11 +393,11 @@ export default function PlanchetteBoard({
     const boardWrap = boardWrapRef.current;
     if (!scene || !boardWrap) return { x: 0, y: 0 };
 
-    const viewport = { x: scene.clientWidth, y: scene.clientHeight };
-    const board = {
-      x: boardWrap.offsetWidth,
-      y: boardWrap.offsetHeight,
-    };
+    const viewport = sceneSizeRef.current;
+    const board = boardWrapSizeRef.current;
+    if (!viewport.x || !viewport.y || !board.x || !board.y) {
+      return { x: 0, y: 0 };
+    }
     const base = {
       x: (viewport.x - board.x) / 2,
       y: (viewport.y - board.y) / 2,
@@ -404,6 +428,7 @@ export default function PlanchetteBoard({
   }
 
   function setCameraOffset(offset: Vec2) {
+    if (cancelledRef.current) return;
     const boardWrap = boardWrapRef.current;
     if (!boardWrap) return;
     cameraOffsetRef.current = offset;
@@ -420,6 +445,7 @@ export default function PlanchetteBoard({
     const start = cameraOffsetRef.current;
     if (Math.hypot(start.x, start.y) < 1) return;
     await rafTween(700, (t) => {
+      if (cancelledRef.current) return;
       const eased = easeInOutSine(t);
       setCameraOffset({
         x: start.x * (1 - eased),
@@ -480,6 +506,10 @@ export default function PlanchetteBoard({
     const start = performance.now();
     await new Promise<void>((resolve) => {
       const tick = (now: number) => {
+        if (cancelledRef.current) {
+          resolve();
+          return;
+        }
         const t = Math.min(1, (now - start) / durationMs);
         render(t);
         if (t < 1) requestAnimationFrame(tick);
@@ -510,6 +540,7 @@ export default function PlanchetteBoard({
 
   async function waitForBoardLayout() {
     for (let attempts = 0; attempts < 30; attempts += 1) {
+      if (cancelledRef.current) return;
       recomputeLayout();
       const boardSize = boardSizeRef.current;
       if (boardSize.x > 0 && boardSize.y > 0 && keyCentersRef.current.size) {
@@ -522,8 +553,27 @@ export default function PlanchetteBoard({
   function recomputeLayout() {
     const boardEl = boardRef.current;
     if (!boardEl) return;
+    const scene = sceneRef.current;
+    const boardWrap = boardWrapRef.current;
+    if (scene) {
+      sceneSizeRef.current = { x: scene.clientWidth, y: scene.clientHeight };
+    }
+    if (boardWrap) {
+      boardWrapSizeRef.current = {
+        x: boardWrap.offsetWidth,
+        y: boardWrap.offsetHeight,
+      };
+    }
     const bounds = boardEl.getBoundingClientRect();
     boardSizeRef.current = { x: bounds.width, y: bounds.height };
+    const planchette = planchetteRef.current;
+    if (planchette) {
+      const width = planchette.offsetWidth || PLANCHETTE_SIZE;
+      planchetteSizeRef.current = {
+        x: width,
+        y: planchette.offsetHeight || Math.round(width * 2 / 3),
+      };
+    }
     const centers = new Map<string, Vec2>();
     for (const { key, x, y } of RAW_COORDS) {
       const el = keyElementsRef.current.get(key);

@@ -1,3 +1,9 @@
+import type { RouteConfig } from "$fresh/server.ts";
+
+export const config: RouteConfig = {
+  csp: true,
+};
+
 export default function Error404() {
   return (
     <main class="not-found-shell">

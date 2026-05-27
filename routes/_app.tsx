@@ -1,4 +1,5 @@
 import { type PageProps } from "$fresh/server.ts";
+import { NONE, SELF, UNSAFE_INLINE, useCSP } from "$fresh/runtime.ts";
 
 const SITE_URL = "https://ghostnote.rip";
 const SITE_NAME = "Ghost Note";
@@ -29,6 +30,19 @@ const structuredData = {
 };
 
 export default function App({ Component }: PageProps) {
+  useCSP((csp) => {
+    csp.directives.baseUri = [NONE];
+    csp.directives.connectSrc = [SELF];
+    csp.directives.formAction = [NONE];
+    csp.directives.frameAncestors = [NONE];
+    csp.directives.imgSrc = [SELF, "data:"];
+    csp.directives.manifestSrc = [SELF];
+    csp.directives.mediaSrc = [SELF];
+    csp.directives.objectSrc = [NONE];
+    csp.directives.scriptSrc = [SELF];
+    csp.directives.styleSrc = [SELF, UNSAFE_INLINE];
+  });
+
   return (
     <html lang="en">
       <head>
@@ -85,7 +99,6 @@ export default function App({ Component }: PageProps) {
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
-        <link rel="preload" href="/ghostboard.png" as="image" />
         <link rel="preload" href="/planchette.png" as="image" />
         <link rel="stylesheet" href="/styles.css" />
         <script type="application/ld+json">

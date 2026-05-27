@@ -317,6 +317,15 @@ button {
   opacity: 0;
 }
 
+.board-key.haunted {
+  z-index: 1;
+  opacity: 0.48;
+}
+
+.board-key.haunted::before {
+  animation: letter-pulse 760ms ease-out both;
+}
+
 .board-key.active {
   z-index: 2;
   opacity: 1;
@@ -340,7 +349,10 @@ button {
   pointer-events: none;
   opacity: 0;
   filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.55)) drop-shadow(
-    0 0 16px rgba(214, 186, 132, 0.08)
+    0
+    0
+    16px
+    rgba(214, 186, 132, 0.08)
   );
   transition: opacity 320ms ease;
   transform-origin: 50% 37%;
@@ -392,7 +404,39 @@ button {
   border: 0;
 }
 
-.reading-actions {
+.oracle-result.is-complete {
+  position: absolute;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom) + 72px);
+  width: min(520px, calc(100vw - 2rem));
+  height: auto;
+  margin: 0;
+  padding: 0.85rem 1rem;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  transform: translateX(-50%);
+  border: 1px solid rgba(255, 231, 181, 0.5);
+  border-radius: 6px;
+  background: rgba(20, 16, 26, 0.88);
+  color: rgba(228, 210, 180, 0.9);
+  text-align: center;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  z-index: var(--z-ui);
+  backdrop-filter: blur(10px);
+}
+
+.oracle-result.is-complete span {
+  display: block;
+  margin-top: 0.35rem;
+  color: rgba(255, 241, 218, 0.98);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.reading-actions,
+.summon-actions {
   position: absolute;
   bottom: clamp(1.2rem, 4vw, 2.6rem);
   left: 50%;
@@ -400,8 +444,34 @@ button {
   animation: tag-arrive 520ms ease-out both;
 }
 
+.summon-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+}
+
 .ambient-player {
   display: none;
+}
+
+.film-grain {
+  position: fixed;
+  inset: -8vh -8vw;
+  z-index: calc(var(--z-ui) - 2);
+  width: 116vw;
+  height: 116dvh;
+  display: block;
+  pointer-events: none;
+  opacity: var(--grain-opacity, 0.24);
+  mix-blend-mode: overlay;
+  filter: contrast(var(--grain-contrast, 1.28)) brightness(1.05) saturate(0.72);
+  transform: translate3d(
+    var(--grain-jitter-x, 0px),
+    var(--grain-jitter-y, 0px),
+    0
+  ) scale(1.02);
+  will-change: opacity, filter, transform;
 }
 
 .oracle-action {
@@ -461,6 +531,50 @@ button {
   transform: translateY(0) rotate(-0.3deg) scale(0.99);
 }
 
+.oracle-action:disabled {
+  cursor: wait;
+  opacity: 0.58;
+  transform: rotate(-0.8deg);
+  box-shadow:
+    0 2px 0 rgba(255, 240, 204, 0.1) inset,
+    0 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+.summon-action {
+  min-width: 136px;
+  letter-spacing: 0.16em;
+  box-shadow:
+    0 2px 0 rgba(255, 240, 204, 0.2) inset,
+    0 10px 24px rgba(0, 0, 0, 0.4),
+    0 0 28px rgba(231, 191, 118, 0.16);
+}
+
+.sound-toggle {
+  min-width: 92px;
+  min-height: 44px;
+  padding: 0.25rem 0.65rem;
+  border: 1px solid rgba(255, 231, 181, 0.44);
+  border-radius: 4px;
+  background: rgba(16, 13, 20, 0.58);
+  color: rgba(244, 226, 196, 0.82);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+
+.sound-toggle[aria-pressed="false"] {
+  color: rgba(210, 192, 164, 0.7);
+  border-color: rgba(210, 192, 164, 0.28);
+}
+
+.sound-toggle:focus-visible {
+  outline: 3px solid rgba(255, 240, 210, 0.95);
+  outline-offset: 4px;
+}
+
 @media (max-width: 720px) {
   .board-wrap {
     width: min(170dvh, 250vw);
@@ -475,8 +589,23 @@ button {
     letter-spacing: 0.32em;
   }
 
-  .reading-actions {
-    bottom: calc(env(safe-area-inset-bottom) + 16px);
+  .reading-actions,
+  .summon-actions {
+    bottom: calc(env(safe-area-inset-bottom) + 24px);
+  }
+
+  .oracle-action {
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+  }
+
+  .summon-action {
+    min-width: 144px;
+    letter-spacing: 0.11em;
+  }
+
+  .sound-toggle {
+    font-size: 0.72rem;
   }
 }
 
@@ -526,33 +655,7 @@ button {
     transform: none !important;
   }
 
-  .oracle-result.is-complete {
-    position: absolute;
-    left: 50%;
-    bottom: calc(env(safe-area-inset-bottom) + 72px);
-    width: min(520px, calc(100vw - 2rem));
-    height: auto;
-    margin: 0;
-    padding: 0.85rem 1rem;
-    overflow: visible;
-    clip: auto;
-    white-space: normal;
-    transform: translateX(-50%);
-    border: 1px solid rgba(255, 231, 181, 0.5);
-    border-radius: 6px;
-    background: rgba(20, 16, 26, 0.88);
-    color: rgba(228, 210, 180, 0.9);
-    text-align: center;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    z-index: var(--z-ui);
-  }
-
-  .oracle-result.is-complete span {
-    display: block;
-    margin-top: 0.35rem;
-    color: rgba(255, 241, 218, 0.98);
-    font-weight: 700;
-    letter-spacing: 0.12em;
+  .film-grain {
+    display: none;
   }
 }

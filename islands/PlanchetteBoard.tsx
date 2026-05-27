@@ -3,9 +3,22 @@ import { useEffect, useRef, useState } from "preact/hooks";
 
 type RawCoord = { key: string; x: number; y: number };
 type Vec2 = { x: number; y: number };
+type HauntProfile = {
+  name: "restless" | "heavy" | "shy" | "sharp";
+  speedMultiplier: number;
+  pauseMultiplier: number;
+  driftMultiplier: number;
+  overshootChance: number;
+  hesitationChance: number;
+  grainOpacity: number;
+  grainContrast: number;
+  toneShift: number;
+  finalHoldMs: number;
+};
 
 type Props = {
   message: string;
+  boardImageSrc?: string;
   startDelayMs?: number;
   pauseMs?: number;
   speedPxPerSec?: number;
@@ -55,19 +68,81 @@ const RAW_COORDS: RawCoord[] = [
 
 const PLANCHETTE_SIZE = 168;
 const PLANCHETTE_EYE_ANCHOR = { x: 0.5, y: 0.37 };
+const LANDING_DRIFT_PX = 16;
+const GOODBYE_DRIFT_PX = 10;
+const FILM_GRAIN_MIN_FRAME_MS = 72;
+const FILM_GRAIN_FRAME_JITTER_MS = 96;
+const HAUNT_PROFILES: HauntProfile[] = [
+  {
+    name: "restless",
+    speedMultiplier: 1.05,
+    pauseMultiplier: 0.88,
+    driftMultiplier: 1.22,
+    overshootChance: 0.5,
+    hesitationChance: 0.22,
+    grainOpacity: 0.28,
+    grainContrast: 1.5,
+    toneShift: 1.08,
+    finalHoldMs: 1250,
+  },
+  {
+    name: "heavy",
+    speedMultiplier: 0.78,
+    pauseMultiplier: 1.28,
+    driftMultiplier: 0.84,
+    overshootChance: 0.32,
+    hesitationChance: 0.28,
+    grainOpacity: 0.22,
+    grainContrast: 1.24,
+    toneShift: 0.82,
+    finalHoldMs: 1850,
+  },
+  {
+    name: "shy",
+    speedMultiplier: 0.9,
+    pauseMultiplier: 1.18,
+    driftMultiplier: 1,
+    overshootChance: 0.24,
+    hesitationChance: 0.34,
+    grainOpacity: 0.2,
+    grainContrast: 1.18,
+    toneShift: 0.94,
+    finalHoldMs: 1600,
+  },
+  {
+    name: "sharp",
+    speedMultiplier: 1,
+    pauseMultiplier: 0.96,
+    driftMultiplier: 1.12,
+    overshootChance: 0.44,
+    hesitationChance: 0.18,
+    grainOpacity: 0.25,
+    grainContrast: 1.38,
+    toneShift: 1.18,
+    finalHoldMs: 1300,
+  },
+];
+
+function createHauntProfile() {
+  return HAUNT_PROFILES[Math.floor(Math.random() * HAUNT_PROFILES.length)];
+}
 
 export default function PlanchetteBoard({
   message,
+  boardImageSrc = "/ghostboard.png",
   startDelayMs = 760,
-  pauseMs = 280,
-  speedPxPerSec = 440,
+  pauseMs = 340,
+  speedPxPerSec = 330,
 }: Props) {
   const sceneRef = useRef<HTMLElement | null>(null);
   const boardWrapRef = useRef<HTMLDivElement | null>(null);
   const boardRef = useRef<HTMLDivElement | null>(null);
   const planchetteRef = useRef<HTMLDivElement | null>(null);
   const boardImageRef = useRef<HTMLImageElement | null>(null);
+  const filmCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
+  const boardReadyRef = useRef(false);
+  const hauntRef = useRef(createHauntProfile());
   const keyElementsRef = useRef(new Map<string, HTMLElement>());
   const keyCentersRef = useRef(new Map<string, Vec2>());
   const boardSizeRef = useRef<Vec2>({ x: 0, y: 0 });
@@ -80,7 +155,11 @@ export default function PlanchetteBoard({
   const cameraOffsetRef = useRef<Vec2>({ x: 0, y: 0 });
   const runningRef = useRef(false);
   const cancelledRef = useRef(false);
-  const [phase, setPhase] = useState<"spelling" | "complete">("spelling");
+  const [phase, setPhase] = useState<"summoning" | "spelling" | "complete">(
+    "summoning",
+  );
+  const [boardReady, setBoardReady] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
 
   useEffect(() => {
     const boardEl = boardRef.current;
@@ -99,14 +178,35 @@ export default function PlanchetteBoard({
   useEffect(() => {
     const img = boardImageRef.current;
     if (!img) return;
-    const handle = () => recomputeLayout();
+    let cancelled = false;
+    boardReadyRef.current = false;
+    setBoardReady(false);
+
+    const markReady = async () => {
+      try {
+        await img.decode();
+      } catch {
+        // A failed decode should not trap the user on the summon screen.
+      }
+      if (cancelled) return;
+      recomputeLayout();
+      boardReadyRef.current = true;
+      setBoardReady(true);
+    };
+
     if (img.complete) {
-      handle();
-      return;
+      void markReady();
+    } else {
+      img.addEventListener("load", markReady, { once: true });
+      img.addEventListener("error", markReady, { once: true });
     }
-    img.addEventListener("load", handle);
-    return () => img.removeEventListener("load", handle);
-  }, []);
+
+    return () => {
+      cancelled = true;
+      img.removeEventListener("load", markReady);
+      img.removeEventListener("error", markReady);
+    };
+  }, [boardImageSrc]);
 
   useEffect(() => {
     const planchette = planchetteRef.current;
@@ -116,24 +216,58 @@ export default function PlanchetteBoard({
   }, []);
 
   useEffect(() => {
-    cancelledRef.current = false;
-    const startTimer = globalThis.setTimeout(() => {
-      beginReading();
-    }, startDelayMs);
+    const canvas = filmCanvasRef.current;
+    if (!canvas || shouldReduceMotion()) return;
+    return startFilmGrain(canvas, hauntRef.current);
+  }, []);
 
-    const wakeAudio = () => cueBackgroundAudio();
-    globalThis.addEventListener("pointerdown", wakeAudio, { once: true });
-    globalThis.addEventListener("keydown", wakeAudio, { once: true });
+  useEffect(() => {
+    cancelledRef.current = false;
+    setPhase("summoning");
 
     return () => {
       cancelledRef.current = true;
-      globalThis.clearTimeout(startTimer);
-      globalThis.removeEventListener("pointerdown", wakeAudio);
-      globalThis.removeEventListener("keydown", wakeAudio);
-      keyElementsRef.current.forEach((el) => el.classList.remove("active"));
+      keyElementsRef.current.forEach((el) => {
+        el.classList.remove("active");
+        el.classList.remove("haunted");
+      });
       backgroundAudioRef.current?.pause();
     };
-  }, [message, startDelayMs]);
+  }, [message]);
+
+  useEffect(() => {
+    if (phase !== "summoning" || shouldReduceMotion()) return;
+    let stopped = false;
+    let timer: number | undefined;
+
+    const schedule = () => {
+      timer = globalThis.setTimeout(() => {
+        if (stopped || phase !== "summoning") return;
+        pulseWaitingLetter();
+        schedule();
+      }, randomBetween(1150, 2600));
+    };
+
+    schedule();
+
+    return () => {
+      stopped = true;
+      if (timer !== undefined) globalThis.clearTimeout(timer);
+      keyElementsRef.current.forEach((el) => el.classList.remove("haunted"));
+    };
+  }, [phase]);
+
+  function handleSummon() {
+    if (runningRef.current || phase !== "summoning" || !boardReadyRef.current) {
+      return;
+    }
+    cancelledRef.current = false;
+    if (soundEnabled) {
+      cueBackgroundAudio();
+      openingTone();
+    }
+    beginReading();
+  }
 
   function beginReading() {
     if (runningRef.current) return;
@@ -141,6 +275,12 @@ export default function PlanchetteBoard({
     runningRef.current = true;
     void (async () => {
       try {
+        if (!shouldReduceMotion()) {
+          await delay(startDelayMs);
+        }
+        if (cancelledRef.current) return;
+        await waitForBoardImage();
+        if (cancelledRef.current) return;
         await waitForBoardLayout();
         if (cancelledRef.current) return;
         if (shouldReduceMotion()) {
@@ -174,6 +314,9 @@ export default function PlanchetteBoard({
       x: boardSize.x * 0.2,
       y: Math.min(boardSize.y - margin * 0.6, boardSize.y * 0.86),
     };
+    const haunt = hauntRef.current;
+    const readingSpeed = speedPxPerSec * haunt.speedMultiplier;
+    const readingPause = pauseMs * haunt.pauseMultiplier;
     setPlanchettePosition(planchette, start);
     await fade(planchette, 0, 1, 620);
     if (cancelledRef.current) return;
@@ -181,47 +324,79 @@ export default function PlanchetteBoard({
     let lastKey: string | null = null;
     for (const { key, point } of targets) {
       if (cancelledRef.current) return;
+      const landing = driftLanding(
+        point,
+        (key === "GOODBYE" ? GOODBYE_DRIFT_PX : LANDING_DRIFT_PX) *
+          haunt.driftMultiplier,
+      );
       if (key === lastKey) {
-        const liftPoint = { x: cursor.x, y: cursor.y - 44 };
+        const liftPoint = {
+          x: cursor.x + randomBetween(-10, 10),
+          y: cursor.y - randomBetween(38, 64),
+        };
         await movePlanchetteWithSpring(
           planchette,
           cursor,
           liftPoint,
-          speedPxPerSec * 0.92,
+          readingSpeed * 0.74,
+          false,
         );
         if (cancelledRef.current) return;
-        await delay(120);
+        await delay(randomBetween(145, 235));
         if (cancelledRef.current) return;
         await movePlanchetteWithSpring(
           planchette,
           liftPoint,
-          point,
-          speedPxPerSec * 0.92,
+          landing,
+          readingSpeed * 0.78,
         );
       } else {
+        const falseTarget = pickHesitationTarget(key, point);
+        if (falseTarget && Math.random() < haunt.hesitationChance) {
+          const falseLanding = driftLanding(
+            falseTarget.point,
+            LANDING_DRIFT_PX * 0.72 * haunt.driftMultiplier,
+          );
+          await movePlanchetteWithSpring(
+            planchette,
+            cursor,
+            falseLanding,
+            readingSpeed * 0.66,
+            false,
+          );
+          if (cancelledRef.current) return;
+          setKeyHaunted(falseTarget.key, true);
+          softKnock();
+          await delay(randomBetween(170, 320) * haunt.pauseMultiplier);
+          if (cancelledRef.current) return;
+          setKeyHaunted(falseTarget.key, false);
+          cursor = falseLanding;
+        }
+        if (cancelledRef.current) return;
         await movePlanchetteWithSpring(
           planchette,
           cursor,
-          point,
-          speedPxPerSec,
+          landing,
+          readingSpeed,
         );
       }
       if (cancelledRef.current) return;
       setKeyActive(key, true);
       softBlip();
-      await delay(pauseMs);
+      if (key === "GOODBYE") goodbyeTone();
+      await delay(readingPause + randomBetween(-50, 120));
       if (cancelledRef.current) return;
       setKeyActive(key, false);
-      cursor = point;
+      cursor = landing;
       lastKey = key;
     }
-    await delay(1080);
+    await delay(haunt.finalHoldMs);
     if (cancelledRef.current) return;
     await movePlanchetteWithSpring(
       planchette,
       cursor,
       exit,
-      speedPxPerSec * 0.82,
+      readingSpeed * 0.82,
     );
     if (cancelledRef.current) return;
     await fade(planchette, 1, 0, 700);
@@ -252,13 +427,13 @@ export default function PlanchetteBoard({
       class="board-scene"
       ref={sceneRef}
       aria-label="Spirit board reading"
-      aria-busy={phase !== "complete"}
+      aria-busy={phase === "spelling"}
     >
       <div class="board-wrap" ref={boardWrapRef}>
         <div class="board-grid" ref={boardRef}>
           <img
             ref={boardImageRef}
-            src="/ghostboard.png"
+            src={boardImageSrc}
             alt="A dark spirit board used to spell the oracle message"
             draggable={false}
           />
@@ -305,6 +480,11 @@ export default function PlanchetteBoard({
         playsInline
         class="ambient-player"
       />
+      <canvas
+        ref={filmCanvasRef}
+        class="film-grain"
+        aria-hidden="true"
+      />
       <p
         class={`oracle-result ${phase === "complete" ? "is-complete" : ""}`}
         aria-live="polite"
@@ -317,8 +497,35 @@ export default function PlanchetteBoard({
               The board says <span>{message}</span>.
             </>
           )
-          : "The board is moving."}
+          : phase === "spelling"
+          ? "The board is moving."
+          : boardReady
+          ? "The board is waiting."
+          : "The board is waking."}
       </p>
+      {phase === "summoning" && (
+        <div class="summon-actions">
+          <button
+            class="oracle-action summon-action"
+            type="button"
+            disabled={!boardReady}
+            onClick={handleSummon}
+            aria-label={soundEnabled
+              ? "Summon the board with sound"
+              : "Summon the board silently"}
+          >
+            Summon
+          </button>
+          <button
+            class="sound-toggle"
+            type="button"
+            aria-pressed={soundEnabled}
+            onClick={() => setSoundEnabled((enabled) => !enabled)}
+          >
+            {soundEnabled ? "Sound On" : "Sound Off"}
+          </button>
+        </div>
+      )}
       {phase === "complete" && (
         <div class="reading-actions">
           <a class="oracle-action" href="/" aria-label="Draw another omen">
@@ -347,21 +554,132 @@ export default function PlanchetteBoard({
     el.classList.toggle("active", active);
   }
 
+  function setKeyHaunted(key: string, active: boolean) {
+    const el = keyElementsRef.current.get(key);
+    if (!el) return;
+    el.classList.toggle("haunted", active);
+  }
+
+  function pulseWaitingLetter() {
+    const keys = RAW_COORDS.filter(({ key }) => key.length === 1);
+    const key = keys[Math.floor(Math.random() * keys.length)]?.key;
+    if (!key) return;
+    setKeyHaunted(key, true);
+    globalThis.setTimeout(
+      () => setKeyHaunted(key, false),
+      randomBetween(
+        420,
+        760,
+      ),
+    );
+  }
+
+  function pickHesitationTarget(targetKey: string, targetPoint: Vec2) {
+    if (targetKey === "GOODBYE") return null;
+    const candidates = Array.from(keyCentersRef.current.entries())
+      .filter(([key]) => key !== targetKey && key.length === 1)
+      .map(([key, point]) => ({
+        key,
+        point,
+        distance: Math.hypot(point.x - targetPoint.x, point.y - targetPoint.y),
+      }))
+      .filter(({ distance }) => distance > 42 && distance < 190);
+    if (!candidates.length) return null;
+    return candidates[Math.floor(Math.random() * candidates.length)];
+  }
+
   async function movePlanchetteWithSpring(
     el: HTMLElement,
     start: Vec2,
     end: Vec2,
     speed: number,
+    allowOvershoot = true,
+  ) {
+    const shouldOvershoot = allowOvershoot &&
+      Math.hypot(end.x - start.x, end.y - start.y) > 90 &&
+      Math.random() < hauntRef.current.overshootChance;
+
+    if (shouldOvershoot) {
+      const overshoot = overshootPoint(start, end);
+      await movePlanchetteArc(
+        el,
+        start,
+        overshoot,
+        speed * randomBetween(0.9, 1.04),
+        randomBetween(0.12, 0.19),
+      );
+      if (cancelledRef.current) return;
+      await delay(randomBetween(70, 150));
+      if (cancelledRef.current) return;
+      await movePlanchetteArc(
+        el,
+        overshoot,
+        end,
+        speed * randomBetween(0.52, 0.66),
+        randomBetween(0.02, 0.07),
+      );
+      return;
+    }
+
+    await movePlanchetteArc(
+      el,
+      start,
+      end,
+      speed,
+      randomBetween(0.09, 0.17),
+    );
+  }
+
+  async function movePlanchetteArc(
+    el: HTMLElement,
+    start: Vec2,
+    end: Vec2,
+    speed: number,
+    arcStrength: number,
   ) {
     const distance = Math.hypot(end.x - start.x, end.y - start.y);
-    const duration = Math.max(420, (distance / Math.max(speed, 1)) * 1000);
-    const control = controlForArc(start, end, 0.105);
+    const duration = Math.max(560, (distance / Math.max(speed, 1)) * 1000);
+    const control = controlForArc(start, end, arcStrength);
     await rafTween(duration, (t) => {
       if (cancelledRef.current) return;
-      const eased = easeInOutCubic(t);
+      const eased = easeInOutSine(t);
       const point = quadBezier(start, control, end, eased);
       setPlanchettePosition(el, point);
     });
+  }
+
+  function driftLanding(point: Vec2, radius: number): Vec2 {
+    const angle = Math.random() * Math.PI * 2;
+    const amount = Math.random() ** 0.72 * radius;
+    return constrainToBoard({
+      x: point.x + Math.cos(angle) * amount,
+      y: point.y + Math.sin(angle) * amount,
+    });
+  }
+
+  function overshootPoint(start: Vec2, end: Vec2): Vec2 {
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    const distance = Math.hypot(dx, dy);
+    if (distance < 1) return { ...end };
+    const stretch = randomBetween(18, 42);
+    const sideSlip = randomBetween(-16, 16);
+    const nx = dx / distance;
+    const ny = dy / distance;
+    return constrainToBoard({
+      x: end.x + nx * stretch - ny * sideSlip,
+      y: end.y + ny * stretch + nx * sideSlip,
+    });
+  }
+
+  function constrainToBoard(point: Vec2): Vec2 {
+    const board = boardSizeRef.current;
+    if (!board.x || !board.y) return point;
+    const padding = Math.max(14, planchetteSizeRef.current.y * 0.08);
+    return {
+      x: clamp(point.x, padding, board.x - padding),
+      y: clamp(point.y, padding, board.y - padding),
+    };
   }
 
   function setPlanchettePosition(el: HTMLElement, point: Vec2) {
@@ -463,6 +781,146 @@ export default function PlanchetteBoard({
       .matches ?? false;
   }
 
+  function startFilmGrain(canvas: HTMLCanvasElement, haunt: HauntProfile) {
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    let stopped = false;
+    let timer: number | undefined;
+
+    const resize = () => {
+      const width = Math.max(
+        180,
+        Math.min(520, Math.floor(globalThis.innerWidth / 2.2)),
+      );
+      const height = Math.max(
+        140,
+        Math.min(360, Math.floor(globalThis.innerHeight / 2.2)),
+      );
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+    };
+
+    const render = () => {
+      if (stopped) return;
+      resize();
+      drawFilmGrainFrame(ctx, canvas.width, canvas.height);
+      canvas.style.setProperty(
+        "--grain-jitter-x",
+        `${(Math.random() * 10 - 5).toFixed(2)}px`,
+      );
+      canvas.style.setProperty(
+        "--grain-jitter-y",
+        `${(Math.random() * 8 - 4).toFixed(2)}px`,
+      );
+      canvas.style.setProperty(
+        "--grain-opacity",
+        (haunt.grainOpacity + Math.random() * 0.07).toFixed(3),
+      );
+      canvas.style.setProperty(
+        "--grain-contrast",
+        (haunt.grainContrast + Math.random() * 0.18).toFixed(3),
+      );
+    };
+
+    const schedule = () => {
+      timer = globalThis.setTimeout(() => {
+        render();
+        if (!stopped) schedule();
+      }, FILM_GRAIN_MIN_FRAME_MS + Math.random() * FILM_GRAIN_FRAME_JITTER_MS);
+    };
+
+    render();
+    schedule();
+    globalThis.addEventListener("resize", resize);
+
+    return () => {
+      stopped = true;
+      if (timer !== undefined) globalThis.clearTimeout(timer);
+      globalThis.removeEventListener("resize", resize);
+    };
+  }
+
+  function drawFilmGrainFrame(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+  ) {
+    const image = ctx.createImageData(width, height);
+    const data = image.data;
+    const baseAlpha = 15 + Math.random() * 14;
+
+    for (let i = 0; i < data.length; i += 4) {
+      const value = Math.random() * 255;
+      const speck = Math.random() > 0.56 ? baseAlpha : baseAlpha * 0.42;
+      data[i] = value;
+      data[i + 1] = value;
+      data[i + 2] = value;
+      data[i + 3] = speck;
+    }
+
+    ctx.clearRect(0, 0, width, height);
+    ctx.putImageData(image, 0, 0);
+
+    ctx.save();
+    drawDust(ctx, width, height);
+    drawScratches(ctx, width, height);
+    drawGateFlicker(ctx, width, height);
+    ctx.restore();
+  }
+
+  function drawDust(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+  ) {
+    const count = 8 + Math.floor(Math.random() * 18);
+    for (let i = 0; i < count; i += 1) {
+      const x = Math.random() * width;
+      const y = Math.random() * height;
+      const radius = 0.4 + Math.random() * 1.7;
+      ctx.globalAlpha = 0.06 + Math.random() * 0.18;
+      ctx.fillStyle = Math.random() > 0.35 ? "#f8e6bd" : "#0b0710";
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function drawScratches(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+  ) {
+    if (Math.random() > 0.68) return;
+    const count = 1 + Math.floor(Math.random() * 4);
+    for (let i = 0; i < count; i += 1) {
+      const x = Math.random() * width;
+      const lean = Math.random() * 12 - 6;
+      ctx.globalAlpha = 0.05 + Math.random() * 0.15;
+      ctx.strokeStyle = Math.random() > 0.2 ? "#fff0c8" : "#1c1420";
+      ctx.lineWidth = 0.5 + Math.random() * 1.3;
+      ctx.beginPath();
+      ctx.moveTo(x, Math.random() * height * 0.12);
+      ctx.lineTo(x + lean, height - Math.random() * height * 0.18);
+      ctx.stroke();
+    }
+  }
+
+  function drawGateFlicker(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+  ) {
+    if (Math.random() > 0.48) return;
+    const y = Math.random() * height;
+    const bandHeight = 2 + Math.random() * 10;
+    ctx.globalAlpha = 0.035 + Math.random() * 0.055;
+    ctx.fillStyle = Math.random() > 0.5 ? "#fff1cc" : "#160f1d";
+    ctx.fillRect(0, y, width, bandHeight);
+  }
+
   function clamp(value: number, min: number, max: number) {
     return Math.min(max, Math.max(min, value));
   }
@@ -495,8 +953,8 @@ export default function PlanchetteBoard({
     return 0.5 - 0.5 * Math.cos(Math.PI * t);
   }
 
-  function easeInOutCubic(t: number) {
-    return t < 0.5 ? 4 * t ** 3 : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  function randomBetween(min: number, max: number) {
+    return min + Math.random() * (max - min);
   }
 
   async function rafTween(
@@ -550,6 +1008,13 @@ export default function PlanchetteBoard({
     }
   }
 
+  async function waitForBoardImage() {
+    for (let attempts = 0; attempts < 80; attempts += 1) {
+      if (cancelledRef.current || boardReadyRef.current) return;
+      await delay(50);
+    }
+  }
+
   function recomputeLayout() {
     const boardEl = boardRef.current;
     if (!boardEl) return;
@@ -590,29 +1055,92 @@ export default function PlanchetteBoard({
     if (playPromise) playPromise.catch(() => {});
   }
 
-  function softBlip() {
+  function getSpiritAudioContext() {
     try {
-      const ctx = (globalThis as typeof globalThis & {
+      const spiritGlobal = globalThis as typeof globalThis & {
         __spiritAudio?: AudioContext;
-      }).__spiritAudio ?? new AudioContext();
-      (globalThis as typeof globalThis & { __spiritAudio?: AudioContext })
-        .__spiritAudio = ctx;
+      };
+      const ctx = spiritGlobal.__spiritAudio ?? new AudioContext();
+      spiritGlobal.__spiritAudio = ctx;
       if (ctx.state === "suspended") {
         void ctx.resume().catch(() => {});
       }
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sine";
-      osc.frequency.value = 300 + Math.random() * 80;
-      gain.gain.value = 0.00001;
-      osc.connect(gain).connect(ctx.destination);
-      const now = ctx.currentTime;
-      gain.gain.linearRampToValueAtTime(0.018, now + 0.04);
-      gain.gain.linearRampToValueAtTime(0.00001, now + 0.16);
-      osc.start(now);
-      osc.stop(now + 0.22);
+      return ctx;
     } catch {
-      // no audio available
+      return null;
     }
+  }
+
+  function openingTone() {
+    if (!soundEnabled) return;
+    const ctx = getSpiritAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const shift = hauntRef.current.toneShift;
+    playTone(ctx, "sine", 88 * shift, 0.024, now, 0.08, 1.1);
+    playTone(ctx, "triangle", 132 * shift, 0.012, now + 0.18, 0.12, 0.95);
+  }
+
+  function softBlip() {
+    if (!soundEnabled) return;
+    const ctx = getSpiritAudioContext();
+    if (!ctx) return;
+    const shift = hauntRef.current.toneShift;
+    playTone(
+      ctx,
+      "sine",
+      (285 + Math.random() * 85) * shift,
+      0.017,
+      ctx.currentTime,
+      0.035,
+      0.2,
+    );
+  }
+
+  function softKnock() {
+    if (!soundEnabled) return;
+    const ctx = getSpiritAudioContext();
+    if (!ctx) return;
+    const shift = hauntRef.current.toneShift;
+    playTone(
+      ctx,
+      "triangle",
+      (62 + Math.random() * 28) * shift,
+      0.034,
+      ctx.currentTime,
+      0.01,
+      0.18,
+    );
+  }
+
+  function goodbyeTone() {
+    if (!soundEnabled) return;
+    const ctx = getSpiritAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const shift = hauntRef.current.toneShift;
+    playTone(ctx, "sine", 164 * shift, 0.014, now, 0.06, 0.8);
+    playTone(ctx, "sine", 109 * shift, 0.016, now + 0.12, 0.08, 1.2);
+  }
+
+  function playTone(
+    ctx: AudioContext,
+    type: OscillatorType,
+    frequency: number,
+    volume: number,
+    start: number,
+    attack: number,
+    duration: number,
+  ) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = frequency;
+    gain.gain.setValueAtTime(0.00001, start);
+    gain.gain.linearRampToValueAtTime(volume, start + attack);
+    gain.gain.exponentialRampToValueAtTime(0.00001, start + duration);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(start);
+    osc.stop(start + duration + 0.04);
   }
 }

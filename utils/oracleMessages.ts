@@ -83,13 +83,21 @@ const ORACLE_MESSAGES = [
 ];
 
 export function drawOracleMessage() {
-  // The deck is local by design; Web Crypto makes each page load a clean draw
-  // without pretending there is a hidden inbox or external spirit feed.
+  // The deck is local by design; random draws are only used outside the daily
+  // route seed, without pretending there is a hidden inbox or spirit feed.
   const buffer = new Uint32Array(1);
   crypto.getRandomValues(buffer);
-  return ORACLE_MESSAGES[buffer[0] % ORACLE_MESSAGES.length];
+  return getOracleMessageAt(buffer[0]);
+}
+
+export function getOracleMessageAt(index: number) {
+  return ORACLE_MESSAGES[normalizeIndex(index, ORACLE_MESSAGES.length)];
 }
 
 export function getOracleMessageCount() {
   return ORACLE_MESSAGES.length;
+}
+
+function normalizeIndex(index: number, length: number) {
+  return ((Math.trunc(index) % length) + length) % length;
 }

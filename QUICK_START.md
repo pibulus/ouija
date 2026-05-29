@@ -12,10 +12,11 @@ Open `http://localhost:8000`.
 
 1. Open the page.
 2. Wait for the summon button to enable after the board image loads.
-3. Toggle sound if needed.
-4. Tap **Summon**.
-5. Confirm the planchette eye lands on the letters.
-6. Tap **Ask Again** for a fresh message.
+3. Tap **Summon**.
+4. Confirm the planchette eye lands on the letters.
+5. Confirm the final action says **Ask Tomorrow**.
+6. Reload with the same browser cookie and confirm today's message stays the
+   same.
 
 ## Useful Commands
 

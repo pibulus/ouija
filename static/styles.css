@@ -456,11 +456,11 @@ button {
 }
 
 .film-grain {
-  position: fixed;
-  inset: -8vh -8vw;
-  z-index: calc(var(--z-ui) - 2);
-  width: 116vw;
-  height: 116dvh;
+  position: absolute;
+  inset: -3%;
+  z-index: calc(var(--z-board-frame) + 1);
+  width: 106%;
+  height: 106%;
   display: block;
   pointer-events: none;
   opacity: var(--grain-opacity, 0.24);
@@ -549,32 +549,6 @@ button {
     0 0 28px rgba(231, 191, 118, 0.16);
 }
 
-.sound-toggle {
-  min-width: 92px;
-  min-height: 44px;
-  padding: 0.25rem 0.65rem;
-  border: 1px solid rgba(255, 231, 181, 0.44);
-  border-radius: 4px;
-  background: rgba(16, 13, 20, 0.58);
-  color: rgba(244, 226, 196, 0.82);
-  font-size: 0.68rem;
-  font-weight: 650;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-}
-
-.sound-toggle[aria-pressed="false"] {
-  color: rgba(210, 192, 164, 0.7);
-  border-color: rgba(210, 192, 164, 0.28);
-}
-
-.sound-toggle:focus-visible {
-  outline: 3px solid rgba(255, 240, 210, 0.95);
-  outline-offset: 4px;
-}
-
 @media (max-width: 720px) {
   .board-wrap {
     width: min(170dvh, 250vw);
@@ -602,10 +576,6 @@ button {
   .summon-action {
     min-width: 144px;
     letter-spacing: 0.11em;
-  }
-
-  .sound-toggle {
-    font-size: 0.72rem;
   }
 }
 

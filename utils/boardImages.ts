@@ -4,11 +4,18 @@ const BOARD_IMAGE_PATTERN = /^ghostboard[a-z0-9-]*\.(?:png|jpe?g|webp)$/i;
 
 export function drawBoardImageSrc() {
   const images = listBoardImageSources();
-  if (!images.length) return FALLBACK_BOARD_IMAGE;
 
   const buffer = new Uint32Array(1);
   crypto.getRandomValues(buffer);
-  return images[buffer[0] % images.length];
+  return getBoardImageSourceAt(buffer[0], images);
+}
+
+export function getBoardImageSourceAt(
+  index: number,
+  images = listBoardImageSources(),
+) {
+  if (!images.length) return FALLBACK_BOARD_IMAGE;
+  return images[normalizeIndex(index, images.length)];
 }
 
 export function listBoardImageSources() {
@@ -28,4 +35,8 @@ export function listBoardImageSources() {
     );
     return [FALLBACK_BOARD_IMAGE];
   }
+}
+
+function normalizeIndex(index: number, length: number) {
+  return ((Math.trunc(index) % length) + length) % length;
 }

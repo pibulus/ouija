@@ -1,17 +1,17 @@
 # Ghost Note Agent Brief
 
 Ghost Note is a Deno Fresh single-page web ritual. Keep it small, physical, and
-oracle-shaped: one server-drawn message, one randomly selected board image, one
-summon gesture, one final omen.
+oracle-shaped: one server-drawn daily message, one board image, one summon
+gesture, one final omen.
 
 ## Current Behavior
 
-- The home route draws an oracle message and board image server-side.
+- The home route draws one oracle message and board image per anonymous
+  browser/device each UTC day.
 - The board renders in a summon state until the selected board image decodes.
 - The planchette only starts after the user clicks **Summon**.
-- Sound starts only from that summon gesture and only when **Sound On** is
-  selected.
-- The final omen and **Ask Again** action appear after spelling finishes.
+- Sound starts only from that summon gesture.
+- The final omen and **Ask Tomorrow** action appear after spelling finishes.
 - Random board images are loaded from `static/ghostboard*.png`, `.jpg`, or
   `.webp`; suffixes may use lowercase letters, digits, or hyphens.
 
@@ -32,6 +32,8 @@ summon gesture, one final omen.
   the product direction explicitly changes.
 - Keep the message source obvious and local unless a new public signal is
   deliberately introduced.
+- Keep the daily lock anonymous and device-scoped unless the product direction
+  explicitly adds identity.
 - Preserve the user gesture before audio starts.
 - When changing CSP, verify island hydration in a browser, not just with
   `deno task check`.

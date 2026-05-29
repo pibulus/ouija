@@ -159,7 +159,6 @@ export default function PlanchetteBoard({
     "summoning",
   );
   const [boardReady, setBoardReady] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
 
   useEffect(() => {
     const boardEl = boardRef.current;
@@ -262,10 +261,8 @@ export default function PlanchetteBoard({
       return;
     }
     cancelledRef.current = false;
-    if (soundEnabled) {
-      cueBackgroundAudio();
-      openingTone();
-    }
+    cueBackgroundAudio();
+    openingTone();
     beginReading();
   }
 
@@ -470,6 +467,11 @@ export default function PlanchetteBoard({
               draggable={false}
             />
           </div>
+          <canvas
+            ref={filmCanvasRef}
+            class="film-grain"
+            aria-hidden="true"
+          />
         </div>
       </div>
       <audio
@@ -479,11 +481,6 @@ export default function PlanchetteBoard({
         loop
         playsInline
         class="ambient-player"
-      />
-      <canvas
-        ref={filmCanvasRef}
-        class="film-grain"
-        aria-hidden="true"
       />
       <p
         class={`oracle-result ${phase === "complete" ? "is-complete" : ""}`}
@@ -510,26 +507,20 @@ export default function PlanchetteBoard({
             type="button"
             disabled={!boardReady}
             onClick={handleSummon}
-            aria-label={soundEnabled
-              ? "Summon the board with sound"
-              : "Summon the board silently"}
+            aria-label="Summon the board"
           >
             Summon
-          </button>
-          <button
-            class="sound-toggle"
-            type="button"
-            aria-pressed={soundEnabled}
-            onClick={() => setSoundEnabled((enabled) => !enabled)}
-          >
-            {soundEnabled ? "Sound On" : "Sound Off"}
           </button>
         </div>
       )}
       {phase === "complete" && (
         <div class="reading-actions">
-          <a class="oracle-action" href="/" aria-label="Draw another omen">
-            Ask Again
+          <a
+            class="oracle-action"
+            href="/"
+            aria-label="Return for another omen tomorrow"
+          >
+            Ask Tomorrow
           </a>
         </div>
       )}
@@ -1072,7 +1063,6 @@ export default function PlanchetteBoard({
   }
 
   function openingTone() {
-    if (!soundEnabled) return;
     const ctx = getSpiritAudioContext();
     if (!ctx) return;
     const now = ctx.currentTime;
@@ -1082,7 +1072,6 @@ export default function PlanchetteBoard({
   }
 
   function softBlip() {
-    if (!soundEnabled) return;
     const ctx = getSpiritAudioContext();
     if (!ctx) return;
     const shift = hauntRef.current.toneShift;
@@ -1098,7 +1087,6 @@ export default function PlanchetteBoard({
   }
 
   function softKnock() {
-    if (!soundEnabled) return;
     const ctx = getSpiritAudioContext();
     if (!ctx) return;
     const shift = hauntRef.current.toneShift;
@@ -1114,7 +1102,6 @@ export default function PlanchetteBoard({
   }
 
   function goodbyeTone() {
-    if (!soundEnabled) return;
     const ctx = getSpiritAudioContext();
     if (!ctx) return;
     const now = ctx.currentTime;

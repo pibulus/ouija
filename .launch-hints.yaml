@@ -14,11 +14,11 @@ differentiators:
   - One-message ritual with no chat, account, input, or queue.
   - The reading waits for one deliberate summon gesture, then stays out of the way.
   - Full-screen board artwork with real coordinate-based planchette movement.
-  - Crypto-random local oracle deck keeps the mechanism simple and explicit.
-  - Ambient audio and soft generated tones wake only after summon, with a quiet path.
+  - Anonymous daily device seed keeps the local oracle deck simple and explicit.
+  - Ambient audio and soft generated tones wake only after summon.
 proof_points:
-  - Server draws a fresh oracle message on each page load.
-  - Server randomizes the board artwork from the static image pool on each page load.
+  - Server draws one oracle message per anonymous browser/device each UTC day.
+  - Server chooses one board artwork from the static image pool for that daily reading.
   - Planchette spells each message across real board coordinates.
   - Mobile-first full-screen board with one summon action and one follow-up action.
   - The final omen appears only after the board movement completes.

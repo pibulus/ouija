@@ -25,51 +25,51 @@ type Props = {
 };
 
 const RAW_COORDS: RawCoord[] = [
-  { key: "YES", x: 0.192, y: 0.158 },
-  { key: "NO", x: 0.771, y: 0.158 },
-  { key: "A", x: 0.144, y: 0.422 },
-  { key: "B", x: 0.204, y: 0.373 },
-  { key: "C", x: 0.255, y: 0.344 },
-  { key: "D", x: 0.316, y: 0.323 },
-  { key: "E", x: 0.372, y: 0.305 },
-  { key: "F", x: 0.425, y: 0.289 },
-  { key: "G", x: 0.487, y: 0.296 },
-  { key: "H", x: 0.558, y: 0.299 },
-  { key: "I", x: 0.613, y: 0.312 },
-  { key: "J", x: 0.656, y: 0.33 },
-  { key: "K", x: 0.711, y: 0.349 },
-  { key: "L", x: 0.768, y: 0.383 },
-  { key: "M", x: 0.837, y: 0.421 },
-  { key: "N", x: 0.153, y: 0.573 },
-  { key: "O", x: 0.203, y: 0.53 },
-  { key: "P", x: 0.25, y: 0.489 },
-  { key: "Q", x: 0.308, y: 0.471 },
-  { key: "R", x: 0.362, y: 0.445 },
-  { key: "S", x: 0.421, y: 0.434 },
-  { key: "T", x: 0.473, y: 0.418 },
-  { key: "U", x: 0.53, y: 0.432 },
-  { key: "V", x: 0.591, y: 0.44 },
-  { key: "W", x: 0.66, y: 0.472 },
-  { key: "X", x: 0.724, y: 0.516 },
-  { key: "Y", x: 0.78, y: 0.55 },
-  { key: "Z", x: 0.83, y: 0.603 },
-  { key: "1", x: 0.249, y: 0.645 },
-  { key: "2", x: 0.296, y: 0.643 },
-  { key: "3", x: 0.357, y: 0.642 },
-  { key: "4", x: 0.418, y: 0.642 },
-  { key: "5", x: 0.477, y: 0.64 },
-  { key: "6", x: 0.536, y: 0.643 },
-  { key: "7", x: 0.594, y: 0.633 },
-  { key: "8", x: 0.648, y: 0.643 },
-  { key: "9", x: 0.709, y: 0.642 },
-  { key: "0", x: 0.754, y: 0.642 },
-  { key: "GOODBYE", x: 0.502, y: 0.775 },
+  { key: "YES", x: 0.2022, y: 0.1557 },
+  { key: "NO", x: 0.7647, y: 0.1568 },
+  { key: "A", x: 0.1435, y: 0.4171 },
+  { key: "B", x: 0.2020, y: 0.3717 },
+  { key: "C", x: 0.2485, y: 0.3344 },
+  { key: "D", x: 0.3151, y: 0.3065 },
+  { key: "E", x: 0.3675, y: 0.2882 },
+  { key: "F", x: 0.4239, y: 0.2791 },
+  { key: "G", x: 0.4806, y: 0.2892 },
+  { key: "H", x: 0.5553, y: 0.2935 },
+  { key: "I", x: 0.6138, y: 0.3069 },
+  { key: "J", x: 0.6590, y: 0.3340 },
+  { key: "K", x: 0.7091, y: 0.3561 },
+  { key: "L", x: 0.7643, y: 0.3938 },
+  { key: "M", x: 0.8345, y: 0.4270 },
+  { key: "N", x: 0.1473, y: 0.5606 },
+  { key: "O", x: 0.1990, y: 0.5099 },
+  { key: "P", x: 0.2515, y: 0.4747 },
+  { key: "Q", x: 0.3009, y: 0.4484 },
+  { key: "R", x: 0.3539, y: 0.4300 },
+  { key: "S", x: 0.4074, y: 0.4145 },
+  { key: "T", x: 0.4542, y: 0.4151 },
+  { key: "U", x: 0.5122, y: 0.4156 },
+  { key: "V", x: 0.5696, y: 0.4377 },
+  { key: "W", x: 0.6335, y: 0.4638 },
+  { key: "X", x: 0.6797, y: 0.5001 },
+  { key: "Y", x: 0.7344, y: 0.5463 },
+  { key: "Z", x: 0.8017, y: 0.5924 },
+  { key: "1", x: 0.2486, y: 0.6322 },
+  { key: "2", x: 0.3011, y: 0.6315 },
+  { key: "3", x: 0.3612, y: 0.6316 },
+  { key: "4", x: 0.4201, y: 0.6350 },
+  { key: "5", x: 0.4764, y: 0.6308 },
+  { key: "6", x: 0.5350, y: 0.6343 },
+  { key: "7", x: 0.5921, y: 0.6264 },
+  { key: "8", x: 0.6468, y: 0.6325 },
+  { key: "9", x: 0.7047, y: 0.6323 },
+  { key: "0", x: 0.7580, y: 0.6323 },
+  { key: "GOODBYE", x: 0.4935, y: 0.7642 },
 ];
 
 const PLANCHETTE_SIZE = 168;
 const PLANCHETTE_EYE_ANCHOR = { x: 0.5, y: 0.37 };
-const LANDING_DRIFT_PX = 16;
-const GOODBYE_DRIFT_PX = 10;
+const LANDING_DRIFT_PX = 2;
+const GOODBYE_DRIFT_PX = 2;
 const FILM_GRAIN_MIN_FRAME_MS = 72;
 const FILM_GRAIN_FRAME_JITTER_MS = 96;
 const HAUNT_PROFILES: HauntProfile[] = [
@@ -193,15 +193,24 @@ export default function PlanchetteBoard({
       setBoardReady(true);
     };
 
-    if (img.complete) {
+    if (img.complete && img.naturalWidth > 0) {
       void markReady();
     } else {
       img.addEventListener("load", markReady, { once: true });
       img.addEventListener("error", markReady, { once: true });
     }
 
+    // Failsafe timer so user is never trapped in waking state
+    const failsafe = globalThis.setTimeout(() => {
+      if (cancelled) return;
+      recomputeLayout();
+      boardReadyRef.current = true;
+      setBoardReady(true);
+    }, 1200);
+
     return () => {
       cancelled = true;
+      globalThis.clearTimeout(failsafe);
       img.removeEventListener("load", markReady);
       img.removeEventListener("error", markReady);
     };
@@ -237,7 +246,7 @@ export default function PlanchetteBoard({
   useEffect(() => {
     if (phase !== "summoning" || shouldReduceMotion()) return;
     let stopped = false;
-    let timer: number | undefined;
+    let timer: ReturnType<typeof setTimeout> | undefined;
 
     const schedule = () => {
       timer = globalThis.setTimeout(() => {
@@ -257,12 +266,23 @@ export default function PlanchetteBoard({
   }, [phase]);
 
   function handleSummon() {
-    if (runningRef.current || phase !== "summoning" || !boardReadyRef.current) {
+    if (runningRef.current || phase !== "summoning") {
       return;
     }
+    boardReadyRef.current = true;
+    setBoardReady(true);
+    recomputeLayout();
     cancelledRef.current = false;
-    cueBackgroundAudio();
-    openingTone();
+    try {
+      cueBackgroundAudio();
+    } catch {
+      // Audio autoplay policy fails gracefully
+    }
+    try {
+      openingTone();
+    } catch {
+      // Web Audio fails gracefully
+    }
     beginReading();
   }
 
@@ -776,7 +796,7 @@ export default function PlanchetteBoard({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     let stopped = false;
-    let timer: number | undefined;
+    let timer: ReturnType<typeof setTimeout> | undefined;
 
     const resize = () => {
       const width = Math.max(
@@ -1000,10 +1020,11 @@ export default function PlanchetteBoard({
   }
 
   async function waitForBoardImage() {
-    for (let attempts = 0; attempts < 80; attempts += 1) {
+    for (let attempts = 0; attempts < 40; attempts += 1) {
       if (cancelledRef.current || boardReadyRef.current) return;
       await delay(50);
     }
+    boardReadyRef.current = true;
   }
 
   function recomputeLayout() {
@@ -1039,11 +1060,15 @@ export default function PlanchetteBoard({
   }
 
   function cueBackgroundAudio() {
-    const audio = backgroundAudioRef.current;
-    if (!audio) return;
-    audio.volume = 0.28;
-    const playPromise = audio.play();
-    if (playPromise) playPromise.catch(() => {});
+    try {
+      const audio = backgroundAudioRef.current;
+      if (!audio) return;
+      audio.volume = 0.28;
+      const playPromise = audio.play();
+      if (playPromise) playPromise.catch(() => {});
+    } catch {
+      // Ignore background audio failures
+    }
   }
 
   function getSpiritAudioContext() {
@@ -1063,51 +1088,67 @@ export default function PlanchetteBoard({
   }
 
   function openingTone() {
-    const ctx = getSpiritAudioContext();
-    if (!ctx) return;
-    const now = ctx.currentTime;
-    const shift = hauntRef.current.toneShift;
-    playTone(ctx, "sine", 88 * shift, 0.024, now, 0.08, 1.1);
-    playTone(ctx, "triangle", 132 * shift, 0.012, now + 0.18, 0.12, 0.95);
+    try {
+      const ctx = getSpiritAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const shift = hauntRef.current.toneShift;
+      playTone(ctx, "sine", 88 * shift, 0.024, now, 0.08, 1.1);
+      playTone(ctx, "triangle", 132 * shift, 0.012, now + 0.18, 0.12, 0.95);
+    } catch {
+      // Ignore audio error
+    }
   }
 
   function softBlip() {
-    const ctx = getSpiritAudioContext();
-    if (!ctx) return;
-    const shift = hauntRef.current.toneShift;
-    playTone(
-      ctx,
-      "sine",
-      (285 + Math.random() * 85) * shift,
-      0.017,
-      ctx.currentTime,
-      0.035,
-      0.2,
-    );
+    try {
+      const ctx = getSpiritAudioContext();
+      if (!ctx) return;
+      const shift = hauntRef.current.toneShift;
+      playTone(
+        ctx,
+        "sine",
+        (285 + Math.random() * 85) * shift,
+        0.017,
+        ctx.currentTime,
+        0.035,
+        0.2,
+      );
+    } catch {
+      // Ignore audio error
+    }
   }
 
   function softKnock() {
-    const ctx = getSpiritAudioContext();
-    if (!ctx) return;
-    const shift = hauntRef.current.toneShift;
-    playTone(
-      ctx,
-      "triangle",
-      (62 + Math.random() * 28) * shift,
-      0.034,
-      ctx.currentTime,
-      0.01,
-      0.18,
-    );
+    try {
+      const ctx = getSpiritAudioContext();
+      if (!ctx) return;
+      const shift = hauntRef.current.toneShift;
+      playTone(
+        ctx,
+        "triangle",
+        (62 + Math.random() * 28) * shift,
+        0.034,
+        ctx.currentTime,
+        0.01,
+        0.18,
+      );
+    } catch {
+      // Ignore audio error
+    }
   }
 
   function goodbyeTone() {
-    const ctx = getSpiritAudioContext();
-    if (!ctx) return;
-    const now = ctx.currentTime;
-    const shift = hauntRef.current.toneShift;
-    playTone(ctx, "sine", 164 * shift, 0.014, now, 0.06, 0.8);
-    playTone(ctx, "sine", 109 * shift, 0.016, now + 0.12, 0.08, 1.2);
+    try {
+      const ctx = getSpiritAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const shift = hauntRef.current.toneShift;
+      playTone(ctx, "sine", 164 * shift, 0.014, now, 0.06, 0.8);
+      playTone(ctx, "sine", 109 * shift, 0.016, now + 0.12, 0.08, 1.2);
+    } catch {
+      // Ignore audio error
+    }
   }
 
   function playTone(
@@ -1119,15 +1160,19 @@ export default function PlanchetteBoard({
     attack: number,
     duration: number,
   ) {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = type;
-    osc.frequency.value = frequency;
-    gain.gain.setValueAtTime(0.00001, start);
-    gain.gain.linearRampToValueAtTime(volume, start + attack);
-    gain.gain.exponentialRampToValueAtTime(0.00001, start + duration);
-    osc.connect(gain).connect(ctx.destination);
-    osc.start(start);
-    osc.stop(start + duration + 0.04);
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.value = frequency;
+      gain.gain.setValueAtTime(0.00001, start);
+      gain.gain.linearRampToValueAtTime(volume, start + attack);
+      gain.gain.exponentialRampToValueAtTime(0.00001, start + duration);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + duration + 0.04);
+    } catch {
+      // Audio node scheduling safe fallback
+    }
   }
 }
